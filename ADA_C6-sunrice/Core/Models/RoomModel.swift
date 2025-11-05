@@ -12,26 +12,60 @@ import Foundation
 final class RoomModel: Identifiable {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String?
+    var state: RoomState
     
-    @Relationship var preset: PresetModel?
-    @Relationship(inverse: \UserModel.id) var createdBy: UserModel?
-    var state: SessionState
+    @Relationship var createdBy: UserModel?
     var createdAt: Date
-    var updatedAt: Date?
     
-    public init(id: UUID = UUID(), name: String?, preset: PresetModel?, createdBy: UserModel?) {
+    @Attribute(.unique) public var code: String {
+        didSet { code = code.uppercased() }
+    }
+    
+    public var updatedAt: Date
+    
+    @Relationship(inverse: \RoomParticipantModel.room) public var participants: [RoomParticipantModel] = []
+    
+    public init(
+        id: UUID = UUID(),
+        name: String?,
+        state: RoomState = .lobby,
+        createdBy: UserModel? = nil,
+        createdAt: Date = .now,
+        code: String,
+        updatedAt: Date = .now
+    ) {
         self.id = id
-        if let name {
-            self.name = name
-        }
-        if let preset {
-            self.preset = preset
-        }
-        if let createdBy {
-            self.createdBy = createdBy
-        }
+        self.name = name
         self.state = .lobby
-        self.createdAt = Date()
-        self.updatedAt = Date()
+        self.createdBy = createdBy
+        self.createdAt = createdAt
+        self.code = code.uppercased()
+        self.updatedAt = updatedAt
+    }
+}
+
+struct RoomDTO: Codable, Sendable {
+    var id: UUID
+    var name: String?
+    var state: String
+    var code: String
+    var created_by: UUID?
+    var created_at: Date
+    var updated_at: Date
+}
+
+private extension RoomDTO {
+    func toModel(in context: ModelContext, createdBy: UserModel? = nil) -> RoomModel {
+        let model = RoomModel(
+            id: id,
+            name: name,
+            state: RoomState(rawValue: state) ?? .lobby,
+            createdBy: createdBy,
+            createdAt: created_at,
+            code: code,
+            updatedAt: updated_at
+        )
+        context.insert(model)
+        return model
     }
 }

@@ -10,10 +10,12 @@ import Foundation
 
 @Model
 final class RoomParticipantModel: Identifiable {
-    @Attribute(.unique) var id: UUID
-    @Relationship(inverse: \RoomModel.id) var room: RoomModel
-    @Relationship(inverse: \UserModel.id) var user: UserModel
-    var role: ParticipantRole
+    @Relationship public var room: RoomModel
+    @Relationship public var user: UserModel
+    public var role: ParticipantRole
+    
+    @Attribute(.unique) public var uniqueKey: String
+    
     
     public init(
         id: UUID = UUID(),
@@ -21,9 +23,17 @@ final class RoomParticipantModel: Identifiable {
         user: UserModel,
         role: ParticipantRole
     ) {
-        self.id = id
         self.room = room
         self.user = user
         self.role = role
+        self.uniqueKey = Self.composeUniqueKey(roomID: room.id, userID: user.id)
+    }
+    
+    public func refreshUniqueKey() {
+        uniqueKey = Self.composeUniqueKey(roomID: room.id, userID: user.id)
+    }
+    
+    private static func composeUniqueKey(roomID: UUID, userID: UUID) -> String {
+        roomID.uuidString + ":" + userID.uuidString
     }
 }

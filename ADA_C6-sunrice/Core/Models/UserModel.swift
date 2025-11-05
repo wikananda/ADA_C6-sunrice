@@ -12,9 +12,17 @@ import Foundation
 final class UserModel: Identifiable {
     @Attribute(.unique) var id: UUID
     var username: String
+    var createdAt: Date
+    var status: UserStatus
     
-    public init(id: UUID = UUID(), username: String) {
+    @Relationship(inverse: \RoomModel.createdBy) public var createdRooms: [RoomModel] = []
+    @Relationship(inverse: \RoomParticipantModel.user) public var participantOf: [RoomParticipantModel] = []
+    
+    
+    public init(id: UUID = UUID(), username: String, createdAt: Date = .now, status: UserStatus = .guest) {
         self.id = id
         self.username = username
+        self.createdAt = createdAt
+        self.status = status
     }
 }

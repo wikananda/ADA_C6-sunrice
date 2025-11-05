@@ -6,13 +6,17 @@
 //
 
 enum CommentType: String, Codable, CaseIterable, Sendable {
-    case red, yellow, black
+    case red = "red", yellow = "yellow", black = "black"
 }
 
 enum ParticipantRole: String, Codable, CaseIterable, Sendable {
-    case host, participant
+    case host = "host", participant = "participant"
 }
 
-enum SessionState: String, Codable, CaseIterable, Sendable {
-    case lobby, green, yellow, red, white, black, end
+enum RoomState: String, Codable, CaseIterable, Sendable {
+    case lobby = "lobby", green = "green", yellow = "yellow", red = "red", white = "white", black = "black", end = "end"
+}
+
+enum UserStatus: String, Codable, CaseIterable, Sendable {
+    case guest = "guest", logged = "logged"
 }
