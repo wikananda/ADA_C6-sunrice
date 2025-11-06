@@ -31,8 +31,8 @@ struct HomeView: View {
                     EntryRoomView(mode: .create).environmentObject(navVM)
                 case .join:
                     EntryRoomView(mode: .join).environmentObject(navVM)
-                case .room(id: let id):
-                    RoomLobbyView(id: id)
+                case .room(id: let id, name: let name):
+                    RoomLobbyView(id: id, name: name)
                 }
             }
         }

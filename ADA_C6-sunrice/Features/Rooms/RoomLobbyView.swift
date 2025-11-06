@@ -9,9 +9,12 @@ import SwiftUI
 
 struct RoomLobbyView: View {
     var id: String = ""
+    var name: String?
     var body: some View {
         VStack {
-            Text("roomName")
+            Text((name?.isEmpty == false ? name : nil) ?? "Room Lobby")
+                .font(.title2)
+                .bold()
             ScrollView(.horizontal) {
                 LazyHStack (spacing: 28) {
                     ParticipantCircle()

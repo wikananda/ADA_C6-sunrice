@@ -19,7 +19,7 @@ class NavigationViewModel: ObservableObject {
         path.append(Route.join)
     }
     
-    func goToRoomLobby(id: String) {
-        path.append(Route.room(id: id))
+    func goToRoomLobby(id: String, name: String? = nil) {
+        path.append(Route.room(id: id, name: name))
     }
 }

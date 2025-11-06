@@ -7,5 +7,5 @@
 
 enum Route: Hashable {
     case create, join
-    case room(id: String)
+    case room(id: String, name: String?)
 }

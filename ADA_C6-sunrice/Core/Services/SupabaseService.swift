@@ -8,4 +8,4 @@
 import Supabase
 import Foundation
 
-let client = SupabaseClient(supabaseURL: URL(string: "https://whghhtqtgqgxsqoejbsd.supabase.co")!, supabaseKey: "sb_publishable_ucXVh30ZCqU4QVedXgK_Kg_6nFjySek")
+let dbClient = SupabaseClient(supabaseURL: URL(string: "https://whghhtqtgqgxsqoejbsd.supabase.co")!, supabaseKey: "sb_publishable_ucXVh30ZCqU4QVedXgK_Kg_6nFjySek")
