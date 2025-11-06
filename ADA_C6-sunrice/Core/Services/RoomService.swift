@@ -22,4 +22,16 @@ struct RoomService {
             .execute()
         return response.value
     }
+    
+    func joinRoom(code: String, userId: UUID) async throws -> RoomDTO {
+        let params: [String: String] = [
+            "p_code": code,
+            "_userid": userId.uuidString
+        ]
+        
+        let response: PostgrestResponse<RoomDTO> = try await client
+            .rpc("join_room_by_code", params: params)
+            .execute()
+        return response.value
+    }
 }

@@ -29,7 +29,11 @@ struct EntryRoomView: View {
                         onStart: { Task { await vm.createRoom(username: username, roomName: roomName) } }
                     )
                 case .join:
-                    JoinRoomView(username: $username, code: $code, onJoin: { navVM.goToRoomLobby(id: "", name: nil) })
+                JoinRoomView(
+                    username: $username,
+                    code: $code,
+                    isLoading: vm.isLoading,
+                    onJoin: { Task { await vm.joinRoom(code: code, username: username) } })
             }
             if let message = vm.errorMessage {
                 Text(message)
@@ -38,9 +42,9 @@ struct EntryRoomView: View {
             }
         }
         .padding(48)
-        .onChange(of: vm.createdRoomID) { id in
-            guard let id else { return }
-            navVM.goToRoomLobby(id: id, name: vm.createdRoom?.name)
+        .onChange(of: vm.roomID) { oldValue, newValue in
+            guard let id = newValue else { return }
+            navVM.goToRoomLobby(id: id, name: vm.room?.name)
         }
     }
 }
@@ -70,6 +74,7 @@ struct CreateRoomView: View {
 struct JoinRoomView: View {
     @Binding var username: String
     @Binding var code: String
+    var isLoading: Bool = false
     var onJoin: () -> Void = {}
     var body: some View {
         Image(systemName: "photo")
@@ -81,10 +86,11 @@ struct JoinRoomView: View {
         TextField("Enter room code", text: $code)
             .keyboardType(.numberPad)
         Button(action: onJoin) {
-            Text("Join")
+            Text(isLoading ? "Joining..." : "Join")
                 .frame(maxWidth: .infinity)
         }
-        .primaryButton()
+        .primaryButton(color: isLoading ? Color.gray : Color.blue)
+        .disabled(isLoading)
     }
 }
 
