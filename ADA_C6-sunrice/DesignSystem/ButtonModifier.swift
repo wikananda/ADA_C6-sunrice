@@ -8,6 +8,7 @@
 import SwiftUI
 
 private struct PrimaryButtonModifier: ViewModifier {
+    var color: Color = .blue
     func body(content: Content) -> some View {
         content
             .contentShape(Capsule())
@@ -15,19 +16,20 @@ private struct PrimaryButtonModifier: ViewModifier {
             .bold(true)
             .padding()
             .foregroundColor(.white)
-            .background(Color.blue)
+            .background(color)
             .clipShape(Capsule())
     }
 }
 
 private struct SecondaryButtonModifier: ViewModifier {
+    var color: Color = .white
     func body(content: Content) -> some View {
         content
             .contentShape(Capsule())
             .frame(maxWidth: .infinity)
             .padding()
             .foregroundColor(Color.blue)
-            .background(Color.white)
+            .background(color)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
@@ -37,11 +39,11 @@ private struct SecondaryButtonModifier: ViewModifier {
 }
 
 extension View {
-    func primaryButton() -> some View {
-        modifier(PrimaryButtonModifier())
+    func primaryButton(color: Color = .blue) -> some View {
+        modifier(PrimaryButtonModifier(color: color))
     }
     
-    func secondaryButton() -> some View {
-        modifier(SecondaryButtonModifier())
+    func secondaryButton(color: Color = .white) -> some View {
+        modifier(SecondaryButtonModifier(color: color))
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A8171C42EB877140097266A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0A8171C32EB877140097266A /* Supabase */; };
 		0A884CD92EB137D70053395D /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CD82EB137D70053395D /* Auth */; };
 		0A884CDB2EB137D70053395D /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CDA2EB137D70053395D /* Functions */; };
 		0A884CDD2EB137D70053395D /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CDC2EB137D70053395D /* PostgREST */; };
@@ -62,6 +63,7 @@
 			files = (
 				0A884CDD2EB137D70053395D /* PostgREST in Frameworks */,
 				0A884CDB2EB137D70053395D /* Functions in Frameworks */,
+				0A8171C42EB877140097266A /* Supabase in Frameworks */,
 				0A884CD92EB137D70053395D /* Auth in Frameworks */,
 				0A884CE12EB137D70053395D /* Storage in Frameworks */,
 				0A884CDF2EB137D70053395D /* Realtime in Frameworks */,
@@ -85,12 +87,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A8171C22EB877140097266A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0A8E0F442EAF48CF00103638 = {
 			isa = PBXGroup;
 			children = (
 				0A8E0F4F2EAF48CF00103638 /* ADA_C6-sunrice */,
 				0A8E0F5D2EAF48D000103638 /* ADA_C6-sunriceTests */,
 				0A8E0F672EAF48D000103638 /* ADA_C6-sunriceUITests */,
+				0A8171C22EB877140097266A /* Frameworks */,
 				0A8E0F4E2EAF48CF00103638 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,6 +140,7 @@
 				0A884CDC2EB137D70053395D /* PostgREST */,
 				0A884CDE2EB137D70053395D /* Realtime */,
 				0A884CE02EB137D70053395D /* Storage */,
+				0A8171C32EB877140097266A /* Supabase */,
 			);
 			productName = "ADA_C6-sunrice";
 			productReference = 0A8E0F4D2EAF48CF00103638 /* ADA_C6-sunrice.app */;
@@ -612,6 +623,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0A8171C32EB877140097266A /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A884CD72EB137D70053395D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		0A884CD82EB137D70053395D /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0A884CD72EB137D70053395D /* XCRemoteSwiftPackageReference "supabase-swift" */;
