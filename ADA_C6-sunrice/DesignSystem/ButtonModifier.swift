@@ -38,6 +38,32 @@ private struct SecondaryButtonModifier: ViewModifier {
     }
 }
 
+struct PrimaryButtonActive: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, 48)
+            .padding(.vertical, 24)
+            .frame(width: 360, height: 64, alignment: .center)
+            .background(Color(red: 0.05, green: 0.1, blue: 0.23))
+            .foregroundColor(.white)
+            .cornerRadius(99)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+    }
+}
+
+struct PrimaryButtonDisabled: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, 48)
+            .padding(.vertical, 24)
+            .frame(width: 360, height: 64, alignment: .center)
+            .background(Color(red: 0.83, green: 0.83, blue: 0.85))
+            .foregroundColor(.white)
+            .cornerRadius(99)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+    }
+}
+
 extension View {
     func primaryButton(color: Color = .blue) -> some View {
         modifier(PrimaryButtonModifier(color: color))
