@@ -39,7 +39,7 @@ struct TestUserListView: View {
     func fetchUsers() async {
         isLoading = true
             do {
-                let response = try await dbClient
+                let response = try await supabaseManager
                     .from("users")
                     .select()
                     .execute()
