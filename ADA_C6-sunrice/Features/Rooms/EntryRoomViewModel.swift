@@ -9,8 +9,8 @@ import Combine
 
 @MainActor
 final class EntryRoomViewModel: ObservableObject {
-    private let userService: UserService = UserService(client: dbClient)
-    private let roomService: RoomService = RoomService(client: dbClient)
+    private let userService: UserService = UserService(client: supabaseManager)
+    private let roomService: RoomService = RoomService(client: supabaseManager)
     
     @Published var isLoading = false
     @Published var errorMessage: String?

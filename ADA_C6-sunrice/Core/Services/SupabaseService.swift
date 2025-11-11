@@ -8,4 +8,12 @@
 import Supabase
 import Foundation
 
-let dbClient = SupabaseClient(supabaseURL: URL(string: "https://whghhtqtgqgxsqoejbsd.supabase.co")!, supabaseKey: "sb_publishable_ucXVh30ZCqU4QVedXgK_Kg_6nFjySek")
+let supabaseManager = SupabaseClient(supabaseURL: URL(string: "https://whghhtqtgqgxsqoejbsd.supabase.co")!, supabaseKey: "sb_publishable_ucXVh30ZCqU4QVedXgK_Kg_6nFjySek")
+
+func insertIdea(_ idea: Idea) async throws {
+    try await supabaseManager
+        .from("ideas")
+        .insert(idea)
+        .execute()
+    print("Selena sends idea: ", idea)
+}
