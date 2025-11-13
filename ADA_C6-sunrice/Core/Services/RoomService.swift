@@ -8,7 +8,7 @@ import Foundation
 import Supabase
 import PostgREST
 
-struct RoomService {
+struct RoomService: RoomServicing {
     let client: SupabaseClient
     
     func createRoom(name: String = "Your room", hostId: UUID) async throws -> RoomDTO {

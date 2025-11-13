@@ -13,27 +13,26 @@ struct EntryRoomView: View {
     @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = EntryRoomViewModel()
     
-    @State var mode: EntryMode = .create
-    @State private var username: String = ""
-    @State private var roomName: String = ""
-    @State private var code: String = ""
+    @State var mode: EntryMode = .join
     
     var body: some View {
         VStack(spacing: 28) {
             switch mode {
                 case .create:
                     CreateRoomView(
-                        username: $username,
-                        roomName: $roomName,
+                        username: $vm.username,
+                        roomName: $vm.roomName,
                         isLoading: vm.isLoading,
-                        onStart: { Task { await vm.createRoom(username: username, roomName: roomName) } }
+                        isEnabled: vm.canCreate,
+                        onStart: { Task { await vm.createRoom() } }
                     )
                 case .join:
                 JoinRoomView(
-                    username: $username,
-                    code: $code,
+                    username: $vm.username,
+                    code: $vm.code,
                     isLoading: vm.isLoading,
-                    onJoin: { Task { await vm.joinRoom(code: code, username: username) } })
+                    isEnabled: vm.canJoin,
+                    onJoin: { Task { await vm.joinRoom() } })
             }
             if let message = vm.errorMessage {
                 Text(message)
@@ -46,6 +45,9 @@ struct EntryRoomView: View {
             guard let id = newValue else { return }
             navVM.goToRoomLobby(id: id, name: vm.room?.name)
         }
+        .onChange(of: vm.username) { _, _ in vm.errorMessage = nil }
+        .onChange(of: vm.roomName) { _, _ in vm.errorMessage = nil }
+        .onChange(of: vm.code) { _, _ in vm.errorMessage = nil }
     }
 }
 
@@ -53,6 +55,7 @@ struct CreateRoomView: View {
     @Binding var username: String
     @Binding var roomName: String
     var isLoading: Bool = false
+    var isEnabled: Bool = true
     var onStart: () -> Void = {}
     var body: some View {
         Image(systemName: "photo")
@@ -66,8 +69,8 @@ struct CreateRoomView: View {
             Text(isLoading ? "Creating..." : "Start")
                 .frame(maxWidth: .infinity)
         }
-        .primaryButton(color: isLoading ? Color.gray : Color.blue)
-        .disabled(isLoading)
+        .primaryButton(color: (isLoading || !isEnabled) ? Color.gray : Color.blue)
+        .disabled(isLoading || !isEnabled)
     }
 }
 
@@ -75,6 +78,7 @@ struct JoinRoomView: View {
     @Binding var username: String
     @Binding var code: String
     var isLoading: Bool = false
+    var isEnabled: Bool = true
     var onJoin: () -> Void = {}
     var body: some View {
         Image(systemName: "photo")
@@ -89,8 +93,8 @@ struct JoinRoomView: View {
             Text(isLoading ? "Joining..." : "Join")
                 .frame(maxWidth: .infinity)
         }
-        .primaryButton(color: isLoading ? Color.gray : Color.blue)
-        .disabled(isLoading)
+        .primaryButton(color: (isLoading || !isEnabled) ? Color.gray : Color.blue)
+        .disabled(isLoading || !isEnabled)
     }
 }
 
