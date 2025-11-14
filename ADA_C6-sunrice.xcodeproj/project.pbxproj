@@ -38,22 +38,9 @@
 		0A8E0F642EAF48D000103638 /* ADA_C6-sunriceUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADA_C6-sunriceUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0A7ADBDC2EC6FA6800211D99 /* Exceptions for "ADA_C6-sunrice" folder in "ADA_C6-sunrice" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"ADA-C6-sunrice-Info.plist",
-			);
-			target = 0A8E0F4C2EAF48CF00103638 /* ADA_C6-sunrice */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0A8E0F4F2EAF48CF00103638 /* ADA_C6-sunrice */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0A7ADBDC2EC6FA6800211D99 /* Exceptions for "ADA_C6-sunrice" folder in "ADA_C6-sunrice" target */,
-			);
 			path = "ADA_C6-sunrice";
 			sourceTree = "<group>";
 		};
