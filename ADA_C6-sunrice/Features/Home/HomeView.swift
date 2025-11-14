@@ -13,10 +13,8 @@ struct HomeView: View {
         NavigationStack(path: $navVM.path) {
             ZStack {
                 // Background
-                Image(.background)
-                    .resizable()
-                    .ignoresSafeArea()
-                    .scaledToFill()
+                Background()
+                
                 VStack(alignment: .center, spacing: 20) {
                     // Title
                     Text("Think Together, \nOne Color At a Time.")

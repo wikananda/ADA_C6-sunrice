@@ -14,11 +14,8 @@ struct OnboardingView: View {
     var body: some View {
         ZStack {
             // Background
-            Image(.background)
-                .resizable()
-                .ignoresSafeArea()
-                .scaledToFill()
-
+            Background()
+            
             // Content
             VStack(spacing: 16) {
                 // Header
