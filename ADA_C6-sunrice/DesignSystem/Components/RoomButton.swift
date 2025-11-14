@@ -1,0 +1,48 @@
+//
+//  RoomButton.swift
+//  ADA_C6-sunrice
+//
+//  Created by Komang Wikananda on 14/11/25.
+//
+
+import SwiftUI
+
+struct RoomButton: View {
+    var title: String
+    var icon: String
+    var primary: Bool = false
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 24)
+                .bold()
+                .font(.system(size: 16))
+                .foregroundStyle(primary ? Color.white : Color.black)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 80)
+        .background(RoundedRectangle(cornerRadius: 20).fill(primary ? Color.blue : Color.white))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.gray.opacity(0.25), lineWidth: 1)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 20))
+    }
+}
+
+#Preview {
+    RoomButton(title: "TITLE", icon: "star.fill") {}
+}
+
+// MARK: - Convenience style helpers
+extension RoomButton {
+    func asPrimary() -> RoomButton {
+        RoomButton(title: title, icon: icon, primary: true, action: action)
+    }
+
+    func asSecondary() -> RoomButton {
+        RoomButton(title: title, icon: icon, primary: false, action: action)
+    }
+}

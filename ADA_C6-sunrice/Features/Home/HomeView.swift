@@ -11,19 +11,43 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack(path: $navVM.path) {
-            VStack(spacing: 20) {
-                Button(action: { navVM.goToCreateRoom() }) {
-                    Text("Create room")
-                        .frame(maxWidth: .infinity)
+            ZStack {
+                // Background
+                Image(.background)
+                    .resizable()
+                    .ignoresSafeArea()
+                    .scaledToFill()
+                VStack(alignment: .center, spacing: 20) {
+                    // Title
+                    Text("Think Together, \nOne Color At a Time.")
+                        .font(.custom("Manrope", size: 24))
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    // Illustration
+                    Image(.group4)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                    
+                    // Buttons
+                    VStack(spacing: 16) {
+                        RoomButton(title: "CREATE SESSION", icon: "plus.rectangle.portrait") {
+                            navVM.goToCreateRoom()
+                        }
+                        .asPrimary()
+                        
+                        RoomButton(title: "JOIN SESSION", icon: "ipad.and.arrow.forward") {
+                            navVM.goToJoinRoom()
+                        }
+                        
+                        RoomButton(title: "PAST SESSIONS", icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                            
+                        }
+                    }
                 }
-                .primaryButton()
-                Button(action: { navVM.goToJoinRoom() }) {
-                    Text("Join room")
-                        .frame(maxWidth: .infinity)
-                }
-                .secondaryButton()
+                .padding()
             }
-            .padding()
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .create:

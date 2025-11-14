@@ -56,10 +56,9 @@ struct OnboardingView: View {
                 }
 
                 // Controls
-                HStack(spacing: 12) {
-                    Spacer(minLength: 0)
-                    Button(vm.primaryButtonTitle) { withAnimation { vm.next() } }
-                        .primaryButton()
+                Spacer(minLength: 0)
+                AppButton(title: vm.primaryButtonTitle) {
+                    withAnimation { vm.next() }
                 }
             }
             .padding(24)
