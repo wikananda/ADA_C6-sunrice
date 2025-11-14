@@ -9,11 +9,11 @@ import Supabase
 import PostgREST
 
 struct UserService: UserServicing {
-    let client: SupabaseClient
+    let dbClient: SupabaseClient
     
     func createUser(username: String = "user") async throws -> UserDTO {
         let params = ["_username": username]
-        let response: PostgrestResponse<UserDTO> = try await client
+        let response: PostgrestResponse<UserDTO> = try await dbClient
             .rpc("create_guest_user", params: params)
             .execute()
         return response.value

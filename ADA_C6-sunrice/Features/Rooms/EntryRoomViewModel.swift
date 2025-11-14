@@ -36,7 +36,7 @@ final class EntryRoomViewModel: ObservableObject {
         && !code.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && !isLoading }
     
-    init(userService: UserServicing = UserService(client: dbClient), roomService: RoomServicing = RoomService(client: dbClient)) {
+    init(userService: UserServicing = UserService(dbClient: dbClient), roomService: RoomServicing = RoomService(dbClient: dbClient)) {
         self.userService = userService
         self.roomService = roomService
     }
@@ -65,7 +65,7 @@ final class EntryRoomViewModel: ObservableObject {
         }
     }
     
-    // Backward-compatible wrapper (optional use)
+    // create room wrapper
     func createRoom(username: String, roomName: String) async {
         self.username = username
         self.roomName = roomName
