@@ -14,7 +14,7 @@ struct SkipButton: View {
         Button(action: action) {
             Text("SKIP")
                 .font(.system(size: 12))
-                .foregroundStyle(.black)
+                .foregroundStyle(AppColor.Primary.gray)
         }
     }
 }

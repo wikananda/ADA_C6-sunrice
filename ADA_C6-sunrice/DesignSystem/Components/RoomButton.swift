@@ -20,10 +20,10 @@ struct RoomButton: View {
                 .padding(.horizontal, 24)
                 .bold()
                 .font(.system(size: 16))
-                .foregroundStyle(primary ? Color.white : Color.black)
+                .foregroundStyle(primary ? AppColor.grayscale10 : AppColor.Primary.gray)
         }
         .frame(maxWidth: .infinity, maxHeight: 80)
-        .background(RoundedRectangle(cornerRadius: 20).fill(primary ? Color.blue : Color.white))
+        .background(RoundedRectangle(cornerRadius: 20).fill(primary ? AppColor.Primary.blue : AppColor.grayscale10))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.gray.opacity(0.25), lineWidth: 1)

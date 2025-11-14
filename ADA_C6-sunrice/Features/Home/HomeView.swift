@@ -21,6 +21,7 @@ struct HomeView: View {
                         .font(.custom("Manrope", size: 24))
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(AppColor.Primary.gray)
                     
                     // Illustration
                     Image(.group4)

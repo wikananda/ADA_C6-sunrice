@@ -18,9 +18,9 @@ struct AppButton: View {
                 .frame(maxWidth: .infinity, maxHeight: 64)
                 .font(.system(size: 16))
                 .bold(true)
-                .foregroundStyle(active ? Color.white : Color.gray.opacity(0.25))
+                .foregroundStyle(active ? AppColor.grayscale10 : AppColor.grayscale20)
         }
-        .background(active ? Color.blue : Color.blue.opacity(0.25))
+        .background(active ? AppColor.Primary.blue : AppColor.whiteishBlue10)
         .clipShape(Capsule())
     }
 }
@@ -28,6 +28,7 @@ struct AppButton: View {
 
 #Preview {
     AppButton(title: "Text") {}
+//        .isActive(false)
 }
 
 // MARK: - Convenience style helper

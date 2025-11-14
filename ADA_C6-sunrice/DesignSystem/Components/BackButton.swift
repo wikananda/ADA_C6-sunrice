@@ -14,11 +14,11 @@ struct BackButton: View {
         Button(action: action) {
             Image(systemName: "chevron.left")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(.black)
+                .foregroundStyle(AppColor.Primary.gray)
                 .frame(width: 35, height: 35)
                 .background(
                     Circle()
-                        .fill(Color(.systemGray6))
+                        .fill(Color(AppColor.blue10))
                 )
 
         }

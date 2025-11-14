@@ -42,11 +42,11 @@ struct OnboardingView: View {
                     ForEach(0..<vm.totalPages, id: \.self) { idx in
                         if idx == vm.page {
                             Capsule()
-                                .fill(Color.primary)
+                                .fill(AppColor.Primary.gray)
                                 .frame(width: 24, height: 8)
                         } else {
                             Circle()
-                                .fill(Color.primary.opacity(0.2))
+                                .fill(AppColor.grayscale30)
                                 .frame(width: 8, height: 8)
                         }
                     }
