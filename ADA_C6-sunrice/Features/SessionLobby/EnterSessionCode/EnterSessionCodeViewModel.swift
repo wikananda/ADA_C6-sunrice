@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-final class JoinByCodeViewModel: ObservableObject {
+final class EnterSessionCodeViewModel: ObservableObject {
     
     @Published var sessionCode: String = "" // The raw digit
     @Published var displayCode: String = "" // for display purpose

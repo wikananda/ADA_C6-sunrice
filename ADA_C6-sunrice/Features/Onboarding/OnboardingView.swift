@@ -19,13 +19,13 @@ struct OnboardingView: View {
             // Content
             VStack(spacing: 16) {
                 // Header
-                HStack {
-                    BackButton { withAnimation { vm.back() } }
-                    .opacity(vm.canGoBack ? 1 : 0)
-                    Spacer()
-                    SkipButton(action: { vm.skipToEnd() })
+                Header(config: .init(
+                    showsBackButton: vm.canGoBack,
+                    trailing: .skip(action: { vm.skipToEnd() })
+                )) {
+                    vm.back()
                 }
-                
+
                 // Content
                 TabView(selection: $vm.page) {
                     OnboardingPage1View()

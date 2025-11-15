@@ -22,6 +22,7 @@ struct BackButton: View {
                 )
 
         }
+        .frame(maxWidth: 64, maxHeight: 35, alignment: .leading)
     }
 }
 

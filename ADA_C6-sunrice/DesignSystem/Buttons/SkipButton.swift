@@ -15,6 +15,7 @@ struct SkipButton: View {
             Text("SKIP")
                 .font(.bodySM)
                 .foregroundStyle(AppColor.Primary.gray)
+                .frame(maxWidth: 64, alignment: .trailing)
         }
     }
 }

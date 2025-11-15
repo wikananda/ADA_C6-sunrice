@@ -1,5 +1,5 @@
 //
-//  JoinByCodeView.swift
+//  EnterSessionName.swift
 //  ADA_C6-sunrice
 //
 //  Created by Komang Wikananda on 15/11/25.
@@ -7,51 +7,36 @@
 
 import SwiftUI
 
-struct JoinByCodeView: View {
+struct EnterName: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var vm = JoinByCodeViewModel()
+    @StateObject private var vm = EnterNameViewModel()
     @FocusState private var isFocused: Bool
     
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
-            // Header
-            HStack {
-                BackButton(action: { dismiss() })
-                Spacer()
-                Text("Join a Session")
-                    .bold()
-                    .font(.titleSM)
-                    .foregroundStyle(AppColor.Primary.gray)
-                Spacer()
-                Color.clear
-                    .frame(maxWidth: 40, maxHeight: 1)
-            }
             
-            Text("Do you have \na session code?")
+            Text("What would you prefer \n to be called?")
                 .font(.titleMD)
                 .foregroundStyle(AppColor.Primary.gray)
             
             Spacer()
             
             // Code input
-            VStack (alignment: .center) {
-                ZStack (alignment: .center) {
-                    if vm.sessionCode.isEmpty {
-                        Text("Enter the 6-digit code")
+            VStack (alignment: .leading) {
+                ZStack (alignment: .leading) {
+                    if vm.username.isEmpty {
+                        Text("e.g., Michael")
                             .font(.inputXL)
                             .foregroundStyle(AppColor.blue10)
                     }
 
-                    TextField("", text: $vm.displayCode)
-                        .multilineTextAlignment(.center)
+                    TextField("", text: $vm.username)
+                        .multilineTextAlignment(.leading)
                         .keyboardType(.numberPad)
                         .font(.inputXXL)
                         .foregroundStyle(AppColor.Primary.gray)
                         .disableAutocorrection(true)
                         .focused($isFocused)
-                        .onChange(of: vm.displayCode) { _, newValue in
-                            vm.handleDisplayChange(newValue)
-                        }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -59,10 +44,10 @@ struct JoinByCodeView: View {
                 }
             }
             Spacer()
-            AppButton(title: "Continue") {
-                vm.joinRoom()
+            AppButton(title: "Go to Lobby") {
+                vm.goToLobby()
             }
-            .disabled(!vm.isValidCode)
+            .disabled(!vm.isValid)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
@@ -74,5 +59,5 @@ struct JoinByCodeView: View {
 }
 
 #Preview {
-    JoinByCodeView()
+    EnterName()
 }
