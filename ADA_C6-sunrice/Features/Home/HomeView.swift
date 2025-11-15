@@ -45,7 +45,7 @@ struct HomeView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(24)
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {

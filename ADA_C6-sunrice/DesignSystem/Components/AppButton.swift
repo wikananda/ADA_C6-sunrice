@@ -8,19 +8,22 @@
 import SwiftUI
 
 struct AppButton: View {
+    @Environment(\.isEnabled) private var isEnabled
     var title: String
-    var active: Bool = true
     var action: () -> Void
     
     var body: some View {
+        // Effective visual state follows both the explicit `active`
+        // flag and the environment's enabled state (set by .disabled()).
+        let isVisuallyActive = isEnabled
         Button(action: action) {
             Text(title)
                 .frame(maxWidth: .infinity, maxHeight: 64)
                 .font(.system(size: 16))
                 .bold(true)
-                .foregroundStyle(active ? AppColor.grayscale10 : AppColor.grayscale20)
+                .foregroundStyle(isVisuallyActive ? AppColor.grayscale10 : AppColor.grayscale20)
         }
-        .background(active ? AppColor.Primary.blue : AppColor.whiteishBlue10)
+        .background(isVisuallyActive ? AppColor.Primary.blue : AppColor.whiteishBlue10)
         .clipShape(Capsule())
     }
 }
@@ -28,13 +31,13 @@ struct AppButton: View {
 
 #Preview {
     AppButton(title: "Text") {}
-//        .isActive(false)
+//        .disabled(true)
 }
 
 // MARK: - Convenience style helper
 
-extension AppButton {
-    func isActive(_ active: Bool) -> AppButton {
-        AppButton(title: title, active: active, action: action)
-    }
-}
+// extension AppButton {
+//     func isActive(_ active: Bool) -> AppButton {
+//         AppButton(title: title, active: active, action: action)
+//     }
+// }
