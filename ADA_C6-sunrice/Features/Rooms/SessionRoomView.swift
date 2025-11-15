@@ -25,13 +25,21 @@ struct SessionRoomView: View {
                     }
                     .padding(.vertical, 8)
                 }
-                .onChange(of: messages.count) { _ in
+                .onChange(of: messages.count, initial: true) { _, _ in
                     if let lastIndex = messages.indices.last {
                         withAnimation {
                             proxy.scrollTo(lastIndex, anchor: .bottom)
                         }
                     }
                 }
+
+//                .onChange(of: messages.count) { _ in
+//                    if let lastIndex = messages.indices.last {
+//                        withAnimation {
+//                            proxy.scrollTo(lastIndex, anchor: .bottom)
+//                        }
+//                    }
+//                }
             }
             
             // Input area
