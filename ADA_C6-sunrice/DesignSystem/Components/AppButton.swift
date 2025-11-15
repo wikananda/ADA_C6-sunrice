@@ -19,8 +19,7 @@ struct AppButton: View {
         Button(action: action) {
             Text(title)
                 .frame(maxWidth: .infinity, maxHeight: 64)
-                .font(.system(size: 16))
-                .bold(true)
+                .font(.labelMD)
                 .foregroundStyle(isVisuallyActive ? AppColor.grayscale10 : AppColor.grayscale20)
         }
         .background(isVisuallyActive ? AppColor.Primary.blue : AppColor.whiteishBlue10)

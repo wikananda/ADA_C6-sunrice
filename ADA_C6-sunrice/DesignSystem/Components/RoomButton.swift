@@ -18,8 +18,7 @@ struct RoomButton: View {
             Label(title, systemImage: icon)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
-                .bold()
-                .font(.system(size: 16))
+                .font(.labelMD)
                 .foregroundStyle(primary ? AppColor.grayscale10 : AppColor.Primary.gray)
         }
         .frame(maxWidth: .infinity, maxHeight: 80)

@@ -20,7 +20,7 @@ struct JoinByCodeView: View {
                 Spacer()
                 Text("Join a Session")
                     .bold()
-                    .font(.system(size: 20))
+                    .font(.titleSM)
                     .foregroundStyle(AppColor.Primary.gray)
                 Spacer()
                 Color.clear
@@ -28,8 +28,7 @@ struct JoinByCodeView: View {
             }
             
             Text("Do you have \na session code?")
-                .font(.custom("Manrope", size: 24))
-                .fontWeight(.bold)
+                .font(.titleMD)
                 .foregroundStyle(AppColor.Primary.gray)
             
             Spacer()
@@ -39,16 +38,14 @@ struct JoinByCodeView: View {
                 ZStack (alignment: .center) {
                     if vm.sessionCode.isEmpty {
                         Text("Enter the 6-digit code")
-                            .font(.custom("Manrope", size: 32))
-                            .fontWeight(.black)
+                            .font(.inputXL)
                             .foregroundStyle(AppColor.blue10)
                     }
 
                     TextField("", text: $vm.displayCode)
                         .multilineTextAlignment(.center)
                         .keyboardType(.numberPad)
-                        .font(.custom("Manrope", size: 64))
-                        .fontWeight(.black)
+                        .font(.inputXXL)
                         .foregroundStyle(AppColor.Primary.gray)
                         .disableAutocorrection(true)
                         .focused($isFocused)

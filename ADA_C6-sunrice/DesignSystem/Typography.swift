@@ -17,6 +17,12 @@ extension Font {
 
     /// Large input, for example PIN or name input
     static let inputXL = Font.system(size: 32, weight: .bold, design: .default)
+    
+    /// Extra Large input, for example PIN or name input
+    static let inputXXL = Font.system(size: 64, weight: .bold, design: .default)
+    
+    /// Medium symbols or large numbers
+    static let symbolM = Font.system(size: 16, weight: .regular, design: .default)
 
     /// Large symbols or large numbers
     static let symbolL = Font.system(size: 24, weight: .bold, design: .default)
