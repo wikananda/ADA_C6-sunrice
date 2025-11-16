@@ -25,7 +25,7 @@ struct RoomButton: View {
         .background(RoundedRectangle(cornerRadius: 20).fill(primary ? AppColor.Primary.blue : AppColor.grayscale10))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray.opacity(0.25), lineWidth: 1)
+                .stroke(AppColor.grayscale20, lineWidth: 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: 20))
     }

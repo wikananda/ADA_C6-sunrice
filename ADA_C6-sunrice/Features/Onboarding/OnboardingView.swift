@@ -38,19 +38,7 @@ struct OnboardingView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 
                 // Stepper indicators
-                HStack(spacing: 8) {
-                    ForEach(0..<vm.totalPages, id: \.self) { idx in
-                        if idx == vm.page {
-                            Capsule()
-                                .fill(AppColor.Primary.gray)
-                                .frame(width: 24, height: 8)
-                        } else {
-                            Circle()
-                                .fill(AppColor.grayscale30)
-                                .frame(width: 8, height: 8)
-                        }
-                    }
-                }
+                PageIndicator(totalPages: vm.totalPages, currentPage: $vm.page)
 
                 // Controls
                 Spacer(minLength: 0)
