@@ -23,7 +23,13 @@ struct OnboardingView: View {
                     showsBackButton: vm.canGoBack,
                     trailing: .skip(action: { vm.skipToEnd() })
                 )) {
-                    vm.back()
+                    withAnimation(.spring(
+                        duration: 0.35,
+                        bounce: 0.35,
+                        blendDuration: 0.35)
+                    ) {
+                        vm.back()
+                    }
                 }
 
                 // Content
@@ -43,7 +49,10 @@ struct OnboardingView: View {
                 // Controls
                 Spacer(minLength: 0)
                 AppButton(title: vm.primaryButtonTitle) {
-                    withAnimation { vm.next() }
+                    withAnimation(.spring(
+                        duration: 0.35,
+                        bounce: 0.35,
+                        blendDuration: 0.35)) { vm.next() }
                 }
             }
             .padding(24)
