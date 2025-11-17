@@ -12,13 +12,13 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navVM.path) {
             VStack(spacing: 20) {
-                Button(action: { navVM.goToCreateRoom() }) {
-                    Text("Create room")
+                Button(action: { navVM.goToCreateSession() }) {
+                    Text("Create session")
                         .frame(maxWidth: .infinity)
                 }
                 .primaryButton()
-                Button(action: { navVM.goToJoinRoom() }) {
-                    Text("Join room")
+                Button(action: { navVM.goToJoinSession() }) {
+                    Text("Join session")
                         .frame(maxWidth: .infinity)
                 }
                 .secondaryButton()
@@ -27,11 +27,15 @@ struct HomeView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .create:
-                    EntryRoomView(mode: .create).environmentObject(navVM)
+                    EntrySessionView(mode: .create).environmentObject(navVM)
                 case .join:
-                    EntryRoomView(mode: .join).environmentObject(navVM)
-                case .room(id: let id, name: let name):
-                    RoomLobbyView(id: id, name: name)
+                    EntrySessionView(mode: .join).environmentObject(navVM)
+                case let .session(id):
+//                    SessionLobbyView(id: id)
+                    Text("Bentar dulu")
+                case .comment(let ideaId):
+//                    CommentView(ideaId: ideaId)
+                    Text("Bentar dulu")
                 }
             }
         }

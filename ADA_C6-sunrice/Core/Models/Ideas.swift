@@ -13,3 +13,5 @@ struct Idea: Codable, Identifiable {
     let type: Int?
     let session_id: Int?
 }
+
+
