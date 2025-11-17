@@ -22,7 +22,7 @@ struct SessionCode: View {
         return String(d.prefix(3)) + " " + String(d.dropFirst(3))
     }
     
-    @State private var showAlert: Bool = false
+    @State private var showMessage: Bool = false
     
     var body: some View {
         HStack {
@@ -31,6 +31,11 @@ struct SessionCode: View {
                 .foregroundStyle(AppColor.Primary.blue)
             Spacer()
             HStack (spacing: 16) {
+                if showMessage {
+                    Text("Copied!")
+                        .font(.bodySM)
+                        .foregroundColor(AppColor.Primary.blue)
+                }
                 Button(action: {
                     let raw = code.filter { $0.isNumber }
                     #if canImport(UIKit)
@@ -41,6 +46,14 @@ struct SessionCode: View {
                     pb.clearContents()
                     pb.setString(raw, forType: .string)
                     #endif
+                    withAnimation(.spring(response: 0.15, dampingFraction: 0.9)) {
+                        showMessage = true
+                    }
+                    // Hide after a short delay
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+                        withAnimation(.easeInOut(duration: 0.15)) { showMessage = false }
+                    }
                 }) {
                     Image(systemName: "document.on.document")
                         .font(.symbolL)
@@ -65,6 +78,7 @@ struct SessionCode: View {
                     lineWidth: 2)
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: showMessage)
     }
 }
 
