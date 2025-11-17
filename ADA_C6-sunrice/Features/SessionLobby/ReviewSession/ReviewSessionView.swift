@@ -31,7 +31,7 @@ struct ReviewSessionView: View {
                 .font(.bodySM)
                 .foregroundColor(AppColor.grayscale40)
             
-            VStack {
+            VStack(alignment: .leading, spacing: 8) {
                 Label("About Private Mode", systemImage: "info.circle")
                     .font(.labelMD)
                 Text("Anonymity is always on — names will disappear once the session begins.")

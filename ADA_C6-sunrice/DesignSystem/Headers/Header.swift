@@ -64,7 +64,7 @@ struct Header: View {
             SkipButton(action: action)
             
         case .timer(let text):
-            Timer(text: text)
+            TimerTag(text: text)
         }
     }
 }
@@ -79,4 +79,3 @@ struct Header: View {
 //            trailing: .none
     ))
 }
-

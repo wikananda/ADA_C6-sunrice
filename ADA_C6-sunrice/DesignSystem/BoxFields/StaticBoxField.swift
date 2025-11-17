@@ -15,11 +15,15 @@ struct StaticBoxField: View {
     var body: some View {
         VStack (alignment: .leading, spacing: 8) {
             Text(title ?? "Title")
-                .font(.titleMD)
+                .font(.labelMD)
                 .foregroundColor(AppColor.Primary.gray)
             Text(description ?? "Description")
                 .font(.bodySM)
                 .foregroundColor(AppColor.Primary.gray)
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity)

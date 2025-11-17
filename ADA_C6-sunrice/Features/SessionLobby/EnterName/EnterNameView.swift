@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EnterName: View {
+struct EnterNameView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm = EnterNameViewModel()
     @FocusState private var isFocused: Bool
@@ -59,5 +59,5 @@ struct EnterName: View {
 }
 
 #Preview {
-    EnterName()
+    EnterNameView()
 }

@@ -20,7 +20,7 @@ struct JoinSessionView: View {
             Spacer(minLength: 24)
             
 //            EnterSessionCodeView()
-            EnterName()
+            EnterNameView()
         }
         .padding(.horizontal)
     }

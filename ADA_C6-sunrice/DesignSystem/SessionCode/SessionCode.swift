@@ -15,13 +15,14 @@ import AppKit
 
 struct SessionCode: View {
     var code: String = "000000"
-    var formattedCode: String {
+    
+    private var formattedCode: String {
         let d = code.prefix(6)
         guard d.count > 3 else { return String(d) }
         return String(d.prefix(3)) + " " + String(d.dropFirst(3))
     }
     
-    private var showAlert: Bool = false
+    @State private var showAlert: Bool = false
     
     var body: some View {
         HStack {
@@ -68,5 +69,5 @@ struct SessionCode: View {
 }
 
 #Preview {
-    SessionCode()
+    SessionCode(code: "000000")
 }

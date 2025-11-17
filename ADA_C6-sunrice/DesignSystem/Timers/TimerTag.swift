@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Timer: View {
+struct TimerTag: View {
     var text: String = "00:00"
     
     var body: some View {
@@ -23,5 +23,5 @@ struct Timer: View {
 }
 
 #Preview {
-    Timer()
+    TimerTag()
 }

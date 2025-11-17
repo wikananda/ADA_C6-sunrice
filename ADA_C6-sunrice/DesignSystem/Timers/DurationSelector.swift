@@ -66,6 +66,7 @@ struct DurationSelector: View {
                 
                 Text("~\(totalDuration)")
                     .frame(maxWidth: 114, maxHeight: 36)
+                    .font(.symbolM)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
                             .fill(AppColor.whiteishBlue10)
