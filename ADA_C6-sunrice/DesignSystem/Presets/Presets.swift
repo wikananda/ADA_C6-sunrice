@@ -16,9 +16,9 @@ enum sequenceColor: String {
 }
 
 struct Presets: View {
-    var title: String = "Preset"
+    var title: String? = "Preset"
     var description: String?
-    var duration: String = "30 minutes"
+    var duration: String? = "30 minutes"
     var numOfRounds: Int = 6
     // Accept sequence as single-letter codes, e.g., ["r", "b", "y"].
     var sequence: [String] = ["w", "g", "g", "y", "b", "r"]
@@ -46,11 +46,11 @@ struct Presets: View {
     }
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 16) {
+        VStack (alignment: .leading, spacing: 12) {
             // Title
             HStack (alignment: .center) {
-                Text(title)
-                    .font(.titleMD)
+                Text(title ?? "Preset")
+                    .font(.labelMD)
                     .foregroundColor(AppColor.Primary.gray)
                 Spacer()
                 HStack (spacing: 8) {
@@ -81,14 +81,16 @@ struct Presets: View {
             // Stats info
             HStack {
                 Image(systemName: "clock")
-                Text("~\(duration)")
+                Text("~\(duration ?? "30 min")")
                 Text("•")
                 Text("\(sequenceColors.isEmpty ? numOfRounds : sequenceColors.count) rounds")
             }
             .foregroundColor(AppColor.Primary.gray)
+            .font(.bodySM)
             
             // Description
             Text("\(description ?? "Description")")
+                .font(.bodySM)
             
             // Sequences
             HStack {
@@ -99,7 +101,7 @@ struct Presets: View {
                     
                     if idx < sequenceColors.count - 1 {
                         Image(systemName: "arrow.right")
-                        
+                            .font(Font.bodySM.weight(.light))
                     }
                 }
             }
@@ -108,26 +110,30 @@ struct Presets: View {
             if isExpanded {
                 VStack (alignment: .leading, spacing: 6) {
                     Text("Overview:")
-                        .font(.labelMD)
+                        .font(.labelSM)
                     Text("\(overview ?? "No overview provided.")")
+                        .font(.bodySM)
                 }
                 
                 VStack (alignment: .leading, spacing: 6) {
                     Text("Best for:")
-                        .font(.labelMD)
+                        .font(.labelSM)
                     ForEach(bestFor ?? [], id: \.self) { application in
                         Text("•  \(application)")
+                            .font(.bodySM)
                     }
                 }
                 
                 VStack (alignment: .leading, spacing: 6) {
                     Text("Outcome:")
-                        .font(.labelMD)
+                        .font(.labelSM)
                     Text("\(outcome ?? "No outcome provided.")")
+                        .font(.bodySM)
                 }
             }
         }
         .frame(maxWidth: .infinity)
+        .foregroundColor(AppColor.Primary.gray)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)

@@ -13,7 +13,7 @@ struct TBAPreset: View {
         HStack {
             VStack(alignment: .leading, spacing: 16) {
                 Text("\(title ?? "New Preset")")
-                    .font(.titleMD)
+                    .font(.labelMD)
                     .foregroundColor(AppColor.grayscale40)
                 Text("(Coming soon)")
                     .font(.bodySM)
