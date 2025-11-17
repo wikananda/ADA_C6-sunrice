@@ -32,12 +32,12 @@ struct HomeView: View {
                     // Buttons
                     VStack(spacing: 16) {
                         RoomButton(title: "CREATE SESSION", icon: "plus.rectangle.portrait") {
-                            navVM.goToCreateRoom()
+                            navVM.goToCreateSession()
                         }
                         .asPrimary()
                         
                         RoomButton(title: "JOIN SESSION", icon: "ipad.and.arrow.forward") {
-                            navVM.goToJoinRoom()
+                            navVM.goToJoinSession()
                         }
                         
                         RoomButton(title: "PAST SESSIONS", icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
@@ -50,12 +50,17 @@ struct HomeView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .create:
-                    EntryRoomView(mode: .create).environmentObject(navVM)
+                    EntrySessionView(mode: .create)
+                        .environmentObject(navVM)
                 case .join:
-                    EntryRoomView(mode: .join).environmentObject(navVM)
-                case .room(id: let id, name: let name):
-//                    RoomLobbyView(id: id, name: name)
-                    SessionLobbyView()
+                    EntrySessionView(mode: .join)
+                        .environmentObject(navVM)
+                case let .session(id):
+//                    SessionLobbyView(id: id)
+                    Text("Bentar dulu")
+                case .comment(let ideaId):
+//                    CommentView(ideaId: ideaId)
+                    Text("Bentar dulu")
                 }
             }
         }

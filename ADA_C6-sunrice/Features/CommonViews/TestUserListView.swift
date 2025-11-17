@@ -4,11 +4,11 @@
 //
 //  Created by Selena Aura on 09/11/25.
 //
-//import SwiftUI
-//import Foundation
-//
+import SwiftUI
+import Foundation
+
 //struct TestUserListView: View {
-//    @State private var users: [Users] = []
+//    @State private var users: [User] = []
 //    @State private var isLoading = false
 //
 //    var body: some View {
@@ -39,7 +39,7 @@
 //    func fetchUsers() async {
 //        isLoading = true
 //            do {
-//                let response = try await dbClient
+//                let response = try await supabaseManager
 //                    .from("users")
 //                    .select()
 //                    .execute()
@@ -49,7 +49,7 @@
 //                print("🔹 Raw data: \(data)")
 //
 //                let decoder = JSONDecoder()
-//                let decoded = try decoder.decode([Users].self, from: response.data)
+//                let decoded = try decoder.decode([User].self, from: response.data)
 //                print("✅ Decoded:", decoded)
 //
 //                users = decoded
