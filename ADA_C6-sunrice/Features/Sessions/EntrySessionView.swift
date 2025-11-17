@@ -29,7 +29,7 @@ struct EntrySessionView: View {
                         onStart: { Task { await vm.createSession(username: username, sessionName: sessionName) } }
                     )
                 case .join:
-                JoinSessionView(
+                JoinSessionOldView(
                     username: $username,
                     code: $code,
                     isLoading: vm.isLoading,
@@ -77,7 +77,7 @@ struct CreateSessionView: View {
     }
 }
 
-struct JoinSessionView: View {
+struct JoinSessionOldView: View {
     @Binding var username: String
     @Binding var code: String
     var isLoading: Bool = false

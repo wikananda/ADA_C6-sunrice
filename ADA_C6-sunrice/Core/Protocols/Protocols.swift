@@ -11,7 +11,7 @@ protocol UserServicing {
 }
 
 protocol RoomServicing {
-    func createRoom(name: String, hostId: UUID) async throws -> RoomDTO
-    func joinRoom(code: String, userId: UUID) async throws -> RoomDTO
+    func createRoom(name: String, hostId: UUID) async throws -> SessionDTO
+    func joinRoom(code: String, userId: UUID) async throws -> SessionDTO
 }
 

@@ -4,6 +4,7 @@
 //
 //  Created by Komang Wikananda on 28/10/25.
 //
+/// THIS FILE IS TO BE DEPRECATED
 
 import SwiftUI
 

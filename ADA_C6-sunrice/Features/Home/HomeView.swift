@@ -11,25 +11,50 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack(path: $navVM.path) {
-            VStack(spacing: 20) {
-                Button(action: { navVM.goToCreateSession() }) {
-                    Text("Create session")
-                        .frame(maxWidth: .infinity)
+            ZStack {
+                // Background
+                Background()
+                
+                VStack(alignment: .center, spacing: 20) {
+                    // Title
+                    Text("Think Together, \nOne Color At a Time.")
+                        .font(.custom("Manrope", size: 24))
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(AppColor.Primary.gray)
+                    
+                    // Illustration
+                    Image(.group4)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                    
+                    // Buttons
+                    VStack(spacing: 16) {
+                        RoomButton(title: "CREATE SESSION", icon: "plus.rectangle.portrait") {
+                            navVM.goToCreateSession()
+                        }
+                        .asPrimary()
+                        
+                        RoomButton(title: "JOIN SESSION", icon: "ipad.and.arrow.forward") {
+                            navVM.goToJoinSession()
+                        }
+                        
+                        RoomButton(title: "PAST SESSIONS", icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                            
+                        }
+                    }
                 }
-                .primaryButton()
-                Button(action: { navVM.goToJoinSession() }) {
-                    Text("Join session")
-                        .frame(maxWidth: .infinity)
-                }
-                .secondaryButton()
+                .padding(24)
             }
-            .padding()
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .create:
-                    EntrySessionView(mode: .create).environmentObject(navVM)
+                    EntrySessionView(mode: .create)
+                        .environmentObject(navVM)
                 case .join:
-                    EntrySessionView(mode: .join).environmentObject(navVM)
+                    EntrySessionView(mode: .join)
+                        .environmentObject(navVM)
                 case let .session(id):
 //                    SessionLobbyView(id: id)
                     Text("Bentar dulu")
