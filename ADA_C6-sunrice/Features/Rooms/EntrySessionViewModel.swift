@@ -12,6 +12,12 @@ final class EntrySessionViewModel: ObservableObject {
     private let userService: UserService = UserService(client: supabaseManager)
     private let sessionService: SessionService = SessionService(client: supabaseManager)
     
+    // Inputs
+    @Published var username: String = ""
+    @Published var roomName: String = ""
+    @Published var code: String = ""
+    
+    // Outputs / state
     @Published var isLoading = false
     @Published var errorMessage: String?
     
@@ -27,6 +33,7 @@ final class EntrySessionViewModel: ObservableObject {
             return
         }
         
+        errorMessage = nil
         isLoading = true
         defer { isLoading = false }
         
@@ -48,6 +55,7 @@ final class EntrySessionViewModel: ObservableObject {
             return
         }
         
+        errorMessage = nil
         isLoading = true
         defer { isLoading = false }
         
@@ -61,5 +69,12 @@ final class EntrySessionViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+    
+    // Backward-compatible wrapper (optional use)
+    func joinRoom(code: String, username: String) async {
+        self.code = code
+        self.username = username
+//        await joinRoom()
     }
 }

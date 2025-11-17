@@ -42,12 +42,15 @@ struct EntrySessionView: View {
             }
         }
         .padding(48)
-        .onChange(of: vm.sessionID) { oldValue, newValue in
-            guard let id = newValue else { return }
-            print("DEBUG %f", id)
+//        .onChange(of: vm.sessionID) { oldValue, newValue in
+//            guard let id = newValue else { return }
+//            print("DEBUG %f", id)
             // ini kenapa bawa id ya? id apa?
             // navVM.goToSessionLobby(id: id)
-        }
+//        }
+//        .onChange(of: vm.username) { _, _ in vm.errorMessage = nil }
+//        .onChange(of: vm.roomName) { _, _ in vm.errorMessage = nil }
+//        .onChange(of: vm.code) { _, _ in vm.errorMessage = nil }
     }
 }
 
@@ -55,6 +58,7 @@ struct CreateSessionView: View {
     @Binding var username: String
     @Binding var sessionName: String
     var isLoading: Bool = false
+    var isEnabled: Bool = true
     var onStart: () -> Void = {}
     var body: some View {
         Image(systemName: "photo")
@@ -68,8 +72,8 @@ struct CreateSessionView: View {
             Text(isLoading ? "Creating..." : "Start")
                 .frame(maxWidth: .infinity)
         }
-        .primaryButton(color: isLoading ? Color.gray : Color.blue)
-        .disabled(isLoading)
+        .primaryButton(color: (isLoading || !isEnabled) ? Color.gray : Color.blue)
+        .disabled(isLoading || !isEnabled)
     }
 }
 
@@ -77,6 +81,7 @@ struct JoinSessionView: View {
     @Binding var username: String
     @Binding var code: String
     var isLoading: Bool = false
+    var isEnabled: Bool = true
     var onJoin: () -> Void = {}
     var body: some View {
         Image(systemName: "photo")
@@ -91,8 +96,8 @@ struct JoinSessionView: View {
             Text(isLoading ? "Joining..." : "Join")
                 .frame(maxWidth: .infinity)
         }
-        .primaryButton(color: isLoading ? Color.gray : Color.blue)
-        .disabled(isLoading)
+        .primaryButton(color: (isLoading || !isEnabled) ? Color.gray : Color.blue)
+        .disabled(isLoading || !isEnabled)
     }
 }
 

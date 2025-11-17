@@ -8,7 +8,7 @@ import Foundation
 import Supabase
 import PostgREST
 
-struct UserService {
+struct UserService: UserServicing {
     let client: SupabaseClient
     
     func createUser(username: String = "user") async throws -> UserDTO {
