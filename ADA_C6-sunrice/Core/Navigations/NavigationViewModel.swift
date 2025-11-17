@@ -11,15 +11,19 @@ import Combine
 class NavigationViewModel: ObservableObject {
     @Published var path = NavigationPath()
     
-    func goToCreateRoom() {
+    func goToCreateSession() {
         path.append(Route.create)
     }
     
-    func goToJoinRoom() {
+    func goToJoinSession() {
         path.append(Route.join)
     }
     
-    func goToRoomLobby(id: String, name: String? = nil) {
-        path.append(Route.room(id: id, name: name))
+    func goToSessionLobby(id: Int64) {
+        path.append(Route.session(id: String(id)))
+    }
+    
+    func goToSession(id: Int64) {
+        path.append(Route.session(id: String(id)))
     }
 }

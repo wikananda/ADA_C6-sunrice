@@ -1,5 +1,5 @@
 //
-//  RoomLobbyView.swift
+//  LobbyView.swift
 //  ADA_C6-sunrice
 //
 //  Created by Komang Wikananda on 03/11/25.
@@ -7,12 +7,15 @@
 
 import SwiftUI
 
-struct RoomLobbyView: View {
-    var id: String = ""
+struct SessionLobbyView: View {
+    
+    var id: Int64
     var name: String?
+    var onStart: () -> Void = {}
+    
     var body: some View {
         VStack {
-            Text((name?.isEmpty == false ? name : nil) ?? "Room Lobby")
+            Text((name?.isEmpty == false ? name : nil) ?? "Session Lobby")
                 .font(.title2)
                 .bold()
             ScrollView(.horizontal) {
@@ -22,7 +25,9 @@ struct RoomLobbyView: View {
             }
             
             Spacer()
-            Button(action: {}) {
+            Button(action: {
+                onStart()
+            }) {
                 Text("Start session")
                     .primaryButton()
             }
@@ -45,5 +50,5 @@ struct ParticipantCircle: View {
 }
 
 #Preview {
-    RoomLobbyView()
+    SessionLobbyView(id: 1)
 }

@@ -1,5 +1,5 @@
 //
-//  CreateRoomView.swift
+//  CreateSessionView.swift
 //  ADA_C6-sunrice
 //
 //  Created by Komang Wikananda on 28/10/25.
@@ -9,31 +9,31 @@ import SwiftUI
 
 enum EntryMode { case create, join }
 
-struct EntryRoomView: View {
+struct EntrySessionView: View {
     @EnvironmentObject var navVM: NavigationViewModel
-    @StateObject private var vm = EntryRoomViewModel()
+    @StateObject private var vm = EntrySessionViewModel()
     
     @State var mode: EntryMode = .create
     @State private var username: String = ""
-    @State private var roomName: String = ""
+    @State private var sessionName: String = ""
     @State private var code: String = ""
     
     var body: some View {
         VStack(spacing: 28) {
             switch mode {
                 case .create:
-                    CreateRoomView(
+                    CreateSessionView(
                         username: $username,
-                        roomName: $roomName,
+                        sessionName: $sessionName,
                         isLoading: vm.isLoading,
-                        onStart: { Task { await vm.createRoom(username: username, roomName: roomName) } }
+                        onStart: { Task { await vm.createSession(username: username, sessionName: sessionName) } }
                     )
                 case .join:
-                JoinRoomView(
+                JoinSessionView(
                     username: $username,
                     code: $code,
                     isLoading: vm.isLoading,
-                    onJoin: { Task { await vm.joinRoom(code: code, username: username) } })
+                    onJoin: { Task { await vm.joinSession(code: code, username: username) } })
             }
             if let message = vm.errorMessage {
                 Text(message)
@@ -42,16 +42,18 @@ struct EntryRoomView: View {
             }
         }
         .padding(48)
-        .onChange(of: vm.roomID) { oldValue, newValue in
+        .onChange(of: vm.sessionID) { oldValue, newValue in
             guard let id = newValue else { return }
-            navVM.goToRoomLobby(id: id, name: vm.room?.name)
+            print("DEBUG %f", id)
+            // ini kenapa bawa id ya? id apa?
+            // navVM.goToSessionLobby(id: id)
         }
     }
 }
 
-struct CreateRoomView: View {
+struct CreateSessionView: View {
     @Binding var username: String
-    @Binding var roomName: String
+    @Binding var sessionName: String
     var isLoading: Bool = false
     var onStart: () -> Void = {}
     var body: some View {
@@ -61,7 +63,7 @@ struct CreateRoomView: View {
             .frame(width: 128, height: 128)
             .foregroundColor(Color.gray)
         TextField("Enter your name", text: $username)
-        TextField("Enter room name", text: $roomName)
+        TextField("Enter session name", text: $sessionName)
         Button(action: onStart) {
             Text(isLoading ? "Creating..." : "Start")
                 .frame(maxWidth: .infinity)
@@ -71,7 +73,7 @@ struct CreateRoomView: View {
     }
 }
 
-struct JoinRoomView: View {
+struct JoinSessionView: View {
     @Binding var username: String
     @Binding var code: String
     var isLoading: Bool = false
@@ -95,5 +97,5 @@ struct JoinRoomView: View {
 }
 
 #Preview {
-    EntryRoomView()
+    EntrySessionView()
 }

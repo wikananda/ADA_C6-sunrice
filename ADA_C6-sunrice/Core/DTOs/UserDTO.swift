@@ -8,8 +8,9 @@ import SwiftData
 import Foundation
 
 struct UserDTO: Decodable, Sendable {
-    let id: UUID
-    let username: String
-    let created_at: Date
-    let status: String
+    let id: Int64
+    let name: String
+    let status: Int64
+    let created_at: Date?
+    let is_active: Bool?
 }

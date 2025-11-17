@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SessionRoomView: View {
+    let id: Int64
+    
     @State private var messages: [String] = []
     @State private var inputText: String = ""
     @FocusState private var isTextFieldFocused: Bool
@@ -19,7 +21,7 @@ struct SessionRoomView: View {
                 ScrollView {
                     LazyVStack(alignment: .trailing, spacing: 8) {
                         ForEach(Array(messages.enumerated()), id: \.offset) { index, message in
-                            IdeaBubbleView(text: message)
+                            IdeaBubbleView(text: message, ideaId: 1)
                                 .id(index)
                         }
                     }
@@ -32,14 +34,6 @@ struct SessionRoomView: View {
                         }
                     }
                 }
-
-//                .onChange(of: messages.count) { _ in
-//                    if let lastIndex = messages.indices.last {
-//                        withAnimation {
-//                            proxy.scrollTo(lastIndex, anchor: .bottom)
-//                        }
-//                    }
-//                }
             }
             
             // Input area
@@ -67,7 +61,7 @@ struct SessionRoomView: View {
             .padding(.vertical, 12)
             .background(Color(.systemBackground))
         }
-        .background(Color(.systemGroupedBackground))
+//        .background(Color(.systemGroupedBackground))
     }
     
     private func sendMessage() {
@@ -83,7 +77,7 @@ struct SessionRoomView: View {
                 id: nil,
                 text: trimmedText,
                 type: nil,
-                session_id: nil
+                session_id: nil // belum menerima nilai id session asli, jd masih nil
             )
             do {
                 try await insertIdea(newIdea)
@@ -95,5 +89,5 @@ struct SessionRoomView: View {
 }
 
 #Preview {
-    SessionRoomView()
+    SessionRoomView(id: 1)
 }
