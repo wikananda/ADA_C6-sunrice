@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct SessionLobbyView: View {
-    
     var participants: [String] = ["Saskia", "Wikan", "Selena", "Hendy", "Richard"]
+    var code: String = "244831"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -37,7 +37,7 @@ struct SessionLobbyView: View {
                 .foregroundColor(AppColor.Primary.gray)
             
             // Code
-            SessionCode(code: "244831")
+            SessionCode(code: code)
             
             // Chosen preset
             SelectedPreset(
@@ -63,11 +63,9 @@ struct SessionLobbyView: View {
                 isSelected: true
             )
         }
-        .padding()
     }
 }
 
 #Preview {
     SessionLobbyView()
 }
-
