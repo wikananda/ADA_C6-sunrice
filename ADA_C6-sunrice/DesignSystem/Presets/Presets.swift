@@ -23,13 +23,15 @@ struct Presets: View {
     // Accept sequence as single-letter codes, e.g., ["r", "b", "y"].
     var sequence: [String] = ["w", "g", "g", "y", "b", "r"]
     
-    @State private var isSelected: Bool = false
     @State private var isExpanded: Bool = false
     
     // Expansion
     var overview: String?
     var bestFor: [String]? = ["Workshops", "Brainstorms"]
     var outcome: String?
+    
+    var isSelected: Bool = false
+    var onSelect: (() -> Void)? = nil
 
     // Map codes to typed enum and colors
     private var sequenceColors: [sequenceColor] {
@@ -147,9 +149,7 @@ struct Presets: View {
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
         .onTapGesture {
-            withAnimation(.linear(duration: 0.1)) {
-                isSelected.toggle()
-            }
+            onSelect?()
         }
     }
 }

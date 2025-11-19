@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct EnterNameView: View {
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var vm = EnterNameViewModel()
+    @ObservedObject var vm: EnterNameViewModel
+//    var onContinue: () -> Void
     @FocusState private var isFocused: Bool
+
+    init(vm: EnterNameViewModel, onContinue: @escaping () -> Void = {}) {
+        self.vm = vm
+//        self.onContinue = onContinue
+    }
     
     var body: some View {
         VStack (alignment: .leading, spacing: 20) {
@@ -44,11 +49,8 @@ struct EnterNameView: View {
                 }
             }
             Spacer()
-            AppButton(title: "Go to Lobby") {
-                vm.goToLobby()
-            }
-            .disabled(!vm.isValid)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -59,5 +61,5 @@ struct EnterNameView: View {
 }
 
 #Preview {
-    EnterNameView()
+    EnterNameView(vm: EnterNameViewModel())
 }

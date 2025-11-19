@@ -37,12 +37,6 @@ final class EnterSessionCodeViewModel: ObservableObject {
         }
     }
 
-    func joinRoom() {
-        print("Joining room with code: \(sessionCode.filter(\.isNumber))")
-    }
-    
-    
-
     private func format(_ digits: String) -> String {
         let d = digits.prefix(6)
         guard d.count > 3 else { return String(d) }
