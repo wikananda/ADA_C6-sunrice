@@ -15,8 +15,4 @@ final class EnterNameViewModel: ObservableObject {
     var isValid: Bool {
         !username.isEmpty
     }
-    
-    func goToLobby() {
-        print("Going to lobby as user: \(username)")
-    }
 }

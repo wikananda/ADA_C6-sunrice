@@ -27,7 +27,6 @@ final class JoinSessionViewModel: ObservableObject {
     let codeVM = EnterSessionCodeViewModel()
     let nameVM = EnterNameViewModel()
     
-    var totalSteps: Int { JoinSessionStep.allCases.count }
     var currentTitle: String { step.title }
     var code: String { codeVM.sessionCode }
     @Published var step: JoinSessionStep = .enterCode
@@ -35,7 +34,7 @@ final class JoinSessionViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        // Forward changes from child ViewModels to ensure the parent view updates if needed
+        // Forward changes from child VM to ensure the parent view updates if needed
         codeVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
@@ -43,6 +42,17 @@ final class JoinSessionViewModel: ObservableObject {
         nameVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+    }
+    
+    var isNextButtonDisabled: Bool {
+        switch step {
+        case .enterCode:
+            return !codeVM.isValidCode
+        case .enterName:
+            return !nameVM.isValid
+        case .lobby:
+            return true
+        }
     }
     
     
@@ -54,12 +64,9 @@ final class JoinSessionViewModel: ObservableObject {
         withAnimation { step = previous }
     }
     
-    func advanceToName() {
-        withAnimation { step = .enterName }
-    }
-    
-    func advanceToLobby() {
-        withAnimation { step = .lobby }
+    func handleNext() {
+        guard let next = JoinSessionStep(rawValue: step.rawValue + 1) else { return }
+        withAnimation { step = next }
     }
     
     func makeParticipants() -> [String] {

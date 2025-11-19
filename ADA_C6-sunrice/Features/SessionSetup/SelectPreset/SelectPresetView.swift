@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SelectPresetView: View {
-    @ObservedObject var vm: SessionSetupViewModel
+    @ObservedObject var vm: CreateSessionViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -53,5 +53,5 @@ struct SelectPresetView: View {
 }
 
 #Preview {
-    SelectPresetView(vm: SessionSetupViewModel())
+    SelectPresetView(vm: CreateSessionViewModel())
 }

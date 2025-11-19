@@ -1,5 +1,5 @@
 //
-//  SessionSetupViewModel.swift
+//  CreateSessionViewModel.swift
 //  ADA_C6-sunrice
 //
 //  Created by Komang Wikananda on 19/11/25.
@@ -8,40 +8,44 @@
 import SwiftUI
 import Combine
 
-enum SessionSetupStep: Int, CaseIterable {
-    case defineSession = 1
+enum CreateSessionStep: Int, CaseIterable {
+    case enterName = 1
+    case defineSession
     case selectPreset
     case reviewSession
-}
-
-struct SessionPreset: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
-    let description: String
-    let duration: String
-    let numOfRounds: Int
-    let sequence: [String]
-    let overview: String
-    let bestFor: [String]
-    let outcome: String
-}
-
-struct TBASessionPreset: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
+    case lobby
+    
+    var title: String {
+        if self == .lobby {
+            return "Session Lobby"
+        } else {
+            return "Session Setup"
+        }
+    }
 }
 
 @MainActor
-final class SessionSetupViewModel: ObservableObject {
-    @Published var step: SessionSetupStep = .defineSession
+final class CreateSessionViewModel: ObservableObject {
+    var currentTitle: String { step.title }
     
-    // Define Session
+    // MARK: Enter Name
+    let nameVM = EnterNameViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    init() {
+        // Forward changes from child VM to parent's view
+        nameVM.objectWillChange
+            .sink{ [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+    }
+    
+    @Published var step: CreateSessionStep = .enterName
+    
+    // MARK: Define Session
     @Published var title: String = ""
     @Published var description: String = ""
     
-    // Select Preset
-    @Published var selectedPreset: SessionPreset?
-    
+    // MARK: Select Presets
+    @Published var selectedPreset: SessionPreset? = nil
     let presets: [SessionPreset] = [
         SessionPreset(
             title: "Initial Ideas",
@@ -64,23 +68,27 @@ final class SessionSetupViewModel: ObservableObject {
             outcome: "Clear highlights, constructive challenges, and human responses that capture the team’s overall sentiment."
         )
     ]
-    
     let tbaPresets: [TBASessionPreset] = [
         TBASessionPreset(title: "Identifying Solutions"),
         TBASessionPreset(title: "Strategic Planning")
     ]
     
-    // Review Session
+    // MARK: Review Session
     @Published var minutesPerRound: Int = 5
     
+    // MARK: Button Behavior
     var buttonText: String {
         switch step {
+        case .enterName:
+            return "Continue"
         case .defineSession:
             return "Next — Choose a Flow"
         case .selectPreset:
             return "Next — Review Session"
         case .reviewSession:
             return "Go to Lobby"
+        case .lobby:
+            return "Start Session"
         }
     }
     
@@ -92,28 +100,31 @@ final class SessionSetupViewModel: ObservableObject {
             return selectedPreset == nil
         case .reviewSession:
             return false
+        case .enterName, .lobby:
+            return false
         }
     }
     
-    
-    func nextStep() {
-        withAnimation {
-            if step == .defineSession {
-                step = .selectPreset
-            } else if step == .selectPreset {
-                step = .reviewSession
-            }
+    // MARK: Functions
+    func handleBack(dismiss: () -> Void) {
+        guard let previous = CreateSessionStep(rawValue: step.rawValue - 1) else {
+            dismiss()
+            return
         }
+        withAnimation { step = previous }
     }
     
-    func previousStep() {
-        withAnimation {
-            if step == .selectPreset {
-                step = .defineSession
-            } else if step == .reviewSession {
-                step = .selectPreset
-            }
-        }
+    func handleNext() {
+        guard let next = CreateSessionStep(rawValue: step.rawValue + 1) else { return }
+        withAnimation { step = next }
     }
     
+    func makeParticipants() -> [String] {
+        var base = ["Saskia", "Selena", "Hendy", "Richard"]
+        if !nameVM.username.isEmpty {
+            base.insert(nameVM.username, at: 0)
+        }
+        return base
+    }
 }
+

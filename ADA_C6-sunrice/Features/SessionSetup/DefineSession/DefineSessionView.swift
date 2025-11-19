@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DefineSessionView: View {
-    @ObservedObject var vm: SessionSetupViewModel
+    @ObservedObject var vm: CreateSessionViewModel
     
     var body: some View {
         VStack (alignment: .leading, spacing: 24) {
@@ -44,5 +44,5 @@ struct DefineSessionView: View {
 
 
 #Preview {
-    DefineSessionView(vm: SessionSetupViewModel())
+    DefineSessionView(vm: CreateSessionViewModel())
 }

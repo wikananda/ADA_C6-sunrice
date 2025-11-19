@@ -9,12 +9,12 @@ import SwiftUI
 
 struct EnterSessionCodeView: View {
     @ObservedObject var vm: EnterSessionCodeViewModel
-    var onContinue: () -> Void
+//    var onContinue: () -> Void
     @FocusState private var isFocused: Bool
 
     init(vm: EnterSessionCodeViewModel, onContinue: @escaping () -> Void = {}) {
         self.vm = vm
-        self.onContinue = onContinue
+//        self.onContinue = onContinue
     }
     
     var body: some View {
@@ -52,12 +52,8 @@ struct EnterSessionCodeView: View {
                 }
             }
             Spacer()
-            AppButton(title: "Continue") {
-                vm.joinRoom()
-                onContinue()
-            }
-            .disabled(!vm.isValidCode)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {

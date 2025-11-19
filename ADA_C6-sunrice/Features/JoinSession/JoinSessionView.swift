@@ -18,10 +18,21 @@ struct JoinSessionView: View {
                 onBack: { vm.handleBack(dismiss: { dismiss() }) }
             )
             
-            stepContent
+            ScrollView {
+                stepContent
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            if (vm.step != .lobby) {
+                AppButton(title: "Continue") {
+                    vm.handleNext()
+                }
+                .disabled(vm.isNextButtonDisabled)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal)
+        .padding(.bottom)
         .animation(.easeInOut, value: vm.step)
     }
     
@@ -29,13 +40,9 @@ struct JoinSessionView: View {
     private var stepContent: some View {
         switch vm.step {
         case .enterCode:
-            EnterSessionCodeView(vm: vm.codeVM) {
-                vm.advanceToName()
-            }
+            EnterSessionCodeView(vm: vm.codeVM)
         case .enterName:
-            EnterNameView(vm: vm.nameVM) {
-                vm.advanceToLobby()
-            }
+            EnterNameView(vm: vm.nameVM)
         case .lobby:
             SessionLobbyView(
                 participants: vm.makeParticipants(),
