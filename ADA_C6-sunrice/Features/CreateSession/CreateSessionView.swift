@@ -22,20 +22,11 @@ struct CreateSessionView: View {
                     .frame(height: 24)
             }
             
-            ScrollView {
-                switch vm.step {
-                case .enterName:
-                    EnterNameView(vm: vm.nameVM)
-                case .defineSession:
-                    DefineSessionView(vm: vm)
-                case .selectPreset:
-                    SelectPresetView(vm: vm)
-                case .reviewSession:
-                    ReviewSessionView(vm: vm)
-                default:
-                    SessionLobbyView(
-                        participants: vm.makeParticipants()
-                    )
+            GeometryReader { proxy in
+                ScrollView {
+                    stepContent
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: proxy.size.height, alignment: .top)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -47,6 +38,25 @@ struct CreateSessionView: View {
         }
         .padding(.horizontal)
         .padding(.bottom)
+        
+    }
+    
+    @ViewBuilder
+    private var stepContent: some View {
+        switch vm.step {
+        case .enterName:
+            EnterNameView(vm: vm.nameVM)
+        case .defineSession:
+            DefineSessionView(vm: vm)
+        case .selectPreset:
+            SelectPresetView(vm: vm)
+        case .reviewSession:
+            ReviewSessionView(vm: vm)
+        default:
+            SessionLobbyView(
+                participants: vm.makeParticipants()
+            )
+        }
     }
 }
 

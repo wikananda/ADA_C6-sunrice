@@ -18,8 +18,12 @@ struct JoinSessionView: View {
                 onBack: { vm.handleBack(dismiss: { dismiss() }) }
             )
             
-            ScrollView {
-                stepContent
+            GeometryReader { proxy in
+                ScrollView {
+                    stepContent
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: proxy.size.height, alignment: .top)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
