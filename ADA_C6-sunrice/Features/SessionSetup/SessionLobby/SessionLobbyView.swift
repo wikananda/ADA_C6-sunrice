@@ -14,7 +14,7 @@ struct SessionLobbyView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ScrollView(.horizontal) {
-                LazyHStack (spacing: 32) {
+                LazyHStack (spacing: 16) {
                     ForEach(participants, id: \.self) { name in
                         ParticipantBadge(name: name)
                     }

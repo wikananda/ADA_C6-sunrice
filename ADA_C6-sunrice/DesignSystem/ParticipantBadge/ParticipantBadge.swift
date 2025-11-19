@@ -52,9 +52,12 @@ struct ParticipantBadge: View {
                     .offset(x: size * 0.08, y: size * 0.08)
             }
             Text("\(name)")
+                .multilineTextAlignment(.center)
                 .font(.labelSM)
                 .foregroundColor(AppColor.Primary.gray)
         }
+        .frame(width: 64)
+        .frame(maxHeight: 64)
         
     }
 }
