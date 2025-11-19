@@ -47,7 +47,7 @@ struct InputArea: View {
                 topLeadingRadius: 20.0,
                 bottomLeadingRadius: 0,
                 bottomTrailingRadius: 0,
-                topTrailingRadius: 20.0,
+                topTrailingRadius: 20.0
             )
             .stroke(AppColor.grayscale20)
             // workaround to make bottom invisible. not best approach lol

@@ -22,7 +22,7 @@ struct ReviewSessionView: View {
                 description: "A short, balanced rhythm for fast reflection.",
                 showStats: false,
                 numOfRounds: 6,
-                sequence: ["w", "g", "g", "y", "b", "r"],
+                sequence: ["w", "g", "g", "y", "b", "r"]
             )
             
             // Select duration

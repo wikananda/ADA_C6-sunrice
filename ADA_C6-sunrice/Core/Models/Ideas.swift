@@ -8,10 +8,10 @@
 import Foundation
 
 struct Idea: Codable, Identifiable {
-    let id: Int?
+    let id: Int64
     let text: String
-    let type: Int?
-    let session_id: Int?
+    let type: Int64
+    let session_id: Int64
 }
 
 

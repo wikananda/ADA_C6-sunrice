@@ -74,10 +74,10 @@ struct SessionRoomView: View {
         
         Task {
             let newIdea = Idea(
-                id: nil,
+                id: 0, // pakai 0 karena tidak bisa nil. nanti akan di-override di supabase
                 text: trimmedText,
-                type: nil,
-                session_id: nil // belum menerima nilai id session asli, jd masih nil
+                type: 1,
+                session_id: id
             )
             do {
                 try await insertIdea(newIdea)
