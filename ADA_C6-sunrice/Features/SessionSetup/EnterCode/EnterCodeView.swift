@@ -7,14 +7,12 @@
 
 import SwiftUI
 
-struct EnterSessionCodeView: View {
-    @ObservedObject var vm: EnterSessionCodeViewModel
-//    var onContinue: () -> Void
+struct EnterCodeView: View {
+    @ObservedObject var vm: EnterCodeViewModel
     @FocusState private var isFocused: Bool
 
-    init(vm: EnterSessionCodeViewModel, onContinue: @escaping () -> Void = {}) {
+    init(vm: EnterCodeViewModel) {
         self.vm = vm
-//        self.onContinue = onContinue
     }
     
     var body: some View {
@@ -64,5 +62,5 @@ struct EnterSessionCodeView: View {
 }
 
 #Preview {
-    EnterSessionCodeView(vm: EnterSessionCodeViewModel())
+    EnterCodeView(vm: EnterCodeViewModel())
 }

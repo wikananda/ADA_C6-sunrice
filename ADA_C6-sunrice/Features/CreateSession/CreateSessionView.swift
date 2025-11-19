@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CreateSessionView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = CreateSessionViewModel()
     var body: some View {
         VStack {

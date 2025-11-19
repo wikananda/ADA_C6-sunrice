@@ -9,6 +9,7 @@ import SwiftUI
 
 struct JoinSessionView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = JoinSessionViewModel()
     
     var body: some View {
@@ -44,7 +45,7 @@ struct JoinSessionView: View {
     private var stepContent: some View {
         switch vm.step {
         case .enterCode:
-            EnterSessionCodeView(vm: vm.codeVM)
+            EnterCodeView(vm: vm.codeVM)
         case .enterName:
             EnterNameView(vm: vm.nameVM)
         case .lobby:

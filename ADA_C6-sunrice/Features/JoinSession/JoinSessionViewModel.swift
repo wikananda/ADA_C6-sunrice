@@ -24,7 +24,7 @@ enum JoinSessionStep: Int, CaseIterable {
 
 @MainActor
 final class JoinSessionViewModel: ObservableObject {
-    let codeVM = EnterSessionCodeViewModel()
+    let codeVM = EnterCodeViewModel()
     let nameVM = EnterNameViewModel()
     
     var currentTitle: String { step.title }
