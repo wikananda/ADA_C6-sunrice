@@ -143,7 +143,7 @@ struct Presets: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(
+                .strokeBorder(
                     isSelected ? AppColor.Primary.blue : AppColor.grayscale20,
                     lineWidth: isSelected ? 2 : 1)
         )

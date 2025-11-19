@@ -78,9 +78,7 @@ struct SelectedPreset: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    AppColor.Primary.blue,
-                    lineWidth: 2)
+                .strokeBorder(AppColor.Primary.blue, lineWidth: 2)
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
     }

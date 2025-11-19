@@ -30,7 +30,7 @@ struct TBAPreset: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(
+                .strokeBorder(
                     AppColor.grayscale20,
                     lineWidth: 1)
         )
