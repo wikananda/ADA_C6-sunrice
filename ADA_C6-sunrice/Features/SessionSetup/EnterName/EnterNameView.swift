@@ -9,12 +9,10 @@ import SwiftUI
 
 struct EnterNameView: View {
     @ObservedObject var vm: EnterNameViewModel
-//    var onContinue: () -> Void
     @FocusState private var isFocused: Bool
 
-    init(vm: EnterNameViewModel, onContinue: @escaping () -> Void = {}) {
+    init(vm: EnterNameViewModel) {
         self.vm = vm
-//        self.onContinue = onContinue
     }
     
     var body: some View {

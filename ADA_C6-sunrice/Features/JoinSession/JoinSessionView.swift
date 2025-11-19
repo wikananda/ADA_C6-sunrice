@@ -45,7 +45,7 @@ struct JoinSessionView: View {
     private var stepContent: some View {
         switch vm.step {
         case .enterCode:
-            EnterSessionCodeView(vm: vm.codeVM)
+            EnterCodeView(vm: vm.codeVM)
         case .enterName:
             EnterNameView(vm: vm.nameVM)
         case .lobby:
