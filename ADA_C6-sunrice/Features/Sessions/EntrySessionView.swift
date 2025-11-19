@@ -22,7 +22,7 @@ struct EntrySessionView: View {
         VStack(spacing: 28) {
             switch mode {
                 case .create:
-                    CreateSessionView(
+                    CreateSessionOldView(
                         username: $username,
                         sessionName: $sessionName,
                         isLoading: vm.isLoading,
@@ -54,7 +54,7 @@ struct EntrySessionView: View {
     }
 }
 
-struct CreateSessionView: View {
+struct CreateSessionOldView: View {
     @Binding var username: String
     @Binding var sessionName: String
     var isLoading: Bool = false
