@@ -11,8 +11,7 @@ import SwiftUI
 struct ADA_C6_sunriceApp: App {
     var body: some Scene {
         WindowGroup {
-//            HomeView()
-            JoinSessionView()
+            HomeView()
         }
     }
 }

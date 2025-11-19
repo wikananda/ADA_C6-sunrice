@@ -9,6 +9,7 @@ import SwiftUI
 
 struct JoinSessionView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = JoinSessionViewModel()
     
     var body: some View {
