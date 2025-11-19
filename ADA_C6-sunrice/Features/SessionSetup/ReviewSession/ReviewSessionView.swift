@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ReviewSessionView: View {
-    @State var minutesPerRound: Int = 5
+    @ObservedObject var vm: CreateSessionViewModel
+    
     var body: some View {
         VStack (alignment: .leading, spacing: 16) {
             // Title
@@ -17,16 +18,18 @@ struct ReviewSessionView: View {
                 .foregroundColor(AppColor.Primary.gray)
             
             // Chosen presets
-            SelectedPreset(
-                title: "Initial Ideas",
-                description: "A short, balanced rhythm for fast reflection.",
-                showStats: false,
-                numOfRounds: 6,
-                sequence: ["w", "g", "g", "y", "b", "r"],
-            )
+            if let preset = vm.selectedPreset {
+                SelectedPreset(
+                    title: preset.title,
+                    description: preset.description,
+                    showStats: false,
+                    numOfRounds: preset.numOfRounds,
+                    sequence: preset.sequence
+                )
+            }
             
             // Select duration
-            DurationSelector(minutesPerRound: $minutesPerRound)
+            DurationSelector(minutesPerRound: $vm.minutesPerRound)
             Text("Shorter rounds keep energy high; you can always add more time during the session.")
                 .font(.bodySM)
                 .foregroundColor(AppColor.grayscale40)
@@ -43,5 +46,5 @@ struct ReviewSessionView: View {
 }
 
 #Preview {
-    ReviewSessionView()
+    ReviewSessionView(vm: CreateSessionViewModel())
 }

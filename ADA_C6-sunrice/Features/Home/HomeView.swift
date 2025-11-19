@@ -50,11 +50,13 @@ struct HomeView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .create:
-                    EntrySessionView(mode: .create)
+                    CreateSessionView()
                         .environmentObject(navVM)
+                        .toolbar(.hidden, for: .navigationBar)
                 case .join:
-                    EntrySessionView(mode: .join)
+                    JoinSessionView()
                         .environmentObject(navVM)
+                        .toolbar(.hidden, for: .navigationBar)
                 case let .session(id):
 //                    SessionLobbyView(id: id)
                     Text("Bentar dulu")

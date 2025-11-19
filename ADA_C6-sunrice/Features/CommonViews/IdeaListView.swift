@@ -1,11 +1,11 @@
+////
+////  IdeaListView.swift
+////  ADA_C6-sunrice
+////
+////  Created by Selena Aura on 15/11/25.
+////
+//import SwiftUI
 //
-//  IdeaListView.swift
-//  ADA_C6-sunrice
-//
-//  Created by Selena Aura on 15/11/25.
-//
-import SwiftUI
-
 //struct IdeaListView: View {
 //    @EnvironmentObject var navVM: NavigationViewModel
 //    
@@ -17,13 +17,12 @@ import SwiftUI
 //            ProgressView("Loading ideas...")
 //        } else {
 //            List(ideas) { idea in
-//                IdeaBubbleView(
-//                    text: idea.text,
-//                    ideaId: idea.id ?? 1
-//                ) { tappedId in
-//                    navVM.path.append(Route.comment(ideaId: tappedId))
-//
-//                }
+//                IdeaView(
+//                    ideaText: idea.text, ideaId: Int(idea.id)
+//                )
+////                { tappedId in
+////                    navVM.path.append(Route.comment(ideaId: tappedId))
+////                }
 //            }
 //            .listRowSeparator(.hidden)
 //        }

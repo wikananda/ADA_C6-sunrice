@@ -49,8 +49,8 @@ struct Stepper: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: 24)
             .padding(.horizontal, horizontalPadding)
         }
     }

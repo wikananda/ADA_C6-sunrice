@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-final class EnterSessionCodeViewModel: ObservableObject {
+final class EnterCodeViewModel: ObservableObject {
     
     @Published var sessionCode: String = "" // The raw digit
     @Published var displayCode: String = "" // for display purpose
@@ -36,12 +36,6 @@ final class EnterSessionCodeViewModel: ObservableObject {
             displayCode = formatted
         }
     }
-
-    func joinRoom() {
-        print("Joining room with code: \(sessionCode.filter(\.isNumber))")
-    }
-    
-    
 
     private func format(_ digits: String) -> String {
         let d = digits.prefix(6)
