@@ -94,13 +94,13 @@ final class CreateSessionViewModel: ObservableObject {
     
     var isNextButtonDisabled: Bool {
         switch step {
+        case .enterName:
+            return !nameVM.isValid
         case .defineSession:
             return title.isEmpty
         case .selectPreset:
             return selectedPreset == nil
-        case .reviewSession:
-            return false
-        case .enterName, .lobby:
+        case .reviewSession, .lobby:
             return false
         }
     }

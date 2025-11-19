@@ -37,7 +37,6 @@ struct EnterNameView: View {
 
                     TextField("", text: $vm.username)
                         .multilineTextAlignment(.leading)
-                        .keyboardType(.numberPad)
                         .font(.inputXXL)
                         .foregroundStyle(AppColor.Primary.gray)
                         .disableAutocorrection(true)
