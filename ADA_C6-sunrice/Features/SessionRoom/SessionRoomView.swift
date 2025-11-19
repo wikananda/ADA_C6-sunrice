@@ -21,7 +21,7 @@ struct SessionRoomView: View {
                 ScrollView {
                     LazyVStack(alignment: .trailing, spacing: 8) {
                         ForEach(Array(messages.enumerated()), id: \.offset) { index, message in
-                            IdeaBubbleView(text: message, ideaId: 1)
+                            IdeaView(ideaText: message, ideaId: 1)
                                 .id(index)
                         }
                     }
