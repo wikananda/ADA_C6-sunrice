@@ -46,7 +46,7 @@ struct SessionLobbyView: View {
                 showStats: true,
                 duration: "30 min",
                 numOfRounds: 6,
-                sequence: ["w", "g", "g", "y", "b", "r"],
+                sequence: ["w", "g", "g", "y", "b", "r"]
             )
             
             // Session title
