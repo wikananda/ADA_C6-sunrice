@@ -26,16 +26,42 @@ enum CreateSessionStep: Int, CaseIterable {
 
 @MainActor
 final class CreateSessionViewModel: ObservableObject {
+    private let userService: UserServicing
+    private let userRoleService: UserRoleServicing
+    private let hostRoleId: Int64 = 1
+    
     var currentTitle: String { step.title }
     
     // MARK: Enter Name
     let nameVM = EnterNameViewModel()
+    @Published private(set) var currentUser: UserDTO?
+    @Published private(set) var currentUserRole: UserRoleDTO?
+    @Published var isPerformingAction = false
+    @Published var errorMessage: String?
     private var cancellables = Set<AnyCancellable>()
-    init() {
+    
+    init(
+        userService: UserServicing,
+        userRoleService: UserRoleServicing
+    ) {
+        self.userService = userService
+        self.userRoleService = userRoleService
         // Forward changes from child VM to parent's view
         nameVM.objectWillChange
             .sink{ [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+        
+        Task { [weak self] in
+            await self?.prepareUserRole()
+        }
+    }
+    
+    @MainActor
+    convenience init() {
+        self.init(
+            userService: UserService(client: supabaseManager),
+            userRoleService: UserRoleService(client: supabaseManager)
+        )
     }
     
     @Published var step: CreateSessionStep = .enterName
@@ -95,7 +121,7 @@ final class CreateSessionViewModel: ObservableObject {
     var isNextButtonDisabled: Bool {
         switch step {
         case .enterName:
-            return !nameVM.isValid
+            return !nameVM.isValid || isPerformingAction
         case .defineSession:
             return title.isEmpty
         case .selectPreset:
@@ -115,8 +141,61 @@ final class CreateSessionViewModel: ObservableObject {
     }
     
     func handleNext() {
+        Task { await handleNextAction() }
+    }
+    
+    private func handleNextAction() async {
+        switch step {
+        case .enterName:
+            await persistName()
+        default:
+            advanceToNextStep()
+        }
+    }
+    
+    private func advanceToNextStep() {
         guard let next = CreateSessionStep(rawValue: step.rawValue + 1) else { return }
         withAnimation { step = next }
+    }
+    
+    
+    
+    // MARK: Services
+    private func persistName() async {
+        guard nameVM.isValid, !isPerformingAction else { return }
+        isPerformingAction = true
+        defer { isPerformingAction = false }
+        
+        do {
+            errorMessage = nil
+            let role = try await ensureUserRole()
+            let user = try await userService.createUser(name: nameVM.username)
+            currentUser = user
+            currentUserRole = try await userRoleService.attach(userId: user.id, toRole: role.id)
+            advanceToNextStep()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // Caching, create a row in user_roles at start
+    private func prepareUserRole() async {
+        guard currentUserRole == nil else { return }
+        do {
+            currentUserRole = try await userRoleService.createUserRole(roleId: hostRoleId)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // ensure currentUserRole is not empty
+    private func ensureUserRole() async throws -> UserRoleDTO {
+        if let role = currentUserRole {
+            return role
+        }
+        let created = try await userRoleService.createUserRole(roleId: hostRoleId)
+        currentUserRole = created
+        return created
     }
     
     func makeParticipants() -> [String] {
@@ -127,4 +206,3 @@ final class CreateSessionViewModel: ObservableObject {
         return base
     }
 }
-

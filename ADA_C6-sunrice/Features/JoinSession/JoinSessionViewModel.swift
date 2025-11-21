@@ -24,16 +24,29 @@ enum JoinSessionStep: Int, CaseIterable {
 
 @MainActor
 final class JoinSessionViewModel: ObservableObject {
+    private let userService: UserServicing
+    private let userRoleService: UserRoleServicing
+    private let guestRoleId: Int64 = 2
+    
     let codeVM = EnterCodeViewModel()
     let nameVM = EnterNameViewModel()
     
     var currentTitle: String { step.title }
     var code: String { codeVM.sessionCode }
     @Published var step: JoinSessionStep = .enterCode
+    @Published var isPerformingAction = false
+    @Published var errorMessage: String?
+    @Published private(set) var currentUser: UserDTO?
+    @Published private(set) var currentUserRole: UserRoleDTO?
     
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
+    init(
+        userService: UserServicing,
+        userRoleService: UserRoleServicing
+    ) {
+        self.userService = userService
+        self.userRoleService = userRoleService
         // Forward changes from child VM to ensure the parent view updates if needed
         codeVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
@@ -42,6 +55,18 @@ final class JoinSessionViewModel: ObservableObject {
         nameVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+        
+        Task { [weak self] in
+            await self?.prepareUserRole()
+        }
+    }
+    
+    @MainActor
+    convenience init() {
+        self.init(
+            userService: UserService(client: supabaseManager),
+            userRoleService: UserRoleService(client: supabaseManager)
+        )
     }
     
     var isNextButtonDisabled: Bool {
@@ -49,7 +74,7 @@ final class JoinSessionViewModel: ObservableObject {
         case .enterCode:
             return !codeVM.isValidCode
         case .enterName:
-            return !nameVM.isValid
+            return !nameVM.isValid || isPerformingAction
         case .lobby:
             return true
         }
@@ -65,8 +90,58 @@ final class JoinSessionViewModel: ObservableObject {
     }
     
     func handleNext() {
+        Task { await handleNextAction() }
+    }
+    
+    private func handleNextAction() async {
+        switch step {
+        case .enterCode:
+            advanceToNextStep()
+        case .enterName:
+            await persistName()
+        case .lobby:
+            break
+        }
+    }
+    
+    private func advanceToNextStep() {
         guard let next = JoinSessionStep(rawValue: step.rawValue + 1) else { return }
         withAnimation { step = next }
+    }
+    
+    private func persistName() async {
+        guard nameVM.isValid, !isPerformingAction else { return }
+        isPerformingAction = true
+        defer { isPerformingAction = false }
+        
+        do {
+            errorMessage = nil
+            let userRole = try await ensureUserRole()
+            let user = try await userService.createUser(name: nameVM.username)
+            currentUser = user
+            currentUserRole = try await userRoleService.attach(userId: user.id, toRole: userRole.id)
+            advanceToNextStep()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func prepareUserRole() async {
+        guard currentUserRole == nil else { return }
+        do {
+            currentUserRole = try await userRoleService.createUserRole(roleId: guestRoleId)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func ensureUserRole() async throws -> UserRoleDTO {
+        if let role = currentUserRole {
+            return role
+        }
+        let created = try await userRoleService.createUserRole(roleId: guestRoleId)
+        currentUserRole = created
+        return created
     }
     
     func makeParticipants() -> [String] {
@@ -77,3 +152,4 @@ final class JoinSessionViewModel: ObservableObject {
         return base
     }
 }
+
