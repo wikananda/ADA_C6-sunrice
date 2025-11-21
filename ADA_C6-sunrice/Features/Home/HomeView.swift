@@ -43,6 +43,7 @@ struct HomeView: View {
                         RoomButton(title: "PAST SESSIONS", icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
                             
                         }
+                        .disabled(true)
                     }
                 }
                 .padding(24)
