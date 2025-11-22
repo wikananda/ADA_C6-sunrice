@@ -43,7 +43,7 @@ struct CreateSessionView: View {
             
             if let message = vm.errorMessage {
                 AlertMessage(message: message)
-                    .offset(y: -100)
+                    .offset(y: -75)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .gesture(
                         DragGesture()

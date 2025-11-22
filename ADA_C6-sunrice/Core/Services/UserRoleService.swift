@@ -24,6 +24,7 @@ struct UserRoleService: UserRoleServicing {
     
     func attach(userId: Int64, toRole roleId: Int64) async throws -> UserRoleDTO {
         let payload = UpdateUserRolePayload(user_id: userId)
+        print("attaching userId: \(userId) to roleId: \(roleId)")
         let response: PostgrestResponse<UserRoleDTO> = try await client
             .from("user_roles")
             .update(payload, returning: .representation)

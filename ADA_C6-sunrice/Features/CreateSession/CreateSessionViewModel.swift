@@ -50,10 +50,6 @@ final class CreateSessionViewModel: ObservableObject {
         nameVM.objectWillChange
             .sink{ [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
-        
-        Task { [weak self] in
-            await self?.prepareUserRole()
-        }
     }
     
     @MainActor
@@ -168,28 +164,19 @@ final class CreateSessionViewModel: ObservableObject {
         
         do {
             errorMessage = nil
-            let role = try await ensureUserRole()
+            let role = try await prepareUserRole()
             let user = try await userService.createUser(name: nameVM.username)
             currentUser = user
             currentUserRole = try await userRoleService.attach(userId: user.id, toRole: role.id)
+            print("currentUserRole: ", currentUserRole)
             advanceToNextStep()
         } catch {
             errorMessage = error.localizedDescription
         }
     }
     
-    // Caching, create a row in user_roles at start
-    private func prepareUserRole() async {
-        guard currentUserRole == nil else { return }
-        do {
-            currentUserRole = try await userRoleService.createUserRole(roleId: hostRoleId)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-    
-    // ensure currentUserRole is not empty
-    private func ensureUserRole() async throws -> UserRoleDTO {
+    // Prepare user role
+    private func prepareUserRole() async throws -> UserRoleDTO {
         if let role = currentUserRole {
             return role
         }

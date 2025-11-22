@@ -55,10 +55,6 @@ final class JoinSessionViewModel: ObservableObject {
         nameVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
-        
-        Task { [weak self] in
-            await self?.prepareUserRole()
-        }
     }
     
     @MainActor
@@ -116,7 +112,7 @@ final class JoinSessionViewModel: ObservableObject {
         
         do {
             errorMessage = nil
-            let userRole = try await ensureUserRole()
+            let userRole = try await prepareUserRole()
             let user = try await userService.createUser(name: nameVM.username)
             currentUser = user
             currentUserRole = try await userRoleService.attach(userId: user.id, toRole: userRole.id)
@@ -126,16 +122,7 @@ final class JoinSessionViewModel: ObservableObject {
         }
     }
     
-    private func prepareUserRole() async {
-        guard currentUserRole == nil else { return }
-        do {
-            currentUserRole = try await userRoleService.createUserRole(roleId: guestRoleId)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-    
-    private func ensureUserRole() async throws -> UserRoleDTO {
+    private func prepareUserRole() async throws -> UserRoleDTO {
         if let role = currentUserRole {
             return role
         }

@@ -25,11 +25,15 @@ struct UserService: UserServicing {
     
     func createUser(name: String = "user") async throws -> UserDTO {
         let payload = CreateUserPayload(name: name)
+        
         let response: PostgrestResponse<UserDTO> = try await client
             .from("users")
             .insert(payload, returning: .representation)
+            .select()
             .single()
             .execute()
+        print("response: \(response)")
+        
         return response.value
     }
 }
