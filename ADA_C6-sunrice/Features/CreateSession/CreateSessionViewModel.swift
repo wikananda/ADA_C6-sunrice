@@ -38,8 +38,13 @@ final class CreateSessionViewModel: ObservableObject {
     @Published private(set) var currentUser: UserDTO?
     @Published private(set) var currentUserRole: UserRoleDTO?
     @Published private(set) var newSession: SessionDTO?
+    @Published private(set) var lobbySession: SessionDTO?
+    @Published private(set) var lobbyMode: ModeDTO?
+    @Published var lobbyParticipants: [UserDTO] = []
     @Published var isPerformingAction = false
     @Published var errorMessage: String?
+    @Published var isLoadingPresets = false
+    
     private var cancellables = Set<AnyCancellable>()
     
     init(
@@ -54,6 +59,8 @@ final class CreateSessionViewModel: ObservableObject {
         nameVM.objectWillChange
             .sink{ [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+        
+        Task { await loadPresets() }
     }
     
     @MainActor
@@ -73,30 +80,7 @@ final class CreateSessionViewModel: ObservableObject {
     
     // MARK: Select Presets
     @Published var selectedPreset: SessionPreset? = nil
-    let presets: [SessionPreset] = [
-        SessionPreset(
-            id: 2,
-            title: "Initial Ideas",
-            description: "A short, balanced rhythm for fast reflection",
-            duration: "30 min",
-            numOfRounds: 6,
-            sequence: ["w", "g", "g", "y", "b", "r"],
-            overview: "A complete ideation journey — from understanding the facts to exploring ideas, spotting opportunities, and reflecting on their impact.",
-            bestFor: ["Workshops", "Brainstorms", "Early exploration"],
-            outcome: "A well-rounded view of the topic — clear facts, expanded ideas, bright opportunities, grounded risks, and emotional perspectives."
-        ),
-        SessionPreset(
-            id: 1,
-            title: "Quick Feedback",
-            description: "A short, balanced rhythm for fast reflection",
-            duration: "30 min",
-            numOfRounds: 3,
-            sequence: ["y", "b", "r"],
-            overview: "A short, focused rhythm for team reflection and feedback. Moves quickly from what works, to what could improve, to how it feels overall.",
-            bestFor: ["Design critiques", "Check-ins", "Project reviews"],
-            outcome: "Clear highlights, constructive challenges, and human responses that capture the team’s overall sentiment."
-        )
-    ]
+    @Published var presets: [SessionPreset] = []
     let tbaPresets: [TBASessionPreset] = [
         TBASessionPreset(id: 1, title: "Identifying Solutions"),
         TBASessionPreset(id: 2, title: "Strategic Planning")
@@ -128,7 +112,7 @@ final class CreateSessionViewModel: ObservableObject {
         case .defineSession:
             return topic.isEmpty
         case .selectPreset:
-            return selectedPreset == nil
+            return selectedPreset == nil || isLoadingPresets
         case .reviewSession, .lobby:
             return false
         }
@@ -194,16 +178,22 @@ final class CreateSessionViewModel: ObservableObject {
         return created
     }
     
-    func makeParticipants() -> [String] {
-        var base = ["Saskia", "Selena", "Hendy", "Richard"]
+    func makeParticipants() -> [UserDTO] {
+        var baseNames = ["Saskia", "Selena", "Hendy", "Richard"]
         if !nameVM.username.isEmpty {
-            base.insert(nameVM.username, at: 0)
+            baseNames.insert(nameVM.username, at: 0)
         }
-        return base
+        return baseNames.enumerated().map { idx, name in
+            UserDTO(id: Int64(idx + 1), name: name, status: 1, created_at: nil)
+        }
     }
     
     func createSession() async {
         guard !isPerformingAction else { return }
+        guard let selectedPreset else {
+            errorMessage = "Select a preset first."
+            return
+        }
         isPerformingAction = true
         defer { isPerformingAction = false }
         
@@ -213,10 +203,52 @@ final class CreateSessionViewModel: ObservableObject {
                 topic: topic,
                 description: description,
                 duration_per_round: String(durationPerRound),
-                mode_id: selectedPreset?.id ?? 1,
+                mode_id: selectedPreset.id
             )
             newSession = session
+            lobbyParticipants = makeParticipants()
+            await fetchSessionAndMode(sessionId: session.id)
             advanceToNextStep()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // MARK: Preset & lobby helpers
+    private func loadPresets() async {
+        isLoadingPresets = true
+        defer { isLoadingPresets = false }
+        do {
+            let modes = try await sessionService.fetchModes()
+            let mapped = modes.compactMap { mode in
+                SessionPreset(
+                    id: mode.id,
+                    title: mode.title ?? mode.name ?? "Preset \(mode.id)",
+                    description: mode.description ?? "Description coming soon",
+                    duration: mode.duration ?? "\(mode.num_of_rounds ?? mode.round_count ?? 0) rounds",
+                    numOfRounds: Int(mode.num_of_rounds ?? mode.round_count ?? 0),
+                    sequence: mode.sequence ?? [],
+                    overview: mode.overview ?? "Overview coming soon",
+                    bestFor: mode.best_for ?? [],
+                    outcome: mode.outcome ?? ""
+                )
+            }
+            presets = mapped
+            if selectedPreset == nil, let first = mapped.first {
+                selectedPreset = first
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func fetchSessionAndMode(sessionId: Int64) async {
+        do {
+            let session = try await sessionService.fetchSession(id: sessionId)
+            lobbySession = session
+            if let modeId = session.mode_id {
+                lobbyMode = try await sessionService.fetchMode(id: modeId)
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -32,14 +32,33 @@ struct SessionService: SessionServicing {
         return response.value
     }
     
-    func retrieveMode(mode_id id: Int) async throws -> ModeDTO {
-        let response: PostgrestResponse<ModeDTO> = try await client
-            .from("modes")
+    func fetchSession(id: Int64) async throws -> SessionDTO {
+        let response: PostgrestResponse<SessionDTO> = try await client
+            .from("sessions")
             .select()
-            .eq("id", value: id)
+            .eq("id", value: Int(id))
             .single()
             .execute()
         
+        return response.value
+    }
+    
+    func fetchMode(id: Int64) async throws -> ModeDTO {
+        let response: PostgrestResponse<ModeDTO> = try await client
+            .from("modes")
+            .select()
+            .eq("id", value: Int(id))
+            .single()
+            .execute()
+        
+        return response.value
+    }
+    
+    func fetchModes() async throws -> [ModeDTO] {
+        let response: PostgrestResponse<[ModeDTO]> = try await client
+            .from("modes")
+            .select()
+            .execute()
         return response.value
     }
     

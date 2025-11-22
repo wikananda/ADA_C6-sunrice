@@ -87,8 +87,9 @@ struct JoinSessionView: View {
             EnterNameView(vm: vm.nameVM)
         case .lobby:
             SessionLobbyView(
-                participants: vm.makeParticipants(),
-                code: vm.code
+                session: vm.lobbySession ?? vm.makePlaceholderSession(),
+                mode: vm.lobbyMode,
+                participants: vm.lobbyParticipants.isEmpty ? vm.makeParticipants() : vm.lobbyParticipants
             )
         }
     }

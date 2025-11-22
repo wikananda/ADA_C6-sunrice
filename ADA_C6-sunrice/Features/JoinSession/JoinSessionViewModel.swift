@@ -27,6 +27,9 @@ final class JoinSessionViewModel: ObservableObject {
     private let userService: UserServicing
     private let userRoleService: UserRoleServicing
     private let guestRoleId: Int64 = 2
+    @Published var lobbySession: SessionDTO?
+    @Published var lobbyMode: ModeDTO?
+    @Published var lobbyParticipants: [UserDTO] = []
     
     let codeVM = EnterCodeViewModel()
     let nameVM = EnterNameViewModel()
@@ -131,12 +134,28 @@ final class JoinSessionViewModel: ObservableObject {
         return created
     }
     
-    func makeParticipants() -> [String] {
-        var base = ["Saskia", "Selena", "Hendy", "Richard"]
+    func makeParticipants() -> [UserDTO] {
+        var baseNames = ["Saskia", "Selena", "Hendy", "Richard"]
         if !nameVM.username.isEmpty {
-            base.insert(nameVM.username, at: 0)
+            baseNames.insert(nameVM.username, at: 0)
         }
-        return base
+        return baseNames.enumerated().map { idx, name in
+            UserDTO(id: Int64(idx + 1), name: name, status: 1, created_at: nil)
+        }
+    }
+    
+    func makePlaceholderSession() -> SessionDTO {
+        SessionDTO(
+            id: 0,
+            duration_per_round: "5",
+            topic: "Session",
+            description: "",
+            token: code,
+            is_token_expired: false,
+            started_at: nil,
+            ended_at: nil,
+            created_at: nil,
+            mode_id: nil
+        )
     }
 }
-

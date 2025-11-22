@@ -24,24 +24,29 @@ struct SelectPresetView: View {
             
             // Presets
             VStack(alignment: .leading, spacing: 16) {
-                ForEach(vm.presets) { preset in
-                    Presets(
-                        title: preset.title,
-                        description: preset.description,
-                        duration: preset.duration,
-                        numOfRounds: preset.numOfRounds,
-                        sequence: preset.sequence,
-                        overview: preset.overview,
-                        bestFor: preset.bestFor,
-                        outcome: preset.outcome,
-                        isSelected: vm.selectedPreset?.id == preset.id,
-                        onSelect: {
-                            if vm.selectedPreset?.id != preset.id {
-                                vm.selectedPreset = preset
+                if vm.isLoadingPresets {
+                    ProgressView("Loading presets...")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    ForEach(vm.presets) { preset in
+                        Presets(
+                            title: preset.title,
+                            description: preset.description,
+                            duration: preset.duration,
+                            numOfRounds: preset.numOfRounds,
+                            sequence: preset.sequence,
+                            overview: preset.overview,
+                            bestFor: preset.bestFor,
+                            outcome: preset.outcome,
+                            isSelected: vm.selectedPreset?.id == preset.id,
+                            onSelect: {
+                                if vm.selectedPreset?.id != preset.id {
+                                    vm.selectedPreset = preset
+                                }
                             }
-                        }
-                    )
-                    .animation(.easeInOut(duration: 0.1), value: vm.selectedPreset)
+                        )
+                        .animation(.easeInOut(duration: 0.1), value: vm.selectedPreset)
+                    }
                 }
                 
                 ForEach(vm.tbaPresets) { preset in

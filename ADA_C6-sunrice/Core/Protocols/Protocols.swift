@@ -21,5 +21,8 @@ protocol SessionServicing {
         duration_per_round: String,
         mode_id: Int64
     ) async throws -> SessionDTO
+    func fetchSession(id: Int64) async throws -> SessionDTO
+    func fetchMode(id: Int64) async throws -> ModeDTO
+    func fetchModes() async throws -> [ModeDTO]
     func joinSession(code: String, userId: Int64) async throws -> SessionDTO
 }
