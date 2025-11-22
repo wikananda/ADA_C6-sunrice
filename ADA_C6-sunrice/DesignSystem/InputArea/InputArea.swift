@@ -49,7 +49,7 @@ struct InputArea: View {
                 bottomTrailingRadius: 0,
                 topTrailingRadius: 20.0
             )
-            .stroke(AppColor.grayscale20)
+            .strokeBorder(AppColor.grayscale20)
             // workaround to make bottom invisible. not best approach lol
             .mask(
                 LinearGradient(

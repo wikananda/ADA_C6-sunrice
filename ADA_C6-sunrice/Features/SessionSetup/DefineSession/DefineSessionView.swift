@@ -26,7 +26,7 @@ struct DefineSessionView: View {
                     .font(.labelMD)
                 BoxField(
                     placeholder: "e.g., “How might we make onboarding more delightful?”, “Exploring sustainable ideas.”, etc.",
-                    text: $vm.title
+                    text: $vm.topic
                 )
             }
             

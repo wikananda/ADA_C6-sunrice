@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct DurationSelector: View {
-    @Binding var minutesPerRound: Int
+    @Binding var durationPerRound: Int
     let totalRounds: Int = 6
     
     var totalDuration: String {
-        "\(minutesPerRound * totalRounds) min"
+        "\(durationPerRound * totalRounds) min"
     }
     
     var body: some View {
@@ -24,19 +24,19 @@ struct DurationSelector: View {
                     .foregroundColor(AppColor.Primary.gray)
                 
                 HStack {
-                    Button(action: {minutesPerRound = max(1, minutesPerRound - 1)}) {
+                    Button(action: {durationPerRound = max(1, durationPerRound - 1)}) {
                         Image(systemName: "minus")
                             .font(.symbolM)
                             .foregroundColor(AppColor.Primary.gray)
                             .frame(maxWidth: 24, maxHeight: 20)
                     }
                     Spacer()
-                    Text("\(minutesPerRound) min")
+                    Text("\(durationPerRound) min")
                         .font(.symbolM)
                         .foregroundColor(AppColor.Primary.gray)
                         .frame(maxWidth: 64, maxHeight: 20)
                     Spacer()
-                    Button(action: {minutesPerRound = min(30, minutesPerRound + 1)}) {
+                    Button(action: {durationPerRound = min(30, durationPerRound + 1)}) {
                         Image(systemName: "plus")
                             .font(.symbolM)
                             .foregroundColor(AppColor.Primary.gray)
@@ -51,7 +51,7 @@ struct DurationSelector: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(
+                        .strokeBorder(
                             AppColor.grayscale20,
                             lineWidth: 2)
                 )
@@ -78,6 +78,6 @@ struct DurationSelector: View {
 }
 
 #Preview {
-    @Previewable @State var minutesPerRound: Int = 5
-    DurationSelector(minutesPerRound: $minutesPerRound)
+    @Previewable @State var durationPerRound: Int = 5
+    DurationSelector(durationPerRound: $durationPerRound)
 }

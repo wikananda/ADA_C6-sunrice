@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RoomButton: View {
+    @Environment(\.isEnabled) private var isEnabled
     var title: String
     var icon: String
     var primary: Bool = false
@@ -19,13 +20,20 @@ struct RoomButton: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
                 .font(.labelMD)
-                .foregroundStyle(primary ? AppColor.grayscale10 : AppColor.Primary.gray)
+                .foregroundStyle(
+                    primary ?
+                    (isEnabled ? AppColor.grayscale10 : AppColor.grayscale20)
+                    : (isEnabled ? AppColor.Primary.gray : AppColor.grayscale20))
         }
         .frame(maxWidth: .infinity, maxHeight: 80)
-        .background(RoundedRectangle(cornerRadius: 20).fill(primary ? AppColor.Primary.blue : AppColor.grayscale10))
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(primary ?
+                      (isEnabled ? AppColor.Primary.blue : AppColor.whiteishBlue10) : AppColor.grayscale10)
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(AppColor.grayscale20, lineWidth: 1)
+                .strokeBorder(AppColor.grayscale20, lineWidth: 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -33,6 +41,8 @@ struct RoomButton: View {
 
 #Preview {
     RoomButton(title: "TITLE", icon: "star.fill") {}
+//        .asPrimary()
+//        .disabled(true)
 }
 
 // MARK: - Convenience style helpers

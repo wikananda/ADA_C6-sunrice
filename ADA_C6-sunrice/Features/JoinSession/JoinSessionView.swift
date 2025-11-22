@@ -11,34 +11,71 @@ struct JoinSessionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = JoinSessionViewModel()
+    @State private var alertDismissTask: Task<Void, Never>?
     
     var body: some View {
-        VStack(spacing: 24) {
-            Header(
-                config: .init(title: vm.currentTitle),
-                onBack: { vm.handleBack(dismiss: { dismiss() }) }
-            )
-            
-            GeometryReader { proxy in
-                ScrollView {
-                    stepContent
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: proxy.size.height, alignment: .top)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 24) {
+                Header(
+                    config: .init(title: vm.currentTitle),
+                    onBack: { vm.handleBack(dismiss: { dismiss() }) }
+                )
+                
+                GeometryReader { proxy in
+                    ScrollView {
+                        stepContent
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: proxy.size.height, alignment: .top)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                if (vm.step != .lobby) {
+                    AppButton(title: "Continue") {
+                        vm.handleNext()
+                    }
+                    .disabled(vm.isNextButtonDisabled)
+                }
+                
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             
-            if (vm.step != .lobby) {
-                AppButton(title: "Continue") {
-                    vm.handleNext()
-                }
-                .disabled(vm.isNextButtonDisabled)
+            if let message = vm.errorMessage {
+                AlertMessage(message: message)
+                    .offset(y: -75)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                if value.translation.height > 24 {
+                                    withAnimation {
+                                        vm.errorMessage = nil
+                                    }
+                                }
+                            }
+                    )
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal)
         .padding(.bottom)
         .animation(.easeInOut, value: vm.step)
+        .animation(.spring(), value: vm.errorMessage)
+        .onChange(of: vm.errorMessage) { newValue in
+            alertDismissTask?.cancel()
+            guard let message = newValue else { return }
+            
+            alertDismissTask = Task {
+                try? await Task.sleep(for: .seconds(3))
+                await MainActor.run {
+                    if vm.errorMessage == message {
+                        vm.errorMessage = nil
+                    }
+                }
+            }
+        }
+        .onDisappear {
+            alertDismissTask?.cancel()
+        }
     }
     
     @ViewBuilder
@@ -50,8 +87,9 @@ struct JoinSessionView: View {
             EnterNameView(vm: vm.nameVM)
         case .lobby:
             SessionLobbyView(
-                participants: vm.makeParticipants(),
-                code: vm.code
+                session: vm.lobbySession ?? vm.makePlaceholderSession(),
+                mode: vm.lobbyMode,
+                participants: vm.lobbyParticipants.isEmpty ? vm.makeParticipants() : vm.lobbyParticipants
             )
         }
     }

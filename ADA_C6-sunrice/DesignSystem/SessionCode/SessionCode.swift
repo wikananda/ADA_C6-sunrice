@@ -73,7 +73,7 @@ struct SessionCode: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(
+                .strokeBorder(
                     AppColor.Primary.blue,
                     lineWidth: 2)
         )
