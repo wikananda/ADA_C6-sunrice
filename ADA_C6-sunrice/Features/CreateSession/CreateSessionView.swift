@@ -95,7 +95,10 @@ struct CreateSessionView: View {
             ReviewSessionView(vm: vm)
         default:
             SessionLobbyView(
-                participants: vm.makeParticipants()
+                participants: vm.makeParticipants(),
+                selectedPreset: vm.selectedPreset ?? vm.presets.first!,
+                topic: vm.topic,
+                description: vm.description
             )
         }
     }

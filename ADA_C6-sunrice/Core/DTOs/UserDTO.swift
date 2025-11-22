@@ -4,7 +4,6 @@
 //
 //  Created by Komang Wikananda on 05/11/25.
 //
-import SwiftData
 import Foundation
 
 struct UserDTO: Decodable, Sendable {

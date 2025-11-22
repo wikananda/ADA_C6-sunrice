@@ -10,6 +10,9 @@ import SwiftUI
 struct SessionLobbyView: View {
     var participants: [String] = ["Saskia", "Wikan", "Selena", "Hendy", "Richard"]
     var code: String = "244831"
+    var selectedPreset: SessionPreset
+    var topic: String
+    var description: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -67,5 +70,19 @@ struct SessionLobbyView: View {
 }
 
 #Preview {
-    SessionLobbyView()
+    var topic: String = "Initial Ideas"
+    var description: String? = "A short, balanced rhythm for fast reflection."
+    var selectedPreset = SessionPreset(
+        id: 2,
+        title: "Initial Ideas",
+        description: "A short, balanced rhythm for fast reflection",
+        duration: "30 min",
+        numOfRounds: 6,
+        sequence: ["w", "g", "g", "y", "b", "r"],
+        overview: "A complete ideation journey — from understanding the facts to exploring ideas, spotting opportunities, and reflecting on their impact.",
+        bestFor: ["Workshops", "Brainstorms", "Early exploration"],
+        outcome: "A well-rounded view of the topic — clear facts, expanded ideas, bright opportunities, grounded risks, and emotional perspectives."
+    )
+    
+    SessionLobbyView(selectedPreset: selectedPreset, topic: topic, description: description)
 }

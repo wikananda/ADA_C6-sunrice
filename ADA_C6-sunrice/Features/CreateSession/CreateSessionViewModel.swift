@@ -28,6 +28,7 @@ enum CreateSessionStep: Int, CaseIterable {
 final class CreateSessionViewModel: ObservableObject {
     private let userService: UserServicing
     private let userRoleService: UserRoleServicing
+    private let sessionService: SessionServicing
     private let hostRoleId: Int64 = 1
     
     var currentTitle: String { step.title }
@@ -36,16 +37,19 @@ final class CreateSessionViewModel: ObservableObject {
     let nameVM = EnterNameViewModel()
     @Published private(set) var currentUser: UserDTO?
     @Published private(set) var currentUserRole: UserRoleDTO?
+    @Published private(set) var newSession: SessionDTO?
     @Published var isPerformingAction = false
     @Published var errorMessage: String?
     private var cancellables = Set<AnyCancellable>()
     
     init(
         userService: UserServicing,
-        userRoleService: UserRoleServicing
+        userRoleService: UserRoleServicing,
+        sessionService: SessionServicing
     ) {
         self.userService = userService
         self.userRoleService = userRoleService
+        self.sessionService = sessionService
         // Forward changes from child VM to parent's view
         nameVM.objectWillChange
             .sink{ [weak self] _ in self?.objectWillChange.send() }
@@ -56,20 +60,22 @@ final class CreateSessionViewModel: ObservableObject {
     convenience init() {
         self.init(
             userService: UserService(client: supabaseManager),
-            userRoleService: UserRoleService(client: supabaseManager)
+            userRoleService: UserRoleService(client: supabaseManager),
+            sessionService: SessionService(client: supabaseManager)
         )
     }
     
     @Published var step: CreateSessionStep = .enterName
     
     // MARK: Define Session
-    @Published var title: String = ""
+    @Published var topic: String = ""
     @Published var description: String = ""
     
     // MARK: Select Presets
     @Published var selectedPreset: SessionPreset? = nil
     let presets: [SessionPreset] = [
         SessionPreset(
+            id: 2,
             title: "Initial Ideas",
             description: "A short, balanced rhythm for fast reflection",
             duration: "30 min",
@@ -80,10 +86,11 @@ final class CreateSessionViewModel: ObservableObject {
             outcome: "A well-rounded view of the topic — clear facts, expanded ideas, bright opportunities, grounded risks, and emotional perspectives."
         ),
         SessionPreset(
+            id: 1,
             title: "Quick Feedback",
             description: "A short, balanced rhythm for fast reflection",
             duration: "30 min",
-            numOfRounds: 6,
+            numOfRounds: 3,
             sequence: ["y", "b", "r"],
             overview: "A short, focused rhythm for team reflection and feedback. Moves quickly from what works, to what could improve, to how it feels overall.",
             bestFor: ["Design critiques", "Check-ins", "Project reviews"],
@@ -91,12 +98,12 @@ final class CreateSessionViewModel: ObservableObject {
         )
     ]
     let tbaPresets: [TBASessionPreset] = [
-        TBASessionPreset(title: "Identifying Solutions"),
-        TBASessionPreset(title: "Strategic Planning")
+        TBASessionPreset(id: 1, title: "Identifying Solutions"),
+        TBASessionPreset(id: 2, title: "Strategic Planning")
     ]
     
     // MARK: Review Session
-    @Published var minutesPerRound: Int = 5
+    @Published var durationPerRound: Int = 5
     
     // MARK: Button Behavior
     var buttonText: String {
@@ -119,7 +126,7 @@ final class CreateSessionViewModel: ObservableObject {
         case .enterName:
             return !nameVM.isValid || isPerformingAction
         case .defineSession:
-            return title.isEmpty
+            return topic.isEmpty
         case .selectPreset:
             return selectedPreset == nil
         case .reviewSession, .lobby:
@@ -144,6 +151,8 @@ final class CreateSessionViewModel: ObservableObject {
         switch step {
         case .enterName:
             await persistName()
+        case .reviewSession:
+            await createSession()
         default:
             advanceToNextStep()
         }
@@ -191,5 +200,25 @@ final class CreateSessionViewModel: ObservableObject {
             base.insert(nameVM.username, at: 0)
         }
         return base
+    }
+    
+    func createSession() async {
+        guard !isPerformingAction else { return }
+        isPerformingAction = true
+        defer { isPerformingAction = false }
+        
+        do {
+            errorMessage = nil
+            let session = try await sessionService.createSession(
+                topic: topic,
+                description: description,
+                duration_per_round: String(durationPerRound),
+                mode_id: selectedPreset?.id ?? 1,
+            )
+            newSession = session
+            advanceToNextStep()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

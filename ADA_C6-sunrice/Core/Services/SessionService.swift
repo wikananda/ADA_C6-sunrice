@@ -8,17 +8,36 @@ import PostgREST
 import Foundation
 import Supabase
 
-struct SessionService {
+struct SessionService: SessionServicing {
     let client: SupabaseClient
     
-    func createSession(name: String = "Your session", hostId: Int64) async throws -> SessionDTO {
-        let params: [String: String] = [
-            "_name": name,
-            "_hostid": String(hostId)
-        ]
+    func createSession(
+        topic: String,
+        description: String,
+        duration_per_round: String,
+        mode_id: Int64
+    ) async throws -> SessionDTO {
+        let payload = NewSessionPayload(
+            duration_per_round: duration_per_round,
+            topic: topic,
+            description: description,
+            mode_id: mode_id
+        )
         
         let response: PostgrestResponse<SessionDTO> = try await client
-            .rpc("create_session", params: params)
+            .from("sessions")
+            .insert(payload, returning: .representation)
+            .single()
+            .execute()
+        return response.value
+    }
+    
+    func retrieveMode(mode_id id: Int) async throws -> ModeDTO {
+        let response: PostgrestResponse<ModeDTO> = try await client
+            .from("modes")
+            .select()
+            .eq("id", value: id)
+            .single()
             .execute()
         
         return response.value
@@ -36,4 +55,12 @@ struct SessionService {
         
         return response.value
     }
+}
+
+private struct NewSessionPayload: Encodable {
+    let duration_per_round: String
+    let topic: String
+    let description: String?
+    let mode_id: Int64
+    let is_token_expired: Bool = false
 }

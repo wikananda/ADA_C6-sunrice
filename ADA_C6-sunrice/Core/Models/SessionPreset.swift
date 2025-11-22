@@ -7,7 +7,7 @@
 import Foundation
 
 struct SessionPreset: Identifiable, Equatable {
-    let id = UUID()
+    let id: Int64
     let title: String
     let description: String
     let duration: String

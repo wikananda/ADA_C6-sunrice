@@ -15,7 +15,11 @@ protocol UserRoleServicing {
     func attach(userId: Int64, toRole roleId: Int64) async throws -> UserRoleDTO
 }
 
-protocol RoomServicing {
-    func createRoom(name: String, hostId: Int64) async throws -> SessionDTO
-    func joinRoom(code: String, userId: Int64) async throws -> SessionDTO
+protocol SessionServicing {
+    func createSession(topic: String,
+        description: String,
+        duration_per_round: String,
+        mode_id: Int64
+    ) async throws -> SessionDTO
+    func joinSession(code: String, userId: Int64) async throws -> SessionDTO
 }
