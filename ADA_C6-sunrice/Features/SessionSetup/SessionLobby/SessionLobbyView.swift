@@ -11,6 +11,7 @@ struct SessionLobbyView: View {
     let session: SessionDTO
     let mode: ModeDTO?
     let participants: [ParticipantDTO]
+    let isHost: Bool
     
     var sortedParticipants: [ParticipantDTO] {
         participants.sorted { p1, p2 in
@@ -35,8 +36,10 @@ struct SessionLobbyView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your session space is ready")
                     .font(.titleSM)
-                Text("popopo")
-                    .font(.bodySM)
+                if !isHost {
+                    Text("Take a breathe — the host will begin soon.")
+                        .font(.bodySM)
+                }
             }
             .foregroundColor(AppColor.Primary.gray)
             
@@ -71,6 +74,13 @@ struct SessionLobbyView: View {
                 description: session.description ?? "-",
                 isSelected: true
             )
+            
+            if !isHost {
+                Label("Once the session starts, all ideas are shared anonymously", systemImage: "info.circle")
+                    .font(.bodySM)
+                    .foregroundColor(AppColor.Primary.gray)
+                    .padding(.top, 8)
+            }
         }
     }
 }
@@ -106,5 +116,5 @@ struct SessionLobbyView: View {
         ParticipantDTO(id: 1, name: "Saskia", status: 1, created_at: nil, user_role_sessions: [.init(role_id: 1)]),
         ParticipantDTO(id: 2, name: "Selena", status: 1, created_at: nil, user_role_sessions: [.init(role_id: 2)])
     ]
-    SessionLobbyView(session: session, mode: mode, participants: participants)
+    SessionLobbyView(session: session, mode: mode, participants: participants, isHost: true)
 }

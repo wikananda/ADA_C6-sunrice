@@ -89,7 +89,8 @@ struct JoinSessionView: View {
             SessionLobbyView(
                 session: vm.lobbySession ?? vm.makePlaceholderSession(),
                 mode: vm.lobbyMode,
-                participants: vm.lobbyParticipants.isEmpty ? vm.makeParticipants() : vm.lobbyParticipants
+                participants: vm.lobbyParticipants.isEmpty ? vm.makeParticipants() : vm.lobbyParticipants,
+                isHost: false
             )
         }
     }
