@@ -7,82 +7,108 @@
 
 import SwiftUI
 
-struct SessionRoomView: View {
-    let id: Int64
-    
-    @State private var messages: [String] = []
-    @State private var inputText: String = ""
-    @FocusState private var isTextFieldFocused: Bool
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Messages area
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .trailing, spacing: 8) {
-                        ForEach(Array(messages.enumerated()), id: \.offset) { index, message in
-                            IdeaView(ideaText: message, ideaId: 1)
-                                .id(index)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-                .onChange(of: messages.count, initial: true) { _, _ in
-                    if let lastIndex = messages.indices.last {
-                        withAnimation {
-                            proxy.scrollTo(lastIndex, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            
-            // Input area
-            HStack(spacing: 12) {
-                TextField("Type an idea...", text: $inputText, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(20)
-                    .lineLimit(1...5)
-                    .focused($isTextFieldFocused)
-                    .onSubmit {
-                        sendMessage()
-                    }
-                
-                Button(action: sendMessage) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundColor(inputText.isEmpty ? Color.gray : Color.blue)
-                }
-                .disabled(inputText.isEmpty)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
+struct RoomPart {
+    let title: String
+    let type: MessageCardType
+}
+
+enum RoomType {
+    case fact, idea, benefit, risk, feeling
+
+    var shared: RoomPart {
+        switch self {
+        case .fact:
+            return .init(title: "Facts & Info", type: .white)
+        case .idea:
+            return .init(title: "Idea", type: .green)
+        case .benefit:
+            return .init(title: "Benefits", type: .yellow)
+        case .risk:
+            return .init(title: "Risks", type: .black)
+        case .feeling:
+            return .init(title: "Feeling", type: .red)
         }
-//        .background(Color(.systemGroupedBackground))
     }
+}
+
+struct SessionRoomView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @StateObject private var vm: SessionRoomViewModel
     
-    private func sendMessage() {
-        let trimmedText = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedText.isEmpty {
-            messages.append(trimmedText)
-            inputText = ""
-            isTextFieldFocused = false
-        }
-        
-        Task {
-            let newIdea = Idea(
-                id: 0, // pakai 0 karena tidak bisa nil. nanti akan di-override di supabase
-                text: trimmedText,
-                type: 1,
-                session_id: id
-            )
-            do {
-                try await insertIdea(newIdea)
-            } catch {
-                print("Error inserting idea: \(error)")
+    init(id: Int64) {
+        _vm = .init(wrappedValue: .init(id: id))
+    }
+
+    @FocusState private var isTextFieldFocused: Bool
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            VStack(alignment: .leading, spacing: 8) {
+                Header(
+                    config: .init(
+                        title: vm.roomType.shared.title,
+                        trailing: .timer(date: vm.deadline)
+                    ),
+                    onBack: { dismiss() }
+                )
+                .padding(.horizontal)
+                .padding(.bottom, 4)
+
+                // Prompt
+                HStack {
+                    Image(systemName: "info.bubble")
+                    Text(vm.prompt)
+                        .font(.caption)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity)
+                .background(.whiteishBlue10)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 12)
+                )
+                .padding(.horizontal)
+                
+                // Messages area
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .trailing, spacing: 8) {
+                            ForEach(
+                                Array(vm.messages.enumerated()),
+                                id: \.offset
+                            ) {
+                                index,
+                                message in
+                                IdeaBubbleView(
+                                    text: message.text,
+                                    type: message.type,
+                                    ideaId: 1
+                                )
+                                .padding(.horizontal, 16)
+                                .id(index)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .onChange(of: vm.messages.count, initial: true) { _, _ in
+                        if let lastIndex = vm.messages.indices.last {
+                            withAnimation {
+                                proxy.scrollTo(lastIndex, anchor: .bottom)
+                            }
+                        }
+                    }
+                }
+            }
+
+            VStack(alignment: .trailing, spacing: 0) {
+                MoreTimeButton(
+                    isHost: vm.isHost,
+                    action: vm.onTapExtensionButton
+                )
+
+                // Input area
+                InputArea(inputText: $vm.inputText, action: vm.sendMessage)
             }
         }
     }

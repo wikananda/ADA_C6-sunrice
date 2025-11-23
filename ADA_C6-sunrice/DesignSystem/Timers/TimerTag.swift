@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct TimerTag: View {
-    var text: String = "00:00"
+    var date: Date
     
     var body: some View {
-        Text(text)
+        Text(date, style: .timer)
             .font(.bodySM)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
@@ -23,5 +23,5 @@ struct TimerTag: View {
 }
 
 #Preview {
-    TimerTag()
+    TimerTag(date: Date.now)
 }
