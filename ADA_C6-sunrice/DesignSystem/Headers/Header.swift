@@ -9,7 +9,7 @@ import SwiftUI
 
 enum HeaderTrailing {
     case none
-    case timer(text: String)
+    case timer(date: Date)
     case skip(action: () -> Void)
 }
 
@@ -63,8 +63,8 @@ struct Header: View {
         case .skip(let action):
             SkipButton(action: action)
             
-        case .timer(let text):
-            TimerTag(text: text)
+        case .timer(let date):
+            TimerTag(date: date)
         }
     }
 }
