@@ -35,6 +35,7 @@ struct IdeaBubbleView: View {
     var yellowMessages: Int = -1
     var blackMessages: Int = -1
     var onTapPlus: (Int) -> Void = { _ in }
+    var onClickBadge: () -> Void = { }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -68,11 +69,13 @@ struct IdeaBubbleView: View {
             
             // Badge
             if isBadgeShown() {
-                BadgeView(
-                    yellowMessageCount: yellowMessages,
-                    blackMessageCount: blackMessages
-                )
-                    .offset(x: -20, y: 14)
+                Button(action: onClickBadge) {
+                    BadgeView(
+                        yellowMessageCount: yellowMessages,
+                        blackMessageCount: blackMessages
+                    )
+                        .offset(x: -20, y: 14)
+                }
             }
         }
         .padding(.bottom, isBadgeShown() ? 16 : 0)
