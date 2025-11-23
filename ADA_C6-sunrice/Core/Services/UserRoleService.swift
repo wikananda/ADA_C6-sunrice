@@ -33,6 +33,15 @@ struct UserRoleService: UserRoleServicing {
             .execute()
         return response.value
     }
+    func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO {
+        let payload = CreateUserRoleSessionPayload(user_id: userId, role_id: roleId, session_id: sessionId)
+        let response: PostgrestResponse<UserRoleSessionDTO> = try await client
+            .from("user_role_sessions")
+            .insert(payload, returning: .representation)
+            .single()
+            .execute()
+        return response.value
+    }
 }
 
 // Payloads
@@ -42,4 +51,10 @@ private struct CreateUserRolePayload: Encodable {
 
 private struct UpdateUserRolePayload: Encodable {
     let user_id: Int64
+}
+
+private struct CreateUserRoleSessionPayload: Encodable {
+    let user_id: Int64
+    let role_id: Int64
+    let session_id: Int64
 }

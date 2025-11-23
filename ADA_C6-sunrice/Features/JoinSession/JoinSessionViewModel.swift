@@ -125,6 +125,14 @@ final class JoinSessionViewModel: ObservableObject {
             let user = try await userService.createUser(name: nameVM.username)
             currentUser = user
             currentUserRole = try await userRoleService.attach(userId: user.id, toRole: userRole.id)
+            
+            if let session = lobbySession, let role = currentUserRole {
+                _ = try await userRoleService.createUserRoleSession(
+                    userId: user.id,
+                    roleId: role.role_id,
+                    sessionId: session.id
+                )
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

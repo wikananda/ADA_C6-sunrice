@@ -206,6 +206,14 @@ final class CreateSessionViewModel: ObservableObject {
                 mode_id: selectedPreset.id
             )
             newSession = session
+            
+            if let user = currentUser, let role = currentUserRole {
+                _ = try await userRoleService.createUserRoleSession(
+                    userId: user.id,
+                    roleId: role.role_id,
+                    sessionId: session.id
+                )
+            }
             lobbyParticipants = makeParticipants()
             await fetchSessionAndMode(sessionId: session.id)
             advanceToNextStep()
