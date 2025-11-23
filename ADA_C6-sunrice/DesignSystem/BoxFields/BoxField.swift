@@ -38,7 +38,7 @@ struct BoxField: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(AppColor.grayscale20, lineWidth: 1)
+                .strokeBorder(AppColor.grayscale20, lineWidth: 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
     }

@@ -34,7 +34,7 @@ struct StaticBoxField: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isSelected ? AppColor.Primary.blue : AppColor.grayscale20, lineWidth: isSelected ? 2 : 1)
+                .strokeBorder(isSelected ? AppColor.Primary.blue : AppColor.grayscale20, lineWidth: isSelected ? 2 : 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
     }

@@ -8,6 +8,6 @@
 import Foundation
 
 struct TBASessionPreset: Identifiable, Equatable {
-    let id = UUID()
+    let id: Int64
     let title: String
 }

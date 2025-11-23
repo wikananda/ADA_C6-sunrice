@@ -11,34 +11,74 @@ struct CreateSessionView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var navVM: NavigationViewModel
     @StateObject private var vm = CreateSessionViewModel()
+    @State private var alertDismissTask: Task<Void, Never>?
+    
     var body: some View {
-        VStack {
-            Header(
-                config: .init(title: vm.currentTitle),
-                onBack: { vm.handleBack(dismiss: { dismiss() }) }
-            )
-            
-            if (vm.step.rawValue > 1 && vm.step.rawValue < 5) {
-                Stepper(totalSteps: 3, currentSteps: vm.step.rawValue - 1, horizontalPadding: 24)
-                    .frame(height: 24)
-            }
-            
-            GeometryReader { proxy in
-                ScrollView {
-                    stepContent
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: proxy.size.height, alignment: .top)
+        ZStack(alignment: .bottom) {
+            VStack {
+                Header(
+                    config: .init(title: vm.currentTitle),
+                    onBack: { vm.handleBack(dismiss: { dismiss() }) }
+                )
+                
+                if (vm.step.rawValue > 1 && vm.step.rawValue < 5) {
+                    Stepper(totalSteps: 3, currentSteps: vm.step.rawValue - 1, horizontalPadding: 24)
+                        .frame(height: 24)
                 }
+                
+                GeometryReader { proxy in
+                    ScrollView {
+                        stepContent
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: proxy.size.height, alignment: .top)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                AppButton(title: vm.buttonText) {
+                    vm.handleNext()
+                }
+                .disabled(vm.isNextButtonDisabled)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            AppButton(title: vm.buttonText) {
-                vm.handleNext()
+            if let message = vm.errorMessage {
+                AlertMessage(message: message)
+                    .offset(y: -75)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                if value.translation.height > 24 {
+                                    withAnimation {
+                                        vm.errorMessage = nil
+                                    }
+                                }
+                            }
+                    )
             }
-            .disabled(vm.isNextButtonDisabled)
+            
         }
         .padding(.horizontal)
         .padding(.bottom)
+        .animation(.spring(), value: vm.errorMessage)
+        .onChange(of: vm.errorMessage) { newValue in
+            alertDismissTask?.cancel()
+            guard let message = newValue else { return }
+            
+            alertDismissTask = Task {
+                try? await Task.sleep(for: .seconds(3))
+                await MainActor.run {
+                    if vm.errorMessage == message {
+                        withAnimation {
+                            vm.errorMessage = nil
+                        }
+                    }
+                }
+            }
+        }
+        .onDisappear {
+            alertDismissTask?.cancel()
+        }
         
     }
     
@@ -54,9 +94,14 @@ struct CreateSessionView: View {
         case .reviewSession:
             ReviewSessionView(vm: vm)
         default:
-            SessionLobbyView(
-                participants: vm.makeParticipants()
-            )
+            if let session = vm.lobbySession {
+                SessionLobbyView(
+                    session: session,
+                    mode: vm.lobbyMode,
+                    participants: vm.lobbyParticipants,
+                    isHost: true
+                )
+            }
         }
     }
 }

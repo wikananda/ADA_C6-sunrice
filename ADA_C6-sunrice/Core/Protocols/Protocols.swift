@@ -7,11 +7,29 @@
 import Foundation
 
 protocol UserServicing {
-    func createUser(username: String) async throws -> UserDTO
+    func createUser(name: String) async throws -> UserDTO
 }
 
-protocol RoomServicing {
-    func createRoom(name: String, hostId: Int64) async throws -> SessionDTO
-    func joinRoom(code: String, userId: Int64) async throws -> SessionDTO
+protocol UserRoleServicing {
+    func createUserRole(roleId: Int64) async throws -> UserRoleDTO
+    func attach(userId: Int64, toRole roleId: Int64) async throws -> UserRoleDTO
+    func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO
+    func fetchParticipants(sessionId: Int64) async throws -> [ParticipantDTO]
 }
 
+protocol UserRoleSessionServicing {
+    func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO
+}
+
+protocol SessionServicing {
+    func createSession(topic: String,
+        description: String,
+        duration_per_round: String,
+        mode_id: Int64
+    ) async throws -> SessionDTO
+    func generateSessionToken() async throws -> String
+    func fetchSession(id: Int64) async throws -> SessionDTO
+    func fetchSession(token: String) async throws -> SessionDTO
+    func fetchMode(id: Int64) async throws -> ModeDTO
+    func fetchModes() async throws -> [ModeDTO]
+}

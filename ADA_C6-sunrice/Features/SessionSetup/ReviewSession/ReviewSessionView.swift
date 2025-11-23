@@ -29,7 +29,7 @@ struct ReviewSessionView: View {
             }
             
             // Select duration
-            DurationSelector(minutesPerRound: $vm.minutesPerRound)
+            DurationSelector(durationPerRound: $vm.durationPerRound)
             Text("Shorter rounds keep energy high; you can always add more time during the session.")
                 .font(.bodySM)
                 .foregroundColor(AppColor.grayscale40)
