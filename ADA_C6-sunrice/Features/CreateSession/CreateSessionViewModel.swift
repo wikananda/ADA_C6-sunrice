@@ -240,9 +240,9 @@ final class CreateSessionViewModel: ObservableObject {
         
         do {
             errorMessage = nil
-            try await sessionService.startSession(id: session.id)
+            let firstRoundType = try await sessionService.startSession(id: session.id)
             // Navigate to next screen or handle session start
-            print("Session started!")
+            print("Session started! First round type: \(firstRoundType.name ?? "Unknown")")
         } catch {
             errorMessage = error.localizedDescription
         }

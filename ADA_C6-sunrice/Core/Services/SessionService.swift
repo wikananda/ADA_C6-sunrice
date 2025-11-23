@@ -86,13 +86,49 @@ struct SessionService: SessionServicing {
         return response.value
     }
     
-    func startSession(id: Int64) async throws {
+    func startSession(id: Int64) async throws -> TypeDTO {
         let payload = StartSessionPayload(is_token_expired: true, started_at: Date())
         try await client
             .from("sessions")
             .update(payload)
             .eq("id", value: Int(id))
             .execute()
+        
+        // Fetch session to get mode_id
+        let sessionResponse: PostgrestResponse<SessionDTO> = try await client
+            .from("sessions")
+            .select()
+            .eq("id", value: Int(id))
+            .single()
+            .execute()
+        let session = sessionResponse.value
+        
+        guard let modeId = session.mode_id else {
+            throw NSError(domain: "SessionService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Session has no mode_id"])
+        }
+        
+        // Fetch sequence
+        let sequenceResponse: PostgrestResponse<SequenceDTO> = try await client
+            .from("sequences")
+            .select()
+            .eq("mode_id", value: Int(modeId))
+            .single()
+            .execute()
+        let sequence = sequenceResponse.value
+        
+        guard let firstRoundTypeId = sequence.first_round else {
+            throw NSError(domain: "SessionService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Sequence has no first round"])
+        }
+        
+        // Fetch Type
+        let typeResponse: PostgrestResponse<TypeDTO> = try await client
+            .from("types")
+            .select()
+            .eq("id", value: Int(firstRoundTypeId))
+            .single()
+            .execute()
+        
+        return typeResponse.value
     }
 }
 

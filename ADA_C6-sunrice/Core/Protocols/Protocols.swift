@@ -31,5 +31,5 @@ protocol SessionServicing {
     func fetchSession(token: String) async throws -> SessionDTO
     func fetchMode(id: Int64) async throws -> ModeDTO
     func fetchModes() async throws -> [ModeDTO]
-    func startSession(id: Int64) async throws
+    func startSession(id: Int64) async throws -> TypeDTO
 }
