@@ -58,9 +58,13 @@ struct HomeView: View {
                     JoinSessionView()
                         .environmentObject(navVM)
                         .toolbar(.hidden, for: .navigationBar)
-                case let .session(id):
-//                    SessionLobbyView(id: id)
-                    Text("Bentar dulu")
+                case let .session(id, isHost):
+                    if let sessionId = Int64(id) {
+                        SessionRoomView(id: sessionId, isHost: isHost)
+                            .toolbar(.hidden, for: .navigationBar)
+                    } else {
+                        Text("Invalid session ID")
+                    }
                 case .comment(let ideaId):
 //                    CommentView(ideaId: ideaId)
                     Text("Bentar dulu")

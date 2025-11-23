@@ -2,7 +2,7 @@
 //  SessionRoomDTOs.swift
 //  ADA_C6-sunrice
 //
-//  Created by Antigravity on 24/11/25.
+//  Created by Komang Wikananda on 24/11/25.
 //
 
 import Foundation

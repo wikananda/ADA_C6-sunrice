@@ -23,14 +23,14 @@ struct SessionService: SessionServicing {
             _description: description,
             _mode_id: mode_id
         )
-        print("HEREEE FIRST")
+        
         let response: PostgrestResponse<RPCSessionResponseDTO> = try await client
             .rpc("create_session_with_token", params: params)
             .single()
             .execute()
-        print("HEREEE")
+        
         let rpcSession = response.value
-        print("HERE AFTER")
+        
         return SessionDTO(
             id: rpcSession.session_id,
             duration_per_round: duration_per_round,
@@ -41,7 +41,8 @@ struct SessionService: SessionServicing {
             started_at: nil,
             ended_at: nil,
             created_at: Date(),
-            mode_id: rpcSession.mode_id
+            mode_id: rpcSession.mode_id,
+            current_round: rpcSession.current_round
         )
     }
     
@@ -130,6 +131,37 @@ struct SessionService: SessionServicing {
         
         return typeResponse.value
     }
+    
+    func fetchSequence(modeId: Int64) async throws -> SequenceDTO {
+        let response: PostgrestResponse<SequenceDTO> = try await client
+            .from("sequences")
+            .select()
+            .eq("mode_id", value: Int(modeId))
+            .single()
+            .execute()
+        
+        return response.value
+    }
+    
+    func updateCurrentRound(sessionId: Int64, round: Int64) async throws {
+        let payload = UpdateCurrentRoundPayload(current_round: round)
+        try await client
+            .from("sessions")
+            .update(payload)
+            .eq("id", value: Int(sessionId))
+            .execute()
+    }
+    
+    func fetchType(id: Int64) async throws -> TypeDTO {
+        let response: PostgrestResponse<TypeDTO> = try await client
+            .from("types")
+            .select()
+            .eq("id", value: Int(id))
+            .single()
+            .execute()
+        
+        return response.value
+    }
 }
 
 private struct StartSessionPayload: Encodable, Sendable {
@@ -144,4 +176,8 @@ private struct NewSessionPayload: Encodable, Sendable {
     let mode_id: Int64
     let token: String
     let is_token_expired: Bool = false
+}
+
+private struct UpdateCurrentRoundPayload: Encodable, Sendable {
+    let current_round: Int64
 }

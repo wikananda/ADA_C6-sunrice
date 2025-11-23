@@ -12,13 +12,21 @@ struct SessionRoomView: View {
 
     @StateObject private var vm: SessionRoomViewModel
 
-    init(id: Int64) {
-        _vm = .init(wrappedValue: .init(id: id))
+    init(id: Int64, isHost: Bool = false) {
+        _vm = .init(wrappedValue: .init(id: id, isHost: isHost))
     }
 
     @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
+        if vm.isLoading {
+            ProgressView("Loading session...")
+        } else {
+            sessionContent
+        }
+    }
+    
+    private var sessionContent: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 8) {
                 Header(

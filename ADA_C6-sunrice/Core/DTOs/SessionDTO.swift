@@ -18,6 +18,7 @@ struct SessionDTO: Decodable, Sendable {
     let ended_at: Date?
     let created_at: Date?
     let mode_id: Int64?
+    let current_round: Int64?
 }
 
 nonisolated struct RPCSessionResponseDTO: Decodable, Sendable {
@@ -26,6 +27,7 @@ nonisolated struct RPCSessionResponseDTO: Decodable, Sendable {
     let topic: String
     let description: String?
     let mode_id: Int64
+    let current_round: Int64
 }
 
 nonisolated struct CreateSessionParams: Encodable, Sendable {

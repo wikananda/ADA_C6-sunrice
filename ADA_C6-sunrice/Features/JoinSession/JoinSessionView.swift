@@ -76,6 +76,11 @@ struct JoinSessionView: View {
         .onDisappear {
             alertDismissTask?.cancel()
         }
+        .onAppear {
+            vm.onNavigateToSessionRoom = { sessionId, isHost in
+                navVM.goToSessionRoom(id: sessionId, isHost: isHost)
+            }
+        }
     }
     
     @ViewBuilder

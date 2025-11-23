@@ -32,6 +32,7 @@ final class CreateSessionViewModel: ObservableObject {
     private let hostRoleId: Int64 = 1
     
     var currentTitle: String { step.title }
+    var onNavigateToSessionRoom: ((Int64, Bool) -> Void)?
     
     // MARK: Enter Name
     let nameVM = EnterNameViewModel()
@@ -241,8 +242,12 @@ final class CreateSessionViewModel: ObservableObject {
         do {
             errorMessage = nil
             let firstRoundType = try await sessionService.startSession(id: session.id)
-            // Navigate to next screen or handle session start
             print("Session started! First round type: \(firstRoundType.name ?? "Unknown")")
+            
+            // Navigate to session room
+            await MainActor.run {
+                onNavigateToSessionRoom?(session.id, true)
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

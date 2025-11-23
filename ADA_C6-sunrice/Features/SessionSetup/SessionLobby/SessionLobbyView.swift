@@ -96,7 +96,8 @@ struct SessionLobbyView: View {
         started_at: nil,
         ended_at: nil,
         created_at: Date(),
-        mode_id: 1
+        mode_id: 1,
+        current_round: 1,
     )
     let mode = ModeDTO(
         id: 1,

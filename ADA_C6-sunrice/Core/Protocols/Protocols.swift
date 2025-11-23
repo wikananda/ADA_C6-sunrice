@@ -32,4 +32,7 @@ protocol SessionServicing {
     func fetchMode(id: Int64) async throws -> ModeDTO
     func fetchModes() async throws -> [ModeDTO]
     func startSession(id: Int64) async throws -> TypeDTO
+    func fetchSequence(modeId: Int64) async throws -> SequenceDTO
+    func updateCurrentRound(sessionId: Int64, round: Int64) async throws
+    func fetchType(id: Int64) async throws -> TypeDTO
 }
