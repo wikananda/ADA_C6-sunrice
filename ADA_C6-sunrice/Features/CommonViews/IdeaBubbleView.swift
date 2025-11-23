@@ -68,7 +68,10 @@ struct IdeaBubbleView: View {
             
             // Badge
             if isBadgeShown() {
-                BadgeView()
+                BadgeView(
+                    yellowMessageCount: yellowMessages,
+                    blackMessageCount: blackMessages
+                )
                     .offset(x: -20, y: 14)
             }
         }
