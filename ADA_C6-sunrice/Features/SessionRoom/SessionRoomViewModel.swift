@@ -139,6 +139,12 @@ final class SessionRoomViewModel: ObservableObject {
             // Set deadline (5 seconds for testing)
             deadline = Date().addingTimeInterval(5)
             isTimeUp = false
+            showInstruction = true  // Reset instruction for new round
+            
+            // If guest, start a timer to check deadline
+            if !isHost {
+                startGuestDeadlineTimer()
+            }
             
         } catch {
             print("Error fetching type: \(error)")
@@ -243,6 +249,20 @@ final class SessionRoomViewModel: ObservableObject {
                 try? await Task.sleep(nanoseconds: 1 * 500_000_000) // 0.5 second
             }
         }
+    }
+    
+    // MARK: - Guest: Deadline Timer
+    private func startGuestDeadlineTimer() {
+        roundTimer?.cancel()
+        roundTimer = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if Date() >= self.deadline {
+                    self.isTimeUp = true
+                    self.roundTimer?.cancel()
+                }
+            }
     }
     
     func closeInstruction() {
