@@ -8,6 +8,30 @@
 import Combine
 import Foundation
 
+struct RoomPart {
+    let title: String
+    let type: MessageCardType
+}
+
+enum RoomType {
+    case fact, idea, benefit, risk, feeling
+
+    var shared: RoomPart {
+        switch self {
+        case .fact:
+            return .init(title: "Facts & Info", type: .white)
+        case .idea:
+            return .init(title: "Idea", type: .green)
+        case .benefit:
+            return .init(title: "Benefits", type: .yellow)
+        case .risk:
+            return .init(title: "Risks", type: .black)
+        case .feeling:
+            return .init(title: "Feeling", type: .red)
+        }
+    }
+}
+
 struct Message {
     let text: String
     let type: MessageCardType
@@ -36,22 +60,22 @@ final class SessionRoomViewModel: ObservableObject {
         roomType = .fact
 
         messages = [
-            Message(
-                text: "Many new users feel unsure about what to do after opening an app for the first time.",
-                type: .white
-            ),
-            Message(
-                text: "The ideal onboarding duration for most users is 1–2 minutes across 3–5 clear steps.",
-                type: .white
-            ),
-            Message(
-                text: "Users understand information better when onboarding includes simple visuals or supporting illustrations.",
-                type: .white
-            ),
-            Message(
-                text: "Mobile users tend to skip onboarding screens that contain long paragraphs of text.",
-                type: .white
-            ),
+//            Message(
+//                text: "Many new users feel unsure about what to do after opening an app for the first time.",
+//                type: .white
+//            ),
+//            Message(
+//                text: "The ideal onboarding duration for most users is 1–2 minutes across 3–5 clear steps.",
+//                type: .white
+//            ),
+//            Message(
+//                text: "Users understand information better when onboarding includes simple visuals or supporting illustrations.",
+//                type: .white
+//            ),
+//            Message(
+//                text: "Mobile users tend to skip onboarding screens that contain long paragraphs of text.",
+//                type: .white
+//            ),
         ]
     }
 

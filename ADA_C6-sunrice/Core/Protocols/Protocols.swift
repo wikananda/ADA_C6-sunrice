@@ -24,12 +24,12 @@ protocol UserRoleSessionServicing {
 protocol SessionServicing {
     func createSession(topic: String,
         description: String,
-        duration_per_round: String,
+        duration_per_round: Int64,
         mode_id: Int64
     ) async throws -> SessionDTO
-    func generateSessionToken() async throws -> String
     func fetchSession(id: Int64) async throws -> SessionDTO
     func fetchSession(token: String) async throws -> SessionDTO
     func fetchMode(id: Int64) async throws -> ModeDTO
     func fetchModes() async throws -> [ModeDTO]
+    func startSession(id: Int64) async throws
 }

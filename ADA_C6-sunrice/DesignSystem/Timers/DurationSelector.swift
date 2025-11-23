@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct DurationSelector: View {
-    @Binding var durationPerRound: Int
-    let totalRounds: Int = 6
+    @Binding var durationPerRound: Int64
+    let totalRounds: Int64 = 6
     
     var totalDuration: String {
         "\(durationPerRound * totalRounds) min"
@@ -78,6 +78,6 @@ struct DurationSelector: View {
 }
 
 #Preview {
-    @Previewable @State var durationPerRound: Int = 5
+    @Previewable @State var durationPerRound: Int64 = 5
     DurationSelector(durationPerRound: $durationPerRound)
 }

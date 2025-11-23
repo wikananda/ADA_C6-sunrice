@@ -14,31 +14,35 @@ struct SessionService: SessionServicing {
     func createSession(
         topic: String,
         description: String,
-        duration_per_round: String,
+        duration_per_round: Int64,
         mode_id: Int64
     ) async throws -> SessionDTO {
-        let token = try await generateSessionToken()
-        let payload = NewSessionPayload(
-            duration_per_round: duration_per_round,
-            topic: topic,
-            description: description,
-            mode_id: mode_id,
-            token: token
+        let params = CreateSessionParams(
+            _duration_per_round: Int64(duration_per_round),
+            _topic: topic,
+            _description: description,
+            _mode_id: mode_id
         )
-        
-        let response: PostgrestResponse<SessionDTO> = try await client
-            .from("sessions")
-            .insert(payload, returning: .representation)
+        print("HEREEE FIRST")
+        let response: PostgrestResponse<RPCSessionResponseDTO> = try await client
+            .rpc("create_session_with_token", params: params)
             .single()
             .execute()
-        return response.value
-    }
-    
-    func generateSessionToken() async throws -> String {
-        let response: PostgrestResponse<String> = try await client
-            .rpc("generate_unique_token", params: [String: String]())
-            .execute()
-        return response.value
+        print("HEREEE")
+        let rpcSession = response.value
+        print("HERE AFTER")
+        return SessionDTO(
+            id: rpcSession.session_id,
+            duration_per_round: duration_per_round,
+            topic: rpcSession.topic,
+            description: rpcSession.description,
+            token: rpcSession.token,
+            is_token_expired: false,
+            started_at: nil,
+            ended_at: nil,
+            created_at: Date(),
+            mode_id: rpcSession.mode_id
+        )
     }
     
     func fetchSession(id: Int64) async throws -> SessionDTO {
@@ -81,9 +85,23 @@ struct SessionService: SessionServicing {
             .execute()
         return response.value
     }
+    
+    func startSession(id: Int64) async throws {
+        let payload = StartSessionPayload(is_token_expired: true, started_at: Date())
+        try await client
+            .from("sessions")
+            .update(payload)
+            .eq("id", value: Int(id))
+            .execute()
+    }
 }
 
-private struct NewSessionPayload: Encodable {
+private struct StartSessionPayload: Encodable, Sendable {
+    let is_token_expired: Bool
+    let started_at: Date
+}
+
+private struct NewSessionPayload: Encodable, Sendable {
     let duration_per_round: String
     let topic: String
     let description: String?

@@ -7,30 +7,6 @@
 
 import SwiftUI
 
-struct RoomPart {
-    let title: String
-    let type: MessageCardType
-}
-
-enum RoomType {
-    case fact, idea, benefit, risk, feeling
-
-    var shared: RoomPart {
-        switch self {
-        case .fact:
-            return .init(title: "Facts & Info", type: .white)
-        case .idea:
-            return .init(title: "Idea", type: .green)
-        case .benefit:
-            return .init(title: "Benefits", type: .yellow)
-        case .risk:
-            return .init(title: "Risks", type: .black)
-        case .feeling:
-            return .init(title: "Feeling", type: .red)
-        }
-    }
-}
-
 struct SessionRoomView: View {
     @Environment(\.dismiss) private var dismiss
 
