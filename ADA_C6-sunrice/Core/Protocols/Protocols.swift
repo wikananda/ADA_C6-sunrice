@@ -13,6 +13,12 @@ protocol UserServicing {
 protocol UserRoleServicing {
     func createUserRole(roleId: Int64) async throws -> UserRoleDTO
     func attach(userId: Int64, toRole roleId: Int64) async throws -> UserRoleDTO
+    func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO
+    func fetchParticipants(sessionId: Int64) async throws -> [ParticipantDTO]
+}
+
+protocol UserRoleSessionServicing {
+    func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO
 }
 
 protocol SessionServicing {
@@ -21,8 +27,9 @@ protocol SessionServicing {
         duration_per_round: String,
         mode_id: Int64
     ) async throws -> SessionDTO
+    func generateSessionToken() async throws -> String
     func fetchSession(id: Int64) async throws -> SessionDTO
+    func fetchSession(token: String) async throws -> SessionDTO
     func fetchMode(id: Int64) async throws -> ModeDTO
     func fetchModes() async throws -> [ModeDTO]
-    func joinSession(code: String, userId: Int64) async throws -> SessionDTO
 }

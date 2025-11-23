@@ -10,14 +10,23 @@ import SwiftUI
 struct SessionLobbyView: View {
     let session: SessionDTO
     let mode: ModeDTO?
-    let participants: [UserDTO]
+    let participants: [ParticipantDTO]
+    let isHost: Bool
+    
+    var sortedParticipants: [ParticipantDTO] {
+        participants.sorted { p1, p2 in
+            if p1.isHost && !p2.isHost { return true }
+            if !p1.isHost && p2.isHost { return false }
+            return (p1.name ?? "") < (p2.name ?? "")
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ScrollView(.horizontal) {
                 LazyHStack (spacing: 16) {
-                    ForEach(participants, id: \.id) { user in
-                        ParticipantBadge(name: user.name ?? "user")
+                    ForEach(sortedParticipants, id: \.id) { user in
+                        ParticipantBadge(name: user.name ?? "user", isHost: user.isHost)
                     }
                 }
                 .frame(maxHeight: 64)
@@ -27,8 +36,10 @@ struct SessionLobbyView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your session space is ready")
                     .font(.titleSM)
-                Text("popopo")
-                    .font(.bodySM)
+                if !isHost {
+                    Text("Take a breathe — the host will begin soon.")
+                        .font(.bodySM)
+                }
             }
             .foregroundColor(AppColor.Primary.gray)
             
@@ -63,6 +74,13 @@ struct SessionLobbyView: View {
                 description: session.description ?? "-",
                 isSelected: true
             )
+            
+            if !isHost {
+                Label("Once the session starts, all ideas are shared anonymously", systemImage: "info.circle")
+                    .font(.bodySM)
+                    .foregroundColor(AppColor.Primary.gray)
+                    .padding(.top, 8)
+            }
         }
     }
 }
@@ -95,8 +113,8 @@ struct SessionLobbyView: View {
         outcome: nil
     )
     let participants = [
-        UserDTO(id: 1, name: "Saskia", status: 1, created_at: nil),
-        UserDTO(id: 2, name: "Selena", status: 1, created_at: nil)
+        ParticipantDTO(id: 1, name: "Saskia", status: 1, created_at: nil, user_role_sessions: [.init(role_id: 1)]),
+        ParticipantDTO(id: 2, name: "Selena", status: 1, created_at: nil, user_role_sessions: [.init(role_id: 2)])
     ]
-    SessionLobbyView(session: session, mode: mode, participants: participants)
+    SessionLobbyView(session: session, mode: mode, participants: participants, isHost: true)
 }

@@ -98,7 +98,8 @@ struct CreateSessionView: View {
                 SessionLobbyView(
                     session: session,
                     mode: vm.lobbyMode,
-                    participants: vm.lobbyParticipants
+                    participants: vm.lobbyParticipants,
+                    isHost: true
                 )
             }
         }
