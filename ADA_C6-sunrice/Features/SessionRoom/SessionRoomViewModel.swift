@@ -136,8 +136,10 @@ final class SessionRoomViewModel: ObservableObject {
             // Map type name to SessionRoom enum
             roomType = mapTypeToSessionRoom(typeName: type.name ?? "")
             
-            // Set deadline (5 seconds for testing)
-            deadline = Date().addingTimeInterval(5)
+            // Set deadline based on duration_per_round (in minutes, convert to seconds)
+            // deadline = Date().addingTimeInterval(5)
+            let durationInSeconds = TimeInterval((session?.duration_per_round ?? 1) * 60)
+            deadline = Date().addingTimeInterval(durationInSeconds)
             isTimeUp = false
             showInstruction = true  // Reset instruction for new round
             
