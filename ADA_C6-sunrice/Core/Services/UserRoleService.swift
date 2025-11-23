@@ -42,6 +42,15 @@ struct UserRoleService: UserRoleServicing {
             .execute()
         return response.value
     }
+    
+    func fetchParticipants(sessionId: Int64) async throws -> [ParticipantDTO] {
+        let response: PostgrestResponse<[ParticipantDTO]> = try await client
+            .from("users")
+            .select("*, user_role_sessions!inner(session_id, role_id)")
+            .eq("user_role_sessions.session_id", value: Int(sessionId))
+            .execute()
+        return response.value
+    }
 }
 
 // Payloads

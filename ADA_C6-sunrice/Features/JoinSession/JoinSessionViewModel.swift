@@ -30,7 +30,7 @@ final class JoinSessionViewModel: ObservableObject {
     private let guestRoleId: Int64 = 2
     @Published var lobbySession: SessionDTO?
     @Published var lobbyMode: ModeDTO?
-    @Published var lobbyParticipants: [UserDTO] = []
+    @Published var lobbyParticipants: [ParticipantDTO] = []
     
     let codeVM = EnterCodeViewModel()
     let nameVM = EnterNameViewModel()
@@ -112,6 +112,9 @@ final class JoinSessionViewModel: ObservableObject {
     private func advanceToNextStep() {
         guard let next = JoinSessionStep(rawValue: step.rawValue + 1) else { return }
         withAnimation { step = next }
+        if next == .lobby {
+            startPollingParticipants()
+        }
     }
     
     private func persistName() async {
@@ -147,13 +150,19 @@ final class JoinSessionViewModel: ObservableObject {
         return created
     }
     
-    func makeParticipants() -> [UserDTO] {
+    func makeParticipants() -> [ParticipantDTO] {
         var baseNames = ["Saskia", "Selena", "Hendy", "Richard"]
         if !nameVM.username.isEmpty {
             baseNames.insert(nameVM.username, at: 0)
         }
         return baseNames.enumerated().map { idx, name in
-            UserDTO(id: Int64(idx + 1), name: name, status: 1, created_at: nil)
+            ParticipantDTO(
+                id: Int64(idx + 1),
+                name: name,
+                status: 1,
+                created_at: nil,
+                user_role_sessions: [ParticipantDTO.UserRoleSessionInfo(role_id: idx == 0 ? 1 : 2)]
+            )
         }
     }
     
@@ -166,9 +175,9 @@ final class JoinSessionViewModel: ObservableObject {
             if let modeId = session.mode_id {
                 lobbyMode = try await sessionService.fetchMode(id: modeId)
             }
-            if lobbyParticipants.isEmpty {
-                lobbyParticipants = makeParticipants()
-            }
+            // if lobbyParticipants.isEmpty {
+            //     lobbyParticipants = makeParticipants()
+            // }
             errorMessage = nil
             return true
         } catch {
@@ -190,5 +199,31 @@ final class JoinSessionViewModel: ObservableObject {
             created_at: nil,
             mode_id: nil
         )
+    }
+    
+    // MARK: - Polling
+    private var participantsTask: Task<Void, Never>?
+    
+    private func startPollingParticipants() {
+        participantsTask?.cancel()
+        participantsTask = Task {
+            while !Task.isCancelled {
+                if let session = lobbySession {
+                    do {
+                        let participants = try await userRoleService.fetchParticipants(sessionId: session.id)
+                        await MainActor.run {
+                            self.lobbyParticipants = participants
+                        }
+                    } catch {
+                        print("Error fetching participants: \(error)")
+                    }
+                }
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 2 seconds
+            }
+        }
+    }
+    
+    deinit {
+        participantsTask?.cancel()
     }
 }

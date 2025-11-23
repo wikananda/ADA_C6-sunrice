@@ -14,6 +14,7 @@ protocol UserRoleServicing {
     func createUserRole(roleId: Int64) async throws -> UserRoleDTO
     func attach(userId: Int64, toRole roleId: Int64) async throws -> UserRoleDTO
     func createUserRoleSession(userId: Int64, roleId: Int64, sessionId: Int64) async throws -> UserRoleSessionDTO
+    func fetchParticipants(sessionId: Int64) async throws -> [ParticipantDTO]
 }
 
 protocol UserRoleSessionServicing {
