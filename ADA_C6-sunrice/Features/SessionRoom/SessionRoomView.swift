@@ -7,35 +7,11 @@
 
 import SwiftUI
 
-struct RoomPart {
-    let title: String
-    let type: MessageCardType
-}
-
-enum RoomType {
-    case fact, idea, benefit, risk, feeling
-
-    var shared: RoomPart {
-        switch self {
-        case .fact:
-            return .init(title: "Facts & Info", type: .white)
-        case .idea:
-            return .init(title: "Idea", type: .green)
-        case .benefit:
-            return .init(title: "Benefits", type: .yellow)
-        case .risk:
-            return .init(title: "Risks", type: .black)
-        case .feeling:
-            return .init(title: "Feeling", type: .red)
-        }
-    }
-}
-
 struct SessionRoomView: View {
     @Environment(\.dismiss) private var dismiss
 
     @StateObject private var vm: SessionRoomViewModel
-    
+
     init(id: Int64) {
         _vm = .init(wrappedValue: .init(id: id))
     }
@@ -56,20 +32,8 @@ struct SessionRoomView: View {
                 .padding(.bottom, 4)
 
                 // Prompt
-                HStack {
-                    Image(systemName: "info.bubble")
-                    Text(vm.prompt)
-                        .font(.caption)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-                .background(.whiteishBlue10)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 12)
-                )
-                .padding(.horizontal)
-                
+                RoomPrompt(title: vm.prompt)
+
                 // Messages area
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -102,6 +66,7 @@ struct SessionRoomView: View {
             }
 
             VStack(alignment: .trailing, spacing: 0) {
+                // Time extension button
                 MoreTimeButton(
                     isHost: vm.isHost,
                     action: vm.onTapExtensionButton
@@ -109,6 +74,21 @@ struct SessionRoomView: View {
 
                 // Input area
                 InputArea(inputText: $vm.inputText, action: vm.sendMessage)
+            }
+        }
+        .overlay(alignment: .center) {
+            if vm.showInstruction {
+                InstructionCard(
+                    instruction: vm.roomType.shared.instruction,
+                    onTap: vm.closeInstruction
+                )
+            }
+            // TODO: finish logic; implement current & total players
+//            if vm.showIntroduction {
+//                SessionIntroductionView(introduction: vm.roomType.shared.introduction)
+//            }
+            if vm.isTimeUp {
+                TimesUpView()
             }
         }
     }

@@ -16,7 +16,8 @@ struct Message {
 final class SessionRoomViewModel: ObservableObject {
     @Published var inputText: String = ""
 
-    @Published var roomType: RoomType
+    @Published var roomType: SessionRoom
+    @Published var showInstruction: Bool = true
     @Published var deadline: Date
     @Published var prompt: String
     @Published var messages: [Message]
@@ -53,6 +54,10 @@ final class SessionRoomViewModel: ObservableObject {
                 type: .white
             ),
         ]
+    }
+    
+    func closeInstruction() {
+        showInstruction = false
     }
 
     func startTimer() {
