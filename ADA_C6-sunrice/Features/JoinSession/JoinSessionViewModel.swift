@@ -26,6 +26,7 @@ enum JoinSessionStep: Int, CaseIterable {
 final class JoinSessionViewModel: ObservableObject {
     private let userService: UserServicing
     private let userRoleService: UserRoleServicing
+    private let sessionService: SessionServicing
     private let guestRoleId: Int64 = 2
     @Published var lobbySession: SessionDTO?
     @Published var lobbyMode: ModeDTO?
@@ -46,10 +47,12 @@ final class JoinSessionViewModel: ObservableObject {
     
     init(
         userService: UserServicing,
-        userRoleService: UserRoleServicing
+        userRoleService: UserRoleServicing,
+        sessionService: SessionServicing
     ) {
         self.userService = userService
         self.userRoleService = userRoleService
+        self.sessionService = sessionService
         // Forward changes from child VM to ensure the parent view updates if needed
         codeVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
@@ -64,7 +67,8 @@ final class JoinSessionViewModel: ObservableObject {
     convenience init() {
         self.init(
             userService: UserService(client: supabaseManager),
-            userRoleService: UserRoleService(client: supabaseManager)
+            userRoleService: UserRoleService(client: supabaseManager),
+            sessionService: SessionService(client: supabaseManager)
         )
     }
     
@@ -95,9 +99,11 @@ final class JoinSessionViewModel: ObservableObject {
     private func handleNextAction() async {
         switch step {
         case .enterCode:
-            advanceToNextStep()
+            let ok = await loadSessionData()
+            if ok { advanceToNextStep() }
         case .enterName:
             await persistName()
+            advanceToNextStep()
         case .lobby:
             break
         }
@@ -119,7 +125,6 @@ final class JoinSessionViewModel: ObservableObject {
             let user = try await userService.createUser(name: nameVM.username)
             currentUser = user
             currentUserRole = try await userRoleService.attach(userId: user.id, toRole: userRole.id)
-            advanceToNextStep()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -141,6 +146,26 @@ final class JoinSessionViewModel: ObservableObject {
         }
         return baseNames.enumerated().map { idx, name in
             UserDTO(id: Int64(idx + 1), name: name, status: 1, created_at: nil)
+        }
+    }
+    
+    private func loadSessionData() async -> Bool {
+        isPerformingAction = true
+        defer { isPerformingAction = false }
+        do {
+            let session = try await sessionService.fetchSession(token: code)
+            lobbySession = session
+            if let modeId = session.mode_id {
+                lobbyMode = try await sessionService.fetchMode(id: modeId)
+            }
+            if lobbyParticipants.isEmpty {
+                lobbyParticipants = makeParticipants()
+            }
+            errorMessage = nil
+            return true
+        } catch {
+            errorMessage = "No session with that code found"
+            return false
         }
     }
     

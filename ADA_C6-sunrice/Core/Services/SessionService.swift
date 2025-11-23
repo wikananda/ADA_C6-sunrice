@@ -17,11 +17,13 @@ struct SessionService: SessionServicing {
         duration_per_round: String,
         mode_id: Int64
     ) async throws -> SessionDTO {
+        let token = try await generateSessionToken()
         let payload = NewSessionPayload(
             duration_per_round: duration_per_round,
             topic: topic,
             description: description,
-            mode_id: mode_id
+            mode_id: mode_id,
+            token: token
         )
         
         let response: PostgrestResponse<SessionDTO> = try await client
@@ -32,11 +34,29 @@ struct SessionService: SessionServicing {
         return response.value
     }
     
+    func generateSessionToken() async throws -> String {
+        let response: PostgrestResponse<String> = try await client
+            .rpc("generate_unique_token", params: [String: String]())
+            .execute()
+        return response.value
+    }
+    
     func fetchSession(id: Int64) async throws -> SessionDTO {
         let response: PostgrestResponse<SessionDTO> = try await client
             .from("sessions")
             .select()
             .eq("id", value: Int(id))
+            .single()
+            .execute()
+        
+        return response.value
+    }
+    
+    func fetchSession(token: String) async throws -> SessionDTO {
+        let response: PostgrestResponse<SessionDTO> = try await client
+            .from("sessions")
+            .select()
+            .eq("token", value: token)
             .single()
             .execute()
         
@@ -61,19 +81,6 @@ struct SessionService: SessionServicing {
             .execute()
         return response.value
     }
-    
-    func joinSession(code: String, userId: Int64) async throws -> SessionDTO {
-        let params: [String: String] = [
-            "p_code": code,
-            "_userid": String(userId)
-        ]
-        
-        let response: PostgrestResponse<SessionDTO> = try await client
-            .rpc("join_session_by_code", params: params)
-            .execute()
-        
-        return response.value
-    }
 }
 
 private struct NewSessionPayload: Encodable {
@@ -81,5 +88,6 @@ private struct NewSessionPayload: Encodable {
     let topic: String
     let description: String?
     let mode_id: Int64
+    let token: String
     let is_token_expired: Bool = false
 }
