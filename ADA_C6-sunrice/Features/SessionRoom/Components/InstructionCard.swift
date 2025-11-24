@@ -42,6 +42,9 @@ struct InstructionCard: View {
             }
             .padding(.horizontal)
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
         .onTapToDismissKeyboard()
     }
 }

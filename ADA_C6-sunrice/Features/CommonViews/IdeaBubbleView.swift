@@ -49,7 +49,7 @@ struct IdeaBubbleView: View {
                     Text(text)
                         .font(.caption)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    if showPlusButton && type == .green {
+                    if showPlusButton {
                         Button(action: {onTapPlus(1)}) {
                             Image(systemName: "plus.circle.dashed")
                         }
@@ -72,7 +72,8 @@ struct IdeaBubbleView: View {
             if isBadgeShown() {
                 BadgeView(
                     yellowMessageCount: yellowMessages,
-                    blackMessageCount: blackMessages
+                    blackMessageCount: blackMessages,
+                    darkGreenMessageCount: darkGreenMessages
                 )
                     .offset(x: -20, y: 14)
             }

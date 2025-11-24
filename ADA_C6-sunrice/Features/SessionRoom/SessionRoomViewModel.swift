@@ -44,7 +44,7 @@ struct Message {
 @MainActor
 final class SessionRoomViewModel: ObservableObject {
     private let sessionService: SessionServicing
-    private let ideaService: IdeaServicing
+    let ideaService: IdeaServicing  // Public so CommentSheetView can fetch comments
     private let sessionId: Int64
     
     // UI State
@@ -205,21 +205,11 @@ final class SessionRoomViewModel: ObservableObject {
                 startGuestDeadlineTimer()
             }
             
-            // Fetch ideas from previous round to display
-            // For comment rounds, fetch green ideas
-            // For other rounds, fetch ideas from the immediately previous round
-            if isCommentRound {
-                print("📗 Entering comment round - fetching green ideas...")
-                if let greenTypeId = getGreenTypeId() {
-                    await fetchIdeasForRound(typeId: greenTypeId)
-                }
-            } else if currentRound > 1 {
-                // Fetch ideas from previous round
-                let previousRound = currentRound - 1
-                if let previousTypeId = getTypeIdForRound(previousRound) {
-                    print("📋 Fetching ideas from previous round \(previousRound)...")
-                    await fetchIdeasForRound(typeId: previousTypeId)
-                }
+            // Fetch ideas from previous rounds to display
+            if currentRound > 1 {
+                // Fetch ALL ideas from ALL previous rounds (cumulative)
+                print("📋 Fetching ALL ideas from previous rounds...")
+                await fetchIdeasForRound(typeId: nil) // nil = fetch all types for this session
             }
             
         } catch {
@@ -435,7 +425,7 @@ final class SessionRoomViewModel: ObservableObject {
         showCommentSheet = true
     }
     
-    func submitComment(text: String) {
+    func submitComment(text: String, completion: @escaping () -> Void = {}) {
         guard let idea = selectedIdeaForComment,
               let typeId = currentTypeId,
               let userId = currentUserId,
@@ -466,14 +456,14 @@ final class SessionRoomViewModel: ObservableObject {
                 await fetchCommentCounts()
                 
                 print("✅ Comment submitted successfully to ideas_comments table")
+                
+                await MainActor.run {
+                    completion()
+                }
             } catch {
                 print("❌ Error submitting comment: \(error)")
             }
         }
-        
-        // Close sheet
-        showCommentSheet = false
-        selectedIdeaForComment = nil
     }
     
     // MARK: - Upload & Fetch Ideas
@@ -525,8 +515,9 @@ final class SessionRoomViewModel: ObservableObject {
                 print("  - Idea \(idea.id): '\(idea.text ?? "")' by user \(idea.user_id ?? -1)")
             }
             
-            // If fetching green ideas, also fetch comment counts
-            if let greenTypeId = getGreenTypeId(), typeId == greenTypeId {
+            // If fetching green ideas OR all ideas, also fetch comment counts
+            // This ensures we have counts for green ideas even when fetching everything
+            if typeId == nil || (typeId == getGreenTypeId()) {
                 await fetchCommentCounts()
             }
         } catch {

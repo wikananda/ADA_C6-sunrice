@@ -32,6 +32,10 @@ struct SessionIntroductionView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .onTapToDismissKeyboard()
         .background(.white)
     }
 }

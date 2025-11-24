@@ -47,35 +47,25 @@ struct SessionRoomView: View {
                     ScrollView {
                         LazyVStack(alignment: .trailing, spacing: 8) {
                             // Show ideas from previous rounds (from all users)
-                            if vm.isCommentRound {
-                                // Comment round: Show green ideas with plus buttons
-                                ForEach(vm.serverIdeas) { idea in
-                                    let counts = vm.commentCounts[idea.id] ?? (yellow: 0, black: 0, darkGreen: 0)
-                                    
-                                    IdeaBubbleView(
-                                        text: idea.text ?? "",
-                                        type: .green,
-                                        ideaId: Int(idea.id),
-                                        yellowMessages: counts.yellow,
-                                        blackMessages: counts.black,
-                                        darkGreenMessages: counts.darkGreen,
-                                        showPlusButton: true,
-                                        onTapPlus: { _ in
-                                            vm.openCommentSheet(for: idea)
-                                        }
-                                    )
-                                    .padding(.horizontal, 16)
-                                }
-                            } else {
-                                // Regular round: Show previous round's ideas (from all users)
-                                ForEach(vm.serverIdeas) { idea in
-                                    IdeaBubbleView(
-                                        text: idea.text ?? "",
-                                        type: vm.getMessageCardType(for: idea.type_id),
-                                        ideaId: Int(idea.id)
-                                    )
-                                    .padding(.horizontal, 16)
-                                }
+                            ForEach(vm.serverIdeas) { idea in
+                                 let isGreenIdea = idea.type_id == vm.getGreenTypeId()
+                                 let showPlus = vm.isCommentRound && isGreenIdea
+                                 
+                                 let counts = vm.commentCounts[idea.id] ?? (yellow: 0, black: 0, darkGreen: 0)
+                                 
+                                 IdeaBubbleView(
+                                     text: idea.text ?? "",
+                                     type: vm.getMessageCardType(for: idea.type_id),
+                                     ideaId: Int(idea.id),
+                                     yellowMessages: counts.yellow,
+                                     blackMessages: counts.black,
+                                     darkGreenMessages: counts.darkGreen,
+                                     showPlusButton: showPlus,
+                                     onTapPlus: { _ in
+                                         vm.openCommentSheet(for: idea)
+                                     }
+                                 )
+                                 .padding(.horizontal, 16)
                             }
                             
                             // Show current round's local ideas (not yet uploaded)
@@ -116,8 +106,23 @@ struct SessionRoomView: View {
                     action: vm.onTapExtensionButton
                 )
 
-                // Input area
-                InputArea(inputText: $vm.inputText, action: vm.sendMessage)
+                // Input area - only show in non-comment rounds
+                if !vm.isCommentRound {
+                    InputArea(inputText: $vm.inputText, action: vm.sendMessage)
+                } else {
+                    // In comment rounds, show instruction to tap plus button
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("Tap the + button on ideas to add comments")
+                            .font(.bodySM)
+                    }
+                    .foregroundColor(AppColor.Primary.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(AppColor.blue10)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
             }
         }
         .onTapToDismissKeyboard()
