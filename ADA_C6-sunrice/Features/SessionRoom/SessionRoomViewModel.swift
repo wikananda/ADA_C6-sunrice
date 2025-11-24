@@ -525,12 +525,15 @@ final class SessionRoomViewModel: ObservableObject {
         }
     }
     
-    private func fetchCommentCounts() async {
+    func fetchCommentCounts() async {
         let ideaIds = serverIdeas.map { $0.id }
         guard !ideaIds.isEmpty else { return }
         
+        print("📊 Fetching comment counts for \(ideaIds.count) ideas...")
+        
         do {
             let comments = try await ideaService.fetchCommentsForIdeas(ideaIds: ideaIds)
+            print("   - Retrieved \(comments.count) total comments from DB")
             
             // Count comments by type for each idea
             var counts: [Int64: (yellow: Int, black: Int, darkGreen: Int)] = [:]
@@ -540,9 +543,11 @@ final class SessionRoomViewModel: ObservableObject {
                 
                 var current = counts[ideaId] ?? (yellow: 0, black: 0, darkGreen: 0)
                 
-                // Determine comment type based on typeId
-                // You'll need to map typeIds to yellow/black/darkGreen
-                // For now, using placeholder logic
+                // Debug log for first few comments to verify type mapping
+                if comments.first?.id == comment.id {
+                    print("   - Mapping comment type: \(typeId). Yellow: \(isYellowType(typeId)), Black: \(isBlackType(typeId)), DarkGreen: \(isDarkGreenType(typeId))")
+                }
+                
                 if isYellowType(typeId) {
                     current.yellow += 1
                 } else if isBlackType(typeId) {
@@ -555,8 +560,9 @@ final class SessionRoomViewModel: ObservableObject {
             }
             
             commentCounts = counts
+            print("✅ Updated comment counts for \(counts.count) ideas")
         } catch {
-            print("Error fetching comment counts: \(error)")
+            print("❌ Error fetching comment counts: \(error)")
         }
     }
     

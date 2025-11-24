@@ -51,7 +51,7 @@ struct CommentSheetView: View {
                                         type: vm.getMessageCardType(for: comment.type_id),
                                         ideaId: Int(comment.id)
                                     )
-                                    .frame(maxWidth: 325)
+                                    .frame(maxWidth: 335)
                                 }
                             }
                             .padding(.horizontal)

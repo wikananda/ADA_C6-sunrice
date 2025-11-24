@@ -81,7 +81,7 @@ struct SessionRoomView: View {
                             
                             Color.clear
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 75)
+                                .frame(height: 125)
                         }
                         .padding(.vertical, 8)
                     }

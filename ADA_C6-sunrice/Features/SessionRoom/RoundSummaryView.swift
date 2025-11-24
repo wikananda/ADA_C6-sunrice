@@ -82,6 +82,14 @@ struct RoundSummaryView: View {
                 .padding(.horizontal)
             }
         }
+        .background(
+            Background()
+        )
+        .onAppear {
+            Task {
+                await vm.fetchCommentCounts()
+            }
+        }
         .padding(.bottom)
     }
 }
