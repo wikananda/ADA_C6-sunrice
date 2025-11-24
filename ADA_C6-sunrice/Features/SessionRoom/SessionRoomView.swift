@@ -60,6 +60,9 @@ struct SessionRoomView: View {
                                 .padding(.horizontal, 16)
                                 .id(index)
                             }
+                            Color.clear
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 75)
                         }
                         .padding(.vertical, 8)
                     }

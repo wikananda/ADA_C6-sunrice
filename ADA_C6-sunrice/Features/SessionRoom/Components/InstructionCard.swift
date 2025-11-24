@@ -42,5 +42,6 @@ struct InstructionCard: View {
             }
             .padding(.horizontal)
         }
+        .onTapToDismissKeyboard()
     }
 }

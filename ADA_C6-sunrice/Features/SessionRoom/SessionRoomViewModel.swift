@@ -14,7 +14,7 @@ struct RoomPart {
 }
 
 enum RoomType {
-    case fact, idea, benefit, risk, feeling
+    case fact, idea, buildon, benefit, risk, feeling
 
     var shared: RoomPart {
         switch self {
@@ -22,6 +22,8 @@ enum RoomType {
             return .init(title: "Facts & Info", type: .white)
         case .idea:
             return .init(title: "Idea", type: .green)
+        case .buildon:
+            return .init(title: "Build On", type: .darkGreen)
         case .benefit:
             return .init(title: "Benefits", type: .yellow)
         case .risk:
@@ -132,14 +134,15 @@ final class SessionRoomViewModel: ObservableObject {
         do {
             // Fetch type from database
             let type = try await sessionService.fetchType(id: typeId)
+            print("type: ", type)
             
             // Map type name to SessionRoom enum
             roomType = mapTypeToSessionRoom(typeName: type.name ?? "")
             
             // Set deadline based on duration_per_round (in minutes, convert to seconds)
-            // deadline = Date().addingTimeInterval(5)
-            let durationInSeconds = TimeInterval((session?.duration_per_round ?? 1) * 60)
-            deadline = Date().addingTimeInterval(durationInSeconds)
+             deadline = Date().addingTimeInterval(10)
+//            let durationInSeconds = TimeInterval((session?.duration_per_round ?? 1) * 60)
+//            deadline = Date().addingTimeInterval(durationInSeconds)
             isTimeUp = false
             showInstruction = true  // Reset instruction for new round
             
@@ -155,15 +158,17 @@ final class SessionRoomViewModel: ObservableObject {
     
     private func mapTypeToSessionRoom(typeName: String) -> SessionRoom {
         let lowercased = typeName.lowercased()
-        if lowercased.contains("white") || lowercased.contains("fact") {
+        if lowercased == "white" || lowercased == "fact" {
             return .fact
-        } else if lowercased.contains("green") || lowercased.contains("idea") {
+        } else if lowercased == "green" || lowercased == "idea" {
             return .idea
-        } else if lowercased.contains("yellow") || lowercased.contains("benefit") {
+        } else if lowercased == "darker green" || lowercased == "buildon" {
+            return .buildon
+        } else if lowercased == "yellow" || lowercased == "benefit" {
             return .benefit
-        } else if lowercased.contains("black") || lowercased.contains("risk") {
+        } else if lowercased == "black" || lowercased == "risk" {
             return .risk
-        } else if lowercased.contains("red") || lowercased.contains("feeling") {
+        } else if lowercased == "red" || lowercased == "feeling" {
             return .feeling
         }
         return .fact // default

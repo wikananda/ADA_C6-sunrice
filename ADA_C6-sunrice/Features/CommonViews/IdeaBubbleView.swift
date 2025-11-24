@@ -13,17 +13,17 @@ enum MessageCardType {
     var color: Color {
         switch self {
         case .white:
-            return .whiteishBlue50
+            return AppColor.whiteishBlue50
         case .green:
-            return .green50
+            return AppColor.green50
         case .yellow:
-            return .yellow50
+            return AppColor.yellow50
         case .black:
-            return .grayscale50
+            return AppColor.grayscale50
         case .red:
-            return .red50
+            return AppColor.red50
         case .darkGreen:
-            return .green70
+            return AppColor.green70
         }
     }
 }

@@ -24,7 +24,7 @@ struct SessionInstruction {
 }
 
 enum SessionRoom {
-    case fact, idea, benefit, risk, feeling
+    case fact, idea, buildon, benefit, risk, feeling
 
     var shared: SessionRoomPart {
         switch self {
@@ -57,6 +57,22 @@ enum SessionRoom {
                         "Time to create. Add new ideas, spark alternatives, or build on earlier insights.",
                     body:
                         "Time to create. Add new ideas, spark alternatives, or build on earlier insights.",
+                    mascot: "Mascot Green Alert"
+                )
+            )
+        case .buildon:
+            return .init(
+                title: "Build On the Ideas",
+                type: .darkGreen,
+                introduction: SessionIntroduction(
+                    title: "Let’s Buil Upon \nThese Ideas!",
+                    mascot: "Mascot Green",
+                ),
+                instruction: SessionInstruction(
+                    subtitle:
+                        "Time to build on each other! Explore possibilities and spark creativity",
+                    body:
+                        "Time to build on each other ideas! Try to diverge new possibilities and creativity.",
                     mascot: "Mascot Green Alert"
                 )
             )
