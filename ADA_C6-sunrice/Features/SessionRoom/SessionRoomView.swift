@@ -63,6 +63,9 @@ struct SessionRoomView: View {
                         }
                         .padding(.vertical, 8)
                     }
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
                     .onChange(of: vm.messages.count, initial: true) { _, _ in
                         if let lastIndex = vm.messages.indices.last {
                             withAnimation {
@@ -84,6 +87,7 @@ struct SessionRoomView: View {
                 InputArea(inputText: $vm.inputText, action: vm.sendMessage)
             }
         }
+        .onTapToDismissKeyboard()
         .overlay(alignment: .center) {
             if vm.showInstruction {
                 InstructionCard(

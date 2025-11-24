@@ -49,6 +49,7 @@ struct EnterNameView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onTapToDismissKeyboard()
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 isFocused = true
