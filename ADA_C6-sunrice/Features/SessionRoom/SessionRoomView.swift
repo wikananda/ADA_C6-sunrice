@@ -51,7 +51,7 @@ struct SessionRoomView: View {
                                  let isGreenIdea = idea.type_id == vm.getGreenTypeId()
                                  let showPlus = vm.isCommentRound && isGreenIdea
                                  
-                                 let counts = vm.commentCounts[idea.id] ?? (yellow: 0, black: 0, darkGreen: 0)
+                                 let counts = vm.commentCounts[idea.id] ?? CommentCounts(yellow: 0, black: 0, darkGreen: 0)
                                  
                                  IdeaBubbleView(
                                      text: idea.text ?? "",

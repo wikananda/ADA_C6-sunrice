@@ -37,7 +37,7 @@ struct RoundSummaryView: View {
                     } : vm.serverIdeas
                     
                     ForEach(ideasToShow) { idea in
-                        let counts = vm.commentCounts[idea.id] ?? (yellow: 0, black: 0, darkGreen: 0)
+                        let counts = vm.commentCounts[idea.id] ?? CommentCounts(yellow: 0, black: 0, darkGreen: 0)
                         
                         IdeaBubbleView(
                             text: idea.text ?? "",
