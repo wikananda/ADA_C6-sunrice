@@ -36,22 +36,39 @@ struct RoundSummaryView: View {
                         return typeId == vm.getGreenTypeId()
                     } : vm.serverIdeas
                     
-                    ForEach(ideasToShow) { idea in
-                        let counts = vm.commentCounts[idea.id] ?? CommentCounts(yellow: 0, black: 0, darkGreen: 0)
-                        
-                        IdeaBubbleView(
-                            text: idea.text ?? "",
-                            type: vm.isCommentRound ? .green : vm.roomType.shared.type,
-                            ideaId: Int(idea.id),
-                            yellowMessages: counts.yellow,
-                            blackMessages: counts.black,
-                            darkGreenMessages: counts.darkGreen,
-                            showPlusButton: vm.isCommentRound,
-                            onTapPlus: { _ in
-                                vm.openCommentSheet(for: idea)
+                    // Show comments for this round (in comment rounds)
+                    if vm.isCommentRound {
+                        let commentsForRound = vm.serverComments.filter { $0.type_id == vm.currentTypeId }
+                        ForEach(commentsForRound, id: \.id) { comment in
+                            IdeaBubbleView(
+                                text: comment.text ?? "",
+                                type: vm.getMessageCardType(for: comment.type_id),
+                                ideaId: Int(comment.id)
+                            )
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 16)
+                        }
+                    } else {
+                        ForEach(Array(ideasToShow)) { idea in
+                            let counts = vm.commentCounts[idea.id] ?? CommentCounts(yellow: 0, black: 0, darkGreen: 0)
+                            
+                            VStack(alignment: .trailing, spacing: 8) {
+                                // Green idea bubble
+                                IdeaBubbleView(
+                                    text: idea.text ?? "",
+                                    type: vm.isCommentRound ? .green : vm.roomType.shared.type,
+                                    ideaId: Int(idea.id),
+                                    yellowMessages: counts.yellow,
+                                    blackMessages: counts.black,
+                                    darkGreenMessages: counts.darkGreen,
+                                    showPlusButton: vm.isCommentRound,
+                                    onTapPlus: { _ in
+                                        vm.openCommentSheet(for: idea)
+                                    }
+                                )
                             }
-                        )
-                        .padding(.horizontal, 16)
+                            .padding(.horizontal, 16)
+                        }
                     }
                 }
                 .padding(.vertical, 8)
@@ -87,7 +104,13 @@ struct RoundSummaryView: View {
         )
         .onAppear {
             Task {
+                // Fetch comment counts
                 await vm.fetchCommentCounts()
+                
+                // If it's a comment round, also fetch the actual comments
+                if vm.isCommentRound {
+                    await vm.fetchAllComments()
+                }
             }
         }
         .padding(.bottom)

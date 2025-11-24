@@ -72,6 +72,7 @@ final class SessionRoomViewModel: ObservableObject {
     // MARK: - Delegated State (from IdeaManager)
     var localIdeas: [LocalIdea] { ideaManager.localIdeas }
     var serverIdeas: [IdeaDTO] { ideaManager.serverIdeas }
+    var serverComments: [IdeaCommentDTO] { ideaManager.serverComments }
     var commentCounts: [Int64: CommentCounts] { ideaManager.commentCounts }
     var isUploadingIdeas: Bool { ideaManager.isUploadingIdeas }
     
@@ -79,7 +80,7 @@ final class SessionRoomViewModel: ObservableObject {
     private var session: SessionDTO?
     private var sequence: SequenceDTO?
     private var currentRound: Int64 = 1
-    private var currentTypeId: Int64? = nil
+    var currentTypeId: Int64? = nil
     private var currentUserId: Int64? = nil
 
     // MARK: - Initialization
@@ -161,6 +162,11 @@ final class SessionRoomViewModel: ObservableObject {
                 startHostTimer()
             } else {
                 startGuestPolling()
+            }
+            
+            // Start polling for comment counts
+            timerManager.startPollingCommentCounts { [weak self] in
+                await self?.fetchCommentCounts()
             }
             
             isLoading = false
@@ -246,8 +252,11 @@ final class SessionRoomViewModel: ObservableObject {
         let waitTime = isHost ? 2 : 3
         try? await Task.sleep(nanoseconds: UInt64(waitTime) * 1_000_000_000)
         
-        // Fetch all ideas for current round
-        try? await ideaManager.fetchIdeas(sessionId: sessionId, typeId: currentTypeId)
+        // Fetch ideas for review screen
+        // In comment rounds, fetch green ideas (that have comments)
+        // In other rounds, fetch ideas for current round
+        let typeIdToFetch = isCommentRound ? roundManager.getGreenTypeId() : currentTypeId
+        try? await ideaManager.fetchIdeas(sessionId: sessionId, typeId: typeIdToFetch)
         
         // Show Round Summary screen
         showRoundSummary = true
@@ -350,7 +359,7 @@ final class SessionRoomViewModel: ObservableObject {
                 )
                 
                 // Refresh comment counts
-                try await ideaManager.fetchCommentCounts(roundManager: roundManager)
+               try await ideaManager.fetchCommentCounts(roundManager: roundManager)
                 
                 await MainActor.run {
                     completion()
@@ -366,6 +375,14 @@ final class SessionRoomViewModel: ObservableObject {
             try await ideaManager.fetchCommentCounts(roundManager: roundManager)
         } catch {
             print("❌ Error fetching comment counts: \(error)")
+        }
+    }
+    
+    func fetchAllComments() async {
+        do {
+            try await ideaManager.fetchComments(roundManager: roundManager)
+        } catch {
+            print("❌ Error fetching comments: \(error)")
         }
     }
     

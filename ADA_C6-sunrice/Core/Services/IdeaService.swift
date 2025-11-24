@@ -58,6 +58,7 @@ struct IdeaService: IdeaServicing {
             .order("created_at", ascending: true)
             .execute()
         
+        print("fetched comments: \(response.value)")
         return response.value
     }
 }

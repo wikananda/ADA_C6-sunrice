@@ -94,10 +94,34 @@ final class TimerManager {
     
     // MARK: - Cleanup
     
+    private var commentPollingTask: Task<Void, Never>?
+
+    // MARK: - Comment Polling
+    
+    func startPollingCommentCounts(interval: TimeInterval = 2.0, action: @escaping () async -> Void) {
+        commentPollingTask?.cancel()
+        
+        commentPollingTask = Task {
+            while !Task.isCancelled {
+                await action()
+                print("polling comment counts...")
+                try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
+            }
+        }
+    }
+    
+    func stopPollingCommentCounts() {
+        commentPollingTask?.cancel()
+        commentPollingTask = nil
+    }
+
+    // MARK: - Cleanup
+    
     func cancelAllTimers() {
         roundTimer?.cancel()
         roundTimer = nil
         cancelPolling()
+        stopPollingCommentCounts()
     }
     
     // Nonisolated version for deinit
@@ -106,6 +130,7 @@ final class TimerManager {
             roundTimer?.cancel()
             roundTimer = nil
             cancelPolling()
+            stopPollingCommentCounts()
         }
     }
     

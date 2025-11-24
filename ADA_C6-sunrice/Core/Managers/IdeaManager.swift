@@ -19,6 +19,7 @@ final class IdeaManager: ObservableObject {
     
     // Server data (after fetch)
     @Published var serverIdeas: [IdeaDTO] = []
+    @Published var serverComments: [IdeaCommentDTO] = []  // Comments for review screen
     @Published var commentCounts: [Int64: CommentCounts] = [:]
     
     @Published var isUploadingIdeas: Bool = false
@@ -188,12 +189,27 @@ final class IdeaManager: ObservableObject {
         print("✅ Updated comment counts for \(counts.count) ideas (manual)")
     }
     
+    // Fetch all comments for display in review screen
+    func fetchComments(roundManager: RoundManager) async throws {
+        let ideaIds = serverIdeas.map { $0.id }
+        guard !ideaIds.isEmpty else { 
+            serverComments = []
+            return 
+        }
+        
+        print("💬 Fetching all comments for \(ideaIds.count) ideas...")
+        
+        serverComments = try await ideaService.fetchCommentsForIdeas(ideaIds: ideaIds)
+        print("✅ Fetched \(serverComments.count) comments for review screen")
+    }
+    
     // MARK: - Reset
     
     func reset() {
         localIdeas.removeAll()
         localComments.removeAll()
         serverIdeas.removeAll()
+        serverComments.removeAll()
         commentCounts.removeAll()
     }
 }
