@@ -36,3 +36,10 @@ protocol SessionServicing {
     func updateCurrentRound(sessionId: Int64, round: Int64) async throws
     func fetchType(id: Int64) async throws -> TypeDTO
 }
+
+protocol IdeaServicing {
+    func fetchIdeas(sessionId: Int64, typeId: Int64?) async throws -> [IdeaDTO]
+    func createIdeas(_ params: [InsertIdeaParams]) async throws
+    func createComment(_ params: InsertCommentParams) async throws
+    func fetchCommentsForIdeas(ideaIds: [Int64]) async throws -> [IdeaCommentDTO]
+}

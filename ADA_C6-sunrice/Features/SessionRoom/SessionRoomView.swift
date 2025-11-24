@@ -46,20 +46,49 @@ struct SessionRoomView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .trailing, spacing: 8) {
-                            ForEach(
-                                Array(vm.messages.enumerated()),
-                                id: \.offset
-                            ) {
-                                index,
-                                message in
+                            // Show ideas from previous rounds (from all users)
+                            if vm.isCommentRound {
+                                // Comment round: Show green ideas with plus buttons
+                                ForEach(vm.serverIdeas) { idea in
+                                    let counts = vm.commentCounts[idea.id] ?? (yellow: 0, black: 0, darkGreen: 0)
+                                    
+                                    IdeaBubbleView(
+                                        text: idea.text ?? "",
+                                        type: .green,
+                                        ideaId: Int(idea.id),
+                                        yellowMessages: counts.yellow,
+                                        blackMessages: counts.black,
+                                        darkGreenMessages: counts.darkGreen,
+                                        showPlusButton: true,
+                                        onTapPlus: { _ in
+                                            vm.openCommentSheet(for: idea)
+                                        }
+                                    )
+                                    .padding(.horizontal, 16)
+                                }
+                            } else {
+                                // Regular round: Show previous round's ideas (from all users)
+                                ForEach(vm.serverIdeas) { idea in
+                                    IdeaBubbleView(
+                                        text: idea.text ?? "",
+                                        type: vm.getMessageCardType(for: idea.type_id),
+                                        ideaId: Int(idea.id)
+                                    )
+                                    .padding(.horizontal, 16)
+                                }
+                            }
+                            
+                            // Show current round's local ideas (not yet uploaded)
+                            ForEach(Array(vm.localIdeas.enumerated()), id: \.offset) { index, localIdea in
                                 IdeaBubbleView(
-                                    text: message.text,
-                                    type: message.type,
-                                    ideaId: 1
+                                    text: localIdea.text,
+                                    type: vm.roomType.shared.type,
+                                    ideaId: index
                                 )
                                 .padding(.horizontal, 16)
-                                .id(index)
+                                .id("local-\(index)")
                             }
+                            
                             Color.clear
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 75)
@@ -69,10 +98,11 @@ struct SessionRoomView: View {
                     .onTapGesture {
                         UIApplication.shared.endEditing()
                     }
-                    .onChange(of: vm.messages.count, initial: true) { _, _ in
-                        if let lastIndex = vm.messages.indices.last {
+                    .onChange(of: vm.localIdeas.count, initial: true) { _, _ in
+                        // Scroll to last local idea when new one is added
+                        if !vm.localIdeas.isEmpty {
                             withAnimation {
-                                proxy.scrollTo(lastIndex, anchor: .bottom)
+                                proxy.scrollTo("local-\(vm.localIdeas.count - 1)", anchor: .bottom)
                             }
                         }
                     }
@@ -105,6 +135,12 @@ struct SessionRoomView: View {
             if vm.isTimeUp {
                 TimesUpView()
             }
+        }
+        .fullScreenCover(isPresented: $vm.showRoundSummary) {
+            RoundSummaryView(vm: vm)
+        }
+        .sheet(isPresented: $vm.showCommentSheet) {
+            CommentSheetView(vm: vm)
         }
     }
 }

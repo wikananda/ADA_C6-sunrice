@@ -23,7 +23,7 @@ enum MessageCardType {
         case .red:
             return AppColor.red50
         case .darkGreen:
-            return AppColor.green70
+            return AppColor.green60
         }
     }
 }
@@ -34,6 +34,8 @@ struct IdeaBubbleView: View {
     let ideaId: Int
     var yellowMessages: Int = -1
     var blackMessages: Int = -1
+    var darkGreenMessages: Int = -1
+    var showPlusButton: Bool = false
     var onTapPlus: (Int) -> Void = { _ in }
 
     var body: some View {
@@ -47,7 +49,7 @@ struct IdeaBubbleView: View {
                     Text(text)
                         .font(.caption)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    if type == .green {
+                    if showPlusButton && type == .green {
                         Button(action: {onTapPlus(1)}) {
                             Image(systemName: "plus.circle.dashed")
                         }
@@ -79,16 +81,26 @@ struct IdeaBubbleView: View {
     }
     
     private func isBadgeShown() -> Bool {
-        return yellowMessages > 0 || blackMessages > 0
+        return yellowMessages > 0 || blackMessages > 0 || darkGreenMessages > 0
     }
 }
 
 struct BadgeView: View {
     var yellowMessageCount: Int = 0
     var blackMessageCount: Int = 0
+    var darkGreenMessageCount: Int = 0
     
     var body: some View {
         HStack(spacing: 8) {
+            if darkGreenMessageCount > 0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.right.circle.fill")
+                    Text("\(darkGreenMessageCount)")
+                }
+                .font(.callout)
+                .foregroundStyle(AppColor.green70)
+                .bold()
+            }
             if yellowMessageCount > 0 {
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.up.right.circle.fill")

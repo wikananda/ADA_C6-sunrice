@@ -41,6 +41,7 @@ struct IdeaCommentDTO: Codable, Sendable, Identifiable {
     let id: Int64
     let idea_id: Int64?
     let text: String?
+    let type_id: Int64?
     let user_id: Int64?
     let created_at: Date?
 }
@@ -60,5 +61,6 @@ struct InsertIdeaParams: Encodable, Sendable {
 struct InsertCommentParams: Encodable, Sendable {
     let idea_id: Int64
     let text: String
+    let type_id: Int64
     let user_id: Int64
 }

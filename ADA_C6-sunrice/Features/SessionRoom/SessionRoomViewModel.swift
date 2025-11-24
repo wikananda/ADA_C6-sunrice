@@ -7,6 +7,8 @@
 
 import Combine
 import Foundation
+import PostgREST
+import Supabase
 
 struct RoomPart {
     let title: String
@@ -42,16 +44,32 @@ struct Message {
 @MainActor
 final class SessionRoomViewModel: ObservableObject {
     private let sessionService: SessionServicing
+    private let ideaService: IdeaServicing
     private let sessionId: Int64
     
+    // UI State
     @Published var inputText: String = ""
     @Published var roomType: SessionRoom = .fact
     @Published var showInstruction: Bool = true
     @Published var deadline: Date = Date()
     @Published var prompt: String = ""
-    @Published var messages: [Message] = []
+    @Published var messages: [Message] = []  // For backward compatibility, will be deprecated
     @Published var isTimeUp: Bool = false
     @Published var isLoading: Bool = true
+    @Published var isUploadingIdeas: Bool = false
+    @Published var showRoundSummary: Bool = false
+    
+    // Local storage (before upload)
+    @Published var localIdeas: [LocalIdea] = []
+    @Published var localComments: [LocalComment] = []
+    
+    // Server data (after fetch)
+    @Published var serverIdeas: [IdeaDTO] = []
+    @Published var commentCounts: [Int64: (yellow: Int, black: Int, darkGreen: Int)] = [:]
+    
+    // Comment sheet
+    @Published var selectedIdeaForComment: IdeaDTO? = nil
+    @Published var showCommentSheet: Bool = false
 
     let isHost: Bool
     
@@ -60,11 +78,14 @@ final class SessionRoomViewModel: ObservableObject {
     private var roundTimer: AnyCancellable?
     private var pollingTimer: Task<Void, Never>?
     private var currentRound: Int64 = 1
+    private var currentTypeId: Int64? = nil
+    private var currentUserId: Int64? = nil
 
-    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing) {
+    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing, ideaService: IdeaServicing) {
         self.sessionId = id
         self.isHost = isHost
         self.sessionService = sessionService
+        self.ideaService = ideaService
         
         Task {
             await loadSessionData()
@@ -72,7 +93,12 @@ final class SessionRoomViewModel: ObservableObject {
     }
     
     convenience init(id: Int64, isHost: Bool = false) {
-        self.init(id: id, isHost: isHost, sessionService: SessionService(client: supabaseManager))
+        self.init(
+            id: id,
+            isHost: isHost,
+            sessionService: SessionService(client: supabaseManager),
+            ideaService: IdeaService(client: supabaseManager)
+        )
     }
     
     private func loadSessionData() async {
@@ -97,6 +123,9 @@ final class SessionRoomViewModel: ObservableObject {
             // Load current round type
             await loadRoundType(round: currentRound)
             
+            // Fetch current user ID
+            await fetchCurrentUserId()
+            
             // Start timer or polling based on role
             if isHost {
                 startRoundTimer()
@@ -107,6 +136,28 @@ final class SessionRoomViewModel: ObservableObject {
             isLoading = false
         } catch {
             print("Error loading session data: \(error)")
+        }
+    }
+    
+    private func fetchCurrentUserId() async {
+        do {
+            struct UserRoleSession: Decodable {
+                let user_id: Int64
+            }
+            
+            let response: PostgrestResponse<[UserRoleSession]> = try await supabaseManager
+                .from("user_role_sessions")
+                .select("user_id")
+                .eq("session_id", value: Int(sessionId))
+                .limit(1)
+                .execute()
+            
+            if let first = response.value.first {
+                currentUserId = first.user_id
+                print("Current user ID: \(currentUserId ?? 0)")
+            }
+        } catch {
+            print("Error fetching user ID: \(error)")
         }
     }
     
@@ -136,6 +187,9 @@ final class SessionRoomViewModel: ObservableObject {
             let type = try await sessionService.fetchType(id: typeId)
             print("type: ", type)
             
+            // Store current type ID for use in sendMessage
+            currentTypeId = typeId
+            
             // Map type name to SessionRoom enum
             roomType = mapTypeToSessionRoom(typeName: type.name ?? "")
             
@@ -151,27 +205,53 @@ final class SessionRoomViewModel: ObservableObject {
                 startGuestDeadlineTimer()
             }
             
+            // Fetch ideas from previous round to display
+            // For comment rounds, fetch green ideas
+            // For other rounds, fetch ideas from the immediately previous round
+            if isCommentRound {
+                print("📗 Entering comment round - fetching green ideas...")
+                if let greenTypeId = getGreenTypeId() {
+                    await fetchIdeasForRound(typeId: greenTypeId)
+                }
+            } else if currentRound > 1 {
+                // Fetch ideas from previous round
+                let previousRound = currentRound - 1
+                if let previousTypeId = getTypeIdForRound(previousRound) {
+                    print("📋 Fetching ideas from previous round \(previousRound)...")
+                    await fetchIdeasForRound(typeId: previousTypeId)
+                }
+            }
+            
         } catch {
             print("Error fetching type: \(error)")
         }
     }
     
     private func mapTypeToSessionRoom(typeName: String) -> SessionRoom {
-        let lowercased = typeName.lowercased()
-        if lowercased == "white" || lowercased == "fact" {
-            return .fact
-        } else if lowercased == "green" || lowercased == "idea" {
-            return .idea
-        } else if lowercased == "darker green" || lowercased == "buildon" {
-            return .buildon
-        } else if lowercased == "yellow" || lowercased == "benefit" {
-            return .benefit
-        } else if lowercased == "black" || lowercased == "risk" {
-            return .risk
-        } else if lowercased == "red" || lowercased == "feeling" {
-            return .feeling
+        switch typeName.lowercased() {
+        case "white": return .fact
+        case "green": return .idea
+        case "darker green": return .buildon
+        case "yellow": return .benefit
+        case "black": return .risk
+        case "red": return .feeling
+        default: return .fact
         }
-        return .fact // default
+    }
+    
+    // Helper to get MessageCardType from type_id
+    func getMessageCardType(for typeId: Int64?) -> MessageCardType {
+        guard let typeId = typeId, let sequence = sequence else { return .white }
+        
+        switch typeId {
+        case sequence.first_round: return .white
+        case sequence.second_round: return .green
+        case sequence.third_round: return .darkGreen
+        case sequence.fourth_round: return .yellow
+        case sequence.fifth_round: return .black
+        case sequence.sixth_round: return .red
+        default: return .white
+        }
     }
     
     // MARK: - Host: Round Timer
@@ -189,16 +269,39 @@ final class SessionRoomViewModel: ObservableObject {
             isTimeUp = true
             roundTimer?.cancel()
             
-            // Move to next round after a delay
+            // Upload ideas and show Round Summary
             Task {
-                try? await Task.sleep(nanoseconds: 5 * 1_000_000_000) // 2 seconds delay
-                await advanceToNextRound()
+                // Upload local ideas to database
+                await uploadLocalIdeas()
+                
+                // Wait a bit for other users to upload their ideas
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 2 seconds
+                
+                // Fetch all ideas for current round (including from other users)
+                await fetchIdeasForRound(typeId: currentTypeId)
+                
+                // Show Round Summary screen
+                await MainActor.run {
+                    showRoundSummary = true
+                }
             }
+        }
+    }
+    
+    // MARK: - Round Advancement
+    func hostAdvanceToNextRound() {
+        guard isHost else { return }
+        
+        Task {
+            await advanceToNextRound()
         }
     }
     
     private func advanceToNextRound() async {
         guard let sequence = sequence else { return }
+        
+        // Hide Round Summary
+        showRoundSummary = false
         
         let nextRound = currentRound + 1
         
@@ -243,8 +346,16 @@ final class SessionRoomViewModel: ObservableObject {
                     
                     await MainActor.run {
                         if newRound != currentRound {
+                            // Round has changed - host advanced
                             currentRound = newRound
+                            
                             Task {
+                                // Hide round summary if showing
+                                await MainActor.run {
+                                    showRoundSummary = false
+                                }
+                                
+                                // Load the new round type
                                 await loadRoundType(round: currentRound)
                             }
                         }
@@ -258,6 +369,19 @@ final class SessionRoomViewModel: ObservableObject {
         }
     }
     
+    private func getTypeIdForRound(_ round: Int64) -> Int64? {
+        guard let sequence = sequence else { return nil }
+        switch round {
+        case 1: return sequence.first_round
+        case 2: return sequence.second_round
+        case 3: return sequence.third_round
+        case 4: return sequence.fourth_round
+        case 5: return sequence.fifth_round
+        case 6: return sequence.sixth_round
+        default: return nil
+        }
+    }
+    
     // MARK: - Guest: Deadline Timer
     private func startGuestDeadlineTimer() {
         roundTimer?.cancel()
@@ -268,6 +392,20 @@ final class SessionRoomViewModel: ObservableObject {
                 if Date() >= self.deadline {
                     self.isTimeUp = true
                     self.roundTimer?.cancel()
+                    
+                    // Guest also needs to upload and show round summary
+                    Task {
+                        await self.uploadLocalIdeas()
+                        
+                        // Wait for other users to upload
+                        try? await Task.sleep(nanoseconds: 3 * 1_000_000_000) // 3 seconds
+                        
+                        await self.fetchIdeasForRound(typeId: self.currentTypeId)
+                        
+                        await MainActor.run {
+                            self.showRoundSummary = true
+                        }
+                    }
                 }
             }
     }
@@ -276,29 +414,187 @@ final class SessionRoomViewModel: ObservableObject {
         showInstruction = false
     }
 
+    // MARK: - Message/Idea Input
     func sendMessage() {
-        let trimmedText = inputText.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-        if !trimmedText.isEmpty {
-            messages.append(Message(text: trimmedText, type: roomType.shared.type))
-            inputText = ""
+        let trimmedText = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty, let typeId = currentTypeId else { return }
+        
+        // Store locally
+        let localIdea = LocalIdea(text: trimmedText, typeId: typeId)
+        localIdeas.append(localIdea)
+        
+        // Also add to messages for backward compatibility
+        messages.append(Message(text: trimmedText, type: roomType.shared.type))
+        
+        inputText = ""
+    }
+    
+    // MARK: - Comments
+    func openCommentSheet(for idea: IdeaDTO) {
+        selectedIdeaForComment = idea
+        showCommentSheet = true
+    }
+    
+    func submitComment(text: String) {
+        guard let idea = selectedIdeaForComment,
+              let typeId = currentTypeId,
+              let userId = currentUserId,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            print("❌ Cannot submit comment: missing data")
+            return
         }
-
-        // TODO: upload message to Supabase
-        //        Task {
-        //            let newIdea = Idea(
-        //                id: nil,
-        //                text: trimmedText,
-        //                type: nil,
-        //                session_id: nil  // belum menerima nilai id session asli, jd masih nil
-        //            )
-        //            do {
-        //                try await insertIdea(newIdea)
-        //            } catch {
-        //                print("Error inserting idea: \(error)")
-        //            }
-        //        }
+        
+        // Store comment locally
+        let localComment = LocalComment(ideaId: idea.id, text: text, typeId: typeId)
+        localComments.append(localComment)
+        
+        print("💬 Submitting comment for idea \(idea.id) to ideas_comments table...")
+        
+        // Upload comment immediately
+        Task {
+            do {
+                let params = InsertCommentParams(
+                    idea_id: idea.id,
+                    text: text,
+                    type_id: typeId,
+                    user_id: userId
+                )
+                
+                try await ideaService.createComment(params)
+                
+                // Refresh comment counts
+                await fetchCommentCounts()
+                
+                print("✅ Comment submitted successfully to ideas_comments table")
+            } catch {
+                print("❌ Error submitting comment: \(error)")
+            }
+        }
+        
+        // Close sheet
+        showCommentSheet = false
+        selectedIdeaForComment = nil
+    }
+    
+    // MARK: - Upload & Fetch Ideas
+    private func uploadLocalIdeas() async {
+        guard !localIdeas.isEmpty else {
+            print("⏭️ No local ideas to upload")
+            return
+        }
+        guard let userId = currentUserId else {
+            print("❌ Error: User ID not found for upload")
+            return
+        }
+        
+        isUploadingIdeas = true
+        defer { isUploadingIdeas = false }
+        
+        do {
+            // Convert local ideas to insert params
+            let params = localIdeas.map { idea in
+                InsertIdeaParams(
+                    text: idea.text,
+                    type_id: idea.typeId,
+                    session_id: sessionId,
+                    user_id: userId
+                )
+            }
+            
+            print("📤 Uploading \(params.count) ideas to database...")
+            
+            // Upload to database
+            try await ideaService.createIdeas(params)
+            
+            // Clear local ideas after successful upload
+            localIdeas.removeAll()
+            
+            print("✅ Successfully uploaded \(params.count) ideas")
+        } catch {
+            print("❌ Error uploading ideas: \(error)")
+        }
+    }
+    
+    private func fetchIdeasForRound(typeId: Int64?) async {
+        do {
+            // Fetch ideas from database
+            serverIdeas = try await ideaService.fetchIdeas(sessionId: sessionId, typeId: typeId)
+            
+            print("✅ Fetched \(serverIdeas.count) ideas for session \(sessionId), typeId: \(typeId ?? -1)")
+            for idea in serverIdeas {
+                print("  - Idea \(idea.id): '\(idea.text ?? "")' by user \(idea.user_id ?? -1)")
+            }
+            
+            // If fetching green ideas, also fetch comment counts
+            if let greenTypeId = getGreenTypeId(), typeId == greenTypeId {
+                await fetchCommentCounts()
+            }
+        } catch {
+            print("❌ Error fetching ideas: \(error)")
+        }
+    }
+    
+    private func fetchCommentCounts() async {
+        let ideaIds = serverIdeas.map { $0.id }
+        guard !ideaIds.isEmpty else { return }
+        
+        do {
+            let comments = try await ideaService.fetchCommentsForIdeas(ideaIds: ideaIds)
+            
+            // Count comments by type for each idea
+            var counts: [Int64: (yellow: Int, black: Int, darkGreen: Int)] = [:]
+            
+            for comment in comments {
+                guard let ideaId = comment.idea_id, let typeId = comment.type_id else { continue }
+                
+                var current = counts[ideaId] ?? (yellow: 0, black: 0, darkGreen: 0)
+                
+                // Determine comment type based on typeId
+                // You'll need to map typeIds to yellow/black/darkGreen
+                // For now, using placeholder logic
+                if isYellowType(typeId) {
+                    current.yellow += 1
+                } else if isBlackType(typeId) {
+                    current.black += 1
+                } else if isDarkGreenType(typeId) {
+                    current.darkGreen += 1
+                }
+                
+                counts[ideaId] = current
+            }
+            
+            commentCounts = counts
+        } catch {
+            print("Error fetching comment counts: \(error)")
+        }
+    }
+    
+    // MARK: - Helper Methods
+    func getGreenTypeId() -> Int64? {
+        // Get green type ID from sequence
+        // This should match the type ID for green/idea round
+        return sequence?.second_round  // Assuming round 2 is green
+    }
+    
+    private func isYellowType(_ typeId: Int64) -> Bool {
+        // Check if typeId corresponds to yellow/benefit type
+        return sequence?.fourth_round == typeId
+    }
+    
+    private func isBlackType(_ typeId: Int64) -> Bool {
+        // Check if typeId corresponds to black/risk type
+        return sequence?.fifth_round == typeId
+    }
+    
+    private func isDarkGreenType(_ typeId: Int64) -> Bool {
+        // Check if typeId corresponds to darker green/buildon type
+        return sequence?.third_round == typeId
+    }
+    
+    var isCommentRound: Bool {
+        // Comment rounds are darker green, yellow, and black (rounds 3, 4, 5)
+        guard let typeId = currentTypeId else { return false }
+        return isDarkGreenType(typeId) || isYellowType(typeId) || isBlackType(typeId)
     }
 
     func onTapExtensionButton() {
