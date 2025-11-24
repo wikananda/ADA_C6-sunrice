@@ -9,7 +9,7 @@ enum Route: Hashable {
     case create
     case join
 //    case session(id: String, name: String?)
-    case session(id: String)
+    case session(id: String, isHost: Bool = false)
     case comment(ideaId: Int64)
 }
 

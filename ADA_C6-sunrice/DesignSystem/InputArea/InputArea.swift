@@ -55,7 +55,7 @@ struct InputArea: View {
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: .black, location: 0),
-                        .init(color: .black, location: 0.97), // 97% visible
+                        .init(color: .black, location: 0.90), // 90% visible
                         .init(color: .clear, location: 1.0)    // bottom hidden
                     ]),
                     startPoint: .top,

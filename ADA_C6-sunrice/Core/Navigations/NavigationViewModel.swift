@@ -20,10 +20,14 @@ class NavigationViewModel: ObservableObject {
     }
     
     func goToSessionLobby(id: Int64) {
-        path.append(Route.session(id: String(id)))
+        path.append(Route.session(id: String(id), isHost: false))
     }
     
     func goToSession(id: Int64) {
-        path.append(Route.session(id: String(id)))
+        path.append(Route.session(id: String(id), isHost: false))
+    }
+    
+    func goToSessionRoom(id: Int64, isHost: Bool) {
+        path.append(Route.session(id: String(id), isHost: isHost))
     }
 }

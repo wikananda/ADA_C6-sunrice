@@ -32,6 +32,7 @@ final class CreateSessionViewModel: ObservableObject {
     private let hostRoleId: Int64 = 1
     
     var currentTitle: String { step.title }
+    var onNavigateToSessionRoom: ((Int64, Bool) -> Void)?
     
     // MARK: Enter Name
     let nameVM = EnterNameViewModel()
@@ -87,7 +88,7 @@ final class CreateSessionViewModel: ObservableObject {
     ]
     
     // MARK: Review Session
-    @Published var durationPerRound: Int = 5
+    @Published var durationPerRound: Int64 = 5
     
     // MARK: Button Behavior
     var buttonText: String {
@@ -137,6 +138,8 @@ final class CreateSessionViewModel: ObservableObject {
             await persistName()
         case .reviewSession:
             await createSession()
+        case .lobby:
+            await startSessionAction()
         default:
             advanceToNextStep()
         }
@@ -211,7 +214,7 @@ final class CreateSessionViewModel: ObservableObject {
             let session = try await sessionService.createSession(
                 topic: topic,
                 description: description,
-                duration_per_round: String(durationPerRound),
+                duration_per_round: durationPerRound,
                 mode_id: selectedPreset.id
             )
             newSession = session
@@ -226,6 +229,25 @@ final class CreateSessionViewModel: ObservableObject {
             // lobbyParticipants = makeParticipants()
             await fetchSessionAndMode(sessionId: session.id)
             advanceToNextStep()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func startSessionAction() async {
+        guard let session = lobbySession, !isPerformingAction else { return }
+        isPerformingAction = true
+        defer { isPerformingAction = false }
+        
+        do {
+            errorMessage = nil
+            let firstRoundType = try await sessionService.startSession(id: session.id)
+            print("Session started! First round type: \(firstRoundType.name ?? "Unknown")")
+            
+            // Navigate to session room
+            await MainActor.run {
+                onNavigateToSessionRoom?(session.id, true)
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -23,6 +23,10 @@ struct TimesUpView: View {
             }
             .foregroundStyle(.blue50)
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .onTapToDismissKeyboard()
         .background(.white)
     }
 }

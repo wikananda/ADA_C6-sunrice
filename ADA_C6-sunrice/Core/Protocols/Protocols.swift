@@ -24,12 +24,22 @@ protocol UserRoleSessionServicing {
 protocol SessionServicing {
     func createSession(topic: String,
         description: String,
-        duration_per_round: String,
+        duration_per_round: Int64,
         mode_id: Int64
     ) async throws -> SessionDTO
-    func generateSessionToken() async throws -> String
     func fetchSession(id: Int64) async throws -> SessionDTO
     func fetchSession(token: String) async throws -> SessionDTO
     func fetchMode(id: Int64) async throws -> ModeDTO
     func fetchModes() async throws -> [ModeDTO]
+    func startSession(id: Int64) async throws -> TypeDTO
+    func fetchSequence(modeId: Int64) async throws -> SequenceDTO
+    func updateCurrentRound(sessionId: Int64, round: Int64) async throws
+    func fetchType(id: Int64) async throws -> TypeDTO
+}
+
+protocol IdeaServicing {
+    func fetchIdeas(sessionId: Int64, typeId: Int64?) async throws -> [IdeaDTO]
+    func createIdeas(_ params: [InsertIdeaParams]) async throws
+    func createComment(_ params: InsertCommentParams) async throws
+    func fetchCommentsForIdeas(ideaIds: [Int64]) async throws -> [IdeaCommentDTO]
 }

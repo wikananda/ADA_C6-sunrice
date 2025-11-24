@@ -12,13 +12,21 @@ struct SessionRoomView: View {
 
     @StateObject private var vm: SessionRoomViewModel
 
-    init(id: Int64) {
-        _vm = .init(wrappedValue: .init(id: id))
+    init(id: Int64, isHost: Bool = false) {
+        _vm = .init(wrappedValue: .init(id: id, isHost: isHost))
     }
 
     @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
+        if vm.isLoading {
+            ProgressView("Loading session...")
+        } else {
+            sessionContent
+        }
+    }
+    
+    private var sessionContent: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 8) {
                 Header(
@@ -38,27 +46,53 @@ struct SessionRoomView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .trailing, spacing: 8) {
-                            ForEach(
-                                Array(vm.messages.enumerated()),
-                                id: \.offset
-                            ) {
-                                index,
-                                message in
+                            // Show ideas from previous rounds (from all users)
+                            ForEach(vm.serverIdeas) { idea in
+                                 let isGreenIdea = idea.type_id == vm.getGreenTypeId()
+                                 let showPlus = vm.isCommentRound && isGreenIdea
+                                 
+                                 let counts = vm.commentCounts[idea.id] ?? CommentCounts(yellow: 0, black: 0, darkGreen: 0)
+                                 
+                                 IdeaBubbleView(
+                                     text: idea.text ?? "",
+                                     type: vm.getMessageCardType(for: idea.type_id),
+                                     ideaId: Int(idea.id),
+                                     yellowMessages: counts.yellow,
+                                     blackMessages: counts.black,
+                                     darkGreenMessages: counts.darkGreen,
+                                     showPlusButton: showPlus,
+                                     onTapPlus: { _ in
+                                         vm.openCommentSheet(for: idea)
+                                     }
+                                 )
+                                 .padding(.horizontal, 16)
+                            }
+                            
+                            // Show current round's local ideas (not yet uploaded)
+                            ForEach(Array(vm.localIdeas.enumerated()), id: \.offset) { index, localIdea in
                                 IdeaBubbleView(
-                                    text: message.text,
-                                    type: message.type,
-                                    ideaId: 1
+                                    text: localIdea.text,
+                                    type: vm.roomType.shared.type,
+                                    ideaId: index
                                 )
                                 .padding(.horizontal, 16)
-                                .id(index)
+                                .id("local-\(index)")
                             }
+                            
+                            Color.clear
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 125)
                         }
                         .padding(.vertical, 8)
                     }
-                    .onChange(of: vm.messages.count, initial: true) { _, _ in
-                        if let lastIndex = vm.messages.indices.last {
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
+                    .onChange(of: vm.localIdeas.count, initial: true) { _, _ in
+                        // Scroll to last local idea when new one is added
+                        if !vm.localIdeas.isEmpty {
                             withAnimation {
-                                proxy.scrollTo(lastIndex, anchor: .bottom)
+                                proxy.scrollTo("local-\(vm.localIdeas.count - 1)", anchor: .bottom)
                             }
                         }
                     }
@@ -72,10 +106,26 @@ struct SessionRoomView: View {
                     action: vm.onTapExtensionButton
                 )
 
-                // Input area
-                InputArea(inputText: $vm.inputText, action: vm.sendMessage)
+                // Input area - only show in non-comment rounds
+                if !vm.isCommentRound {
+                    InputArea(inputText: $vm.inputText, action: vm.sendMessage)
+                } else {
+                    // In comment rounds, show instruction to tap plus button
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("Tap the + button on ideas to add comments")
+                            .font(.bodySM)
+                    }
+                    .foregroundColor(AppColor.Primary.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(AppColor.blue10)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
             }
         }
+        .onTapToDismissKeyboard()
         .overlay(alignment: .center) {
             if vm.showInstruction {
                 InstructionCard(
@@ -90,6 +140,12 @@ struct SessionRoomView: View {
             if vm.isTimeUp {
                 TimesUpView()
             }
+        }
+        .fullScreenCover(isPresented: $vm.showRoundSummary) {
+            RoundSummaryView(vm: vm)
+        }
+        .sheet(isPresented: $vm.showCommentSheet) {
+            CommentSheetView(vm: vm)
         }
     }
 }

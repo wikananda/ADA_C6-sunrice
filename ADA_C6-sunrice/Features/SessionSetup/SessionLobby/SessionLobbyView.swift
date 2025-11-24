@@ -88,7 +88,7 @@ struct SessionLobbyView: View {
 #Preview {
     let session = SessionDTO(
         id: 1,
-        duration_per_round: "5",
+        duration_per_round: 5,
         topic: "How might we make onboarding more delightful?",
         description: "Let’s find creative ways to boost user engagement without adding extra steps.",
         token: "244831",
@@ -96,7 +96,8 @@ struct SessionLobbyView: View {
         started_at: nil,
         ended_at: nil,
         created_at: Date(),
-        mode_id: 1
+        mode_id: 1,
+        current_round: 1,
     )
     let mode = ModeDTO(
         id: 1,

@@ -39,6 +39,7 @@ struct DefineSessionView: View {
                 )
             }
         }
+        .onTapToDismissKeyboard()
     }
 }
 

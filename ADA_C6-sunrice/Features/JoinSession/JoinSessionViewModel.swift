@@ -37,6 +37,7 @@ final class JoinSessionViewModel: ObservableObject {
     
     var currentTitle: String { step.title }
     var code: String { codeVM.sessionCode }
+    var onNavigateToSessionRoom: ((Int64, Bool) -> Void)?
     @Published var step: JoinSessionStep = .enterCode
     @Published var isPerformingAction = false
     @Published var errorMessage: String?
@@ -189,7 +190,7 @@ final class JoinSessionViewModel: ObservableObject {
     func makePlaceholderSession() -> SessionDTO {
         SessionDTO(
             id: 0,
-            duration_per_round: "5",
+            duration_per_round: 5,
             topic: "Session",
             description: "",
             token: code,
@@ -197,7 +198,8 @@ final class JoinSessionViewModel: ObservableObject {
             started_at: nil,
             ended_at: nil,
             created_at: nil,
-            mode_id: nil
+            mode_id: nil,
+            current_round: 1,
         )
     }
     
@@ -208,11 +210,25 @@ final class JoinSessionViewModel: ObservableObject {
         participantsTask?.cancel()
         participantsTask = Task {
             while !Task.isCancelled {
-                if let session = lobbySession {
+                if let sessionId = lobbySession?.id {
                     do {
-                        let participants = try await userRoleService.fetchParticipants(sessionId: session.id)
+                        // Fetch participants
+                        let participants = try await userRoleService.fetchParticipants(sessionId: sessionId)
+                        
+                        // Fetch updated session to check if started
+                        let updatedSession = try await sessionService.fetchSession(id: sessionId)
+                        
                         await MainActor.run {
                             self.lobbyParticipants = participants
+                            self.lobbySession = updatedSession
+                            
+                            // Check if session has started
+                            if updatedSession.started_at != nil {
+                                // Session started, navigate to session room
+                                print("Session started! Navigating to session room...")
+                                onNavigateToSessionRoom?(sessionId, false)
+                                participantsTask?.cancel()
+                            }
                         }
                     } catch {
                         print("Error fetching participants: \(error)")

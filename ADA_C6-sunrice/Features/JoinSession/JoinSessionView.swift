@@ -27,6 +27,9 @@ struct JoinSessionView: View {
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: proxy.size.height, alignment: .top)
                     }
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
@@ -75,6 +78,11 @@ struct JoinSessionView: View {
         }
         .onDisappear {
             alertDismissTask?.cancel()
+        }
+        .onAppear {
+            vm.onNavigateToSessionRoom = { sessionId, isHost in
+                navVM.goToSessionRoom(id: sessionId, isHost: isHost)
+            }
         }
     }
     
