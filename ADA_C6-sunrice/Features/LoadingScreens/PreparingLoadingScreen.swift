@@ -6,15 +6,16 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct PreparingLoadingScreen: View {
     var body: some View {
         ZStack {
             Background()
             VStack(spacing: 24) {
-                Image(.lsPreparing)
-                    .resizable()
-                    .scaledToFit()
+                LottieView(name: "splash_animation", loopMode: .loop)
+                    .frame(width: 350, height: 350)
+
                 Text("Preparing your space for flow...")
                     .font(.titleSM)
                 VStack {

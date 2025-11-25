@@ -193,7 +193,6 @@ struct IdeaSummaryCard: View {
             
             // CONTENT
             VStack(alignment: .leading, spacing: 8) {
-                // Top: idea text (no chevron here anymore)
                 Text(ideaText)
                     .font(Font.custom("SF Pro", size: 12))
                     .foregroundColor(Color.grayscale60)
