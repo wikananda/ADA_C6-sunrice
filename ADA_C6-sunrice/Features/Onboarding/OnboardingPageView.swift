@@ -1,18 +1,12 @@
-//
-//  OnboardingPageView.swift
-//  ADA_C6-sunrice
-//
-//  Created by Komang Wikananda on 14/11/25.
-//
-
 import SwiftUI
+import Lottie
 
 struct OnboardingPage1View: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             VStack {
                 VStack {
-                    Image(.group1)
+                    Image(.blueCharacterAlone)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 250, height: 250)
@@ -38,7 +32,7 @@ struct OnboardingPage2View: View {
         ZStack(alignment: .bottomLeading) {
             VStack {
                 VStack {
-                    Image(.group2)
+                    Image(.colorRounds)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 250, height: 250)
@@ -65,22 +59,22 @@ struct OnboardingPage3View: View {
         ZStack(alignment: .bottomLeading) {
             VStack {
                 VStack {
-                    Image(.group3)
-                        .resizable()
-                        .scaledToFit()
+                    // LOTTIE ANIMATION REPLACING IMAGE
+                    LottieView(name: "splash_animation", loopMode: .loop)
                         .frame(width: 250, height: 250)
                 }
                 .frame(height: 450)
+
                 VStack(spacing: 20) {
                     Text("Ready to begin \nyour first flow?")
                         .font(.titleMD)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(AppColor.Primary.gray)
-                    Text("You’re about to enter a guided rhythm of thinking — calm, structured, and collective. \nStep into the first color flow and let ideas unfold naturally.")
+
+                    Text("You’re about to enter a guided rhythm of thinking — calm, structured, and collective.\nStep into the first color flow and let ideas unfold naturally.")
                         .multilineTextAlignment(.center)
                         .font(.bodySM)
                         .foregroundStyle(AppColor.Primary.gray)
-
                 }
             }
         }

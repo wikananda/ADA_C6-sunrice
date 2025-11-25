@@ -18,6 +18,7 @@ struct SessionIntroduction {
 }
 
 struct SessionInstruction {
+    let heading: String
     let subtitle: String
     let body: String
     let mascot: String
@@ -34,14 +35,16 @@ enum SessionRoom {
                 type: .white,
                 introduction: SessionIntroduction(
                     title: "Let’s Put Every Facts &\nInformation You Know",
-                    mascot: "Mascot White"
+                    mascot: "white_clarity_animation"
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 1:\nCLARITY",
                     subtitle:
-                        "Let’s start by laying the foundation. Share facts, data, or real observations about the topic or idea.",
+                        "See things as they are.",
                     body:
-                        "Keep it neutral, no opinions or guesses yet. The goal is to build a shared understanding before ideas start flowing.",
-                    mascot: "Mascot White Alert"
+                        "Before ideas begin to grow, let’s ground ourselves in what’s true.\nShare any facts, context, or observations that can help us see the topic clearly — without opinions or assumptions.",
+                    mascot: "white_clarity_animation"
                 )
             )
         case .idea:
@@ -50,14 +53,16 @@ enum SessionRoom {
                 type: .green,
                 introduction: SessionIntroduction(
                     title: "Let’s Generate\nSome Ideas!",
-                    mascot: "Mascot Green",
+                    mascot: "green_bloom_animation",
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 2:\nBLOOM I",
                     subtitle:
-                        "Time to create. Add new ideas, spark alternatives, or build on earlier insights.",
+                        "Grow the idea",
                     body:
-                        "Time to create. Add new ideas, spark alternatives, or build on earlier insights.",
-                    mascot: "Mascot Green Alert"
+                        "With our foundation set, it’s time to explore possibilities.\nAdd any ideas that come to mind — simple, bold, or unfinished. Let them branch out freely.",
+                    mascot: "green_bloom_animation"
                 )
             )
         case .buildon:
@@ -66,14 +71,16 @@ enum SessionRoom {
                 type: .darkGreen,
                 introduction: SessionIntroduction(
                     title: "Let’s Buil Upon \nThese Ideas!",
-                    mascot: "Mascot Green",
+                    mascot: "green_bloom_animation",
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 3:\nBLOOM II",
                     subtitle:
-                        "Time to build on each other! Explore possibilities and spark creativity",
+                        "Expand what stands out",
                     body:
-                        "Time to build on each other ideas! Try to diverge new possibilities and creativity.",
-                    mascot: "Mascot Green Alert"
+                        "Choose an idea from the previous round and build on it.\nAdd detail, depth, or a new angle — anything that helps the idea take a more defined shape.",
+                    mascot: "green_bloom_animation"
                 )
             )
         case .benefit:
@@ -82,14 +89,16 @@ enum SessionRoom {
                 type: .yellow,
                 introduction: SessionIntroduction(
                     title: "Let’s Seek The\nBenefits of The Ideas",
-                    mascot: "Mascot Yellow",
+                    mascot: "yellow_ray_animation",
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 4:\nRAY",
                     subtitle:
-                        "Let’s look for the positives. Write down the potential benefits, values, or opportunities this idea brings.",
+                        "Spot the bright side",
                     body:
-                        "Focus on what could go right.\nNo need to repeat what’s already said, explore new angles of potential.",
-                    mascot: "Mascot Yellow Alert"
+                        "Look at one idea and highlight what makes it promising.\nShare the strengths, opportunities, or potential you see — what could make this idea worthwhile?",
+                    mascot: "yellow_ray_animation"
                 )
             )
         case .risk:
@@ -98,14 +107,16 @@ enum SessionRoom {
                 type: .black,
                 introduction: SessionIntroduction(
                     title: "Let’s Analyze The\nRisks of The Ideas",
-                    mascot: "Mascot Black",
+                    mascot: "black_frame_animation",
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 5:\nFRAME",
                     subtitle:
-                        "Point out the risks, weaknesses, or potential downsides of an idea, constructively.",
+                        "Challenge the edges",
                     body:
-                        "Think critically but stay fair.\nYou’re not killing ideas, you’re stress-testing them so they can grow stronger.",
-                    mascot: "Mascot Black Alert"
+                        "Now let’s look at the idea with a grounded, realistic lens. What might limit it? What could be difficult or uncertain?\nYour insights help refine the idea, not diminish it.",
+                    mascot: "black_frame_animation"
                 )
             )
         case .feeling:
@@ -114,14 +125,16 @@ enum SessionRoom {
                 type: .red,
                 introduction: SessionIntroduction(
                     title: "Let’s Put Your Feelings\nAbout The Ideas",
-                    mascot: "Mascot Red",
+                    mascot: "red_pulse_animation",
                 ),
                 instruction: SessionInstruction(
+                    heading:
+                        "Round 6:\nPULSE",
                     subtitle:
-                        "Share how the idea makes you feel, instinctively, emotionally, intuitively.",
+                        "Feel what matters",
                     body:
-                        "There’s no right or wrong here. Go with your gut.  Be honest, not analytical. Sometimes feelings spot what logic misses.",
-                    mascot: "Mascot Red Alert"
+                        "After seeing the idea from all angles, tune into your instinct. How does it make you feel — hopeful, hesitant, curious?\nThere’s no right answer. Let your honest reaction guide your response.",
+                    mascot: "red_pulse_animation"
                 )
             )
         }

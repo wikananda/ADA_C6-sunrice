@@ -13,6 +13,7 @@
 		0A884CDD2EB137D70053395D /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CDC2EB137D70053395D /* PostgREST */; };
 		0A884CDF2EB137D70053395D /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CDE2EB137D70053395D /* Realtime */; };
 		0A884CE12EB137D70053395D /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 0A884CE02EB137D70053395D /* Storage */; };
+		DF2604B82ED58EBE00CC0137 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = DF2604B72ED58EBE00CC0137 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A884CDD2EB137D70053395D /* PostgREST in Frameworks */,
+				DF2604B82ED58EBE00CC0137 /* Lottie in Frameworks */,
 				0A884CDB2EB137D70053395D /* Functions in Frameworks */,
 				0A8171C42EB877140097266A /* Supabase in Frameworks */,
 				0A884CD92EB137D70053395D /* Auth in Frameworks */,
@@ -141,6 +143,7 @@
 				0A884CDE2EB137D70053395D /* Realtime */,
 				0A884CE02EB137D70053395D /* Storage */,
 				0A8171C32EB877140097266A /* Supabase */,
+				DF2604B72ED58EBE00CC0137 /* Lottie */,
 			);
 			productName = "ADA_C6-sunrice";
 			productReference = 0A8E0F4D2EAF48CF00103638 /* ADA_C6-sunrice.app */;
@@ -226,6 +229,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				0A884CD72EB137D70053395D /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				DF2604B62ED58EBE00CC0137 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A8E0F4E2EAF48CF00103638 /* Products */;
@@ -630,6 +634,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		DF2604B62ED58EBE00CC0137 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -662,6 +674,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0A884CD72EB137D70053395D /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Storage;
+		};
+		DF2604B72ED58EBE00CC0137 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF2604B62ED58EBE00CC0137 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

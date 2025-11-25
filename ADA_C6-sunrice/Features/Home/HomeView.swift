@@ -24,7 +24,7 @@ struct HomeView: View {
                         .foregroundStyle(AppColor.Primary.gray)
                     
                     // Illustration
-                    Image(.group4)
+                    Image(.blueCharacter)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 200)
