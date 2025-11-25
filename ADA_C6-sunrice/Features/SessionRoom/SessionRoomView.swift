@@ -20,7 +20,8 @@ struct SessionRoomView: View {
 
     var body: some View {
         if vm.isLoading {
-            ProgressView("Loading session...")
+//            ProgressView("Loading session...")
+            PreparingLoadingScreen()
         } else {
             sessionContent
         }
