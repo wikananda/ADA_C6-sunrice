@@ -28,7 +28,63 @@ struct RoundSummaryView: View {
             
             // Ideas List
             ScrollView {
-                LazyVStack(alignment: .trailing, spacing: 8) {
+                // AI Summary Section (for white, green, red rounds)
+                if !vm.isCommentRound {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if vm.isLoadingSummary {
+                            HStack(spacing: 12) {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                Text("Extracting AI summary...")
+                                    .font(.bodySM)
+                                    .foregroundColor(AppColor.Primary.gray)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(AppColor.blue10)
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        } else if let summary = vm.summary {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("AI Summary")
+                                    .font(.titleSM)
+                                    .foregroundColor(AppColor.Primary.gray)
+                                
+                                // Notes
+                                if let notes = summary.notes, !notes.isEmpty {
+                                    Text(notes)
+                                        .font(.bodySM)
+                                        .foregroundColor(AppColor.Primary.gray)
+                                }
+                                
+                                // Themes
+                                ForEach(summary.themes, id: \.name) { theme in
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(theme.name)
+                                            .font(.bodySM)
+                                            .foregroundColor(AppColor.Primary.gray)
+                                            .bold()
+                                        
+                                        Text(theme.summary)
+                                            .font(.bodySM)
+                                            .foregroundColor(AppColor.Primary.gray)
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(AppColor.whiteishBlue50)
+                                    .cornerRadius(12)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    Text("All Inputs")
+                        .font(.titleSM)
+                        .foregroundColor(AppColor.Primary.gray)
+                        .padding(.horizontal)
                     // Show green ideas if in comment round, otherwise show current round ideas
                     let ideasToShow = vm.isCommentRound ? vm.serverIdeas.filter { idea in
                         // Filter for green ideas only
@@ -110,6 +166,9 @@ struct RoundSummaryView: View {
                 // If it's a comment round, also fetch the actual comments
                 if vm.isCommentRound {
                     await vm.fetchAllComments()
+                } else {
+                    // For non-comment rounds (white, green, red), fetch AI summary
+                    await vm.fetchSummary()
                 }
             }
         }

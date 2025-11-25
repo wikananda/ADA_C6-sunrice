@@ -43,3 +43,9 @@ protocol IdeaServicing {
     func createComment(_ params: InsertCommentParams) async throws
     func fetchCommentsForIdeas(ideaIds: [Int64]) async throws -> [IdeaCommentDTO]
 }
+
+protocol SummaryServicing {
+    func summarizeWhiteSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
+    func summarizeGreenSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
+    func summarizeRedSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
+}
