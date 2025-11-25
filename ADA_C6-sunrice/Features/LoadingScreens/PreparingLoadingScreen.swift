@@ -9,9 +9,8 @@ import SwiftUI
 
 struct PreparingLoadingScreen: View {
     var body: some View {
-        ZStack {
-            Background()
-            VStack(spacing: 24) {
+        VStack(spacing: 24) {
+            VStack {
                 Image(.lsPreparing)
                     .resizable()
                     .scaledToFit()
@@ -28,6 +27,8 @@ struct PreparingLoadingScreen: View {
             }
             .frame(maxWidth: 360)
         }
+        .frame(maxWidth: .infinity)
+        .background(Background())
     }
 }
 
