@@ -17,9 +17,10 @@ struct RoundSummaryView: View {
             Header(
                 config: .init(
                     title: vm.roomType.shared.title,
+                    showsBackButton: false,
                     trailing: .none
                 ),
-                onBack: { dismiss() }
+//                onBack: { dismiss() }
             )
             .padding(.horizontal)
             
