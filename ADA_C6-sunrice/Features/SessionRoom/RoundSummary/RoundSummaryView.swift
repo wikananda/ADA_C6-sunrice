@@ -10,6 +10,7 @@ import SwiftUI
 struct RoundSummaryView: View {
     @ObservedObject var vm: SessionRoomViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var hasFetchedData = false
     
     var body: some View {
         NavigationStack {
@@ -132,6 +133,10 @@ struct RoundSummaryView: View {
                 Background()
             )
             .onAppear {
+                // Only fetch data once
+                guard !hasFetchedData else { return }
+                hasFetchedData = true
+                
                 Task {
                     // Fetch comment counts
                     await vm.fetchCommentCounts()
