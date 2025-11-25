@@ -33,6 +33,11 @@ extension Font {
 
 extension Font {
     // MARK: - Manrope ExtraBold – Titles
+    
+    /// Title for label (Manrope-ExtraBold, 16)
+    static let titleSSM = Font.custom("Manrope-ExtraBold",
+                                    size: 16,
+                                    relativeTo: .title3)
 
     /// Title indicating the current screen (Manrope-ExtraBold, 20)
     static let titleSM = Font.custom("Manrope-ExtraBold",
