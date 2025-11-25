@@ -56,8 +56,8 @@ struct TimesUpView: View {
                 Text("Nice work! Your input here helps shape the bigger picture.")
                     .multilineTextAlignment(.center)
             }
-            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(.blue50)
         .padding(.horizontal, 24)
         .onTapGesture {

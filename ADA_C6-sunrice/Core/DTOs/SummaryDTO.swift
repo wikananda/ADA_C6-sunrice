@@ -9,13 +9,13 @@
 struct IdeaSummary: Decodable {
     struct Item: Decodable {
         let id: Int
-        let fact: String
+        let input: String
     }
 
     struct Theme: Decodable {
         let name: String
         let summary: String
-        let items: [Item]
+        let items: [Item]? 
     }
 
     let themes: [Theme]
