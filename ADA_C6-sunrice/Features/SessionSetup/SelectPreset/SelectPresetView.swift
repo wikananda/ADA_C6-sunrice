@@ -46,6 +46,7 @@ struct SelectPresetView: View {
                             }
                         )
                         .animation(.easeInOut(duration: 0.1), value: vm.selectedPreset)
+                        .disabled(preset.id == 1)
                     }
                 }
                 
