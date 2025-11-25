@@ -1,9 +1,3 @@
-//
-//  OnboardingBGView.swift
-//  ADA_C6-sunrice
-//
-//  Created by Komang Wikananda on 14/11/25.
-//
 
 import SwiftUI
 
