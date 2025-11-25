@@ -32,9 +32,10 @@ struct SessionRoomView: View {
                 Header(
                     config: .init(
                         title: vm.roomType.shared.title,
+                        showsBackButton: false,
                         trailing: .timer(date: vm.deadline)
                     ),
-                    onBack: { dismiss() }
+//                    onBack: { dismiss() }
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 4)

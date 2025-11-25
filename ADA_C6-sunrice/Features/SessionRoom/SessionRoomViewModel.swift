@@ -47,9 +47,13 @@ final class SessionRoomViewModel: ObservableObject {
     // MARK: - Dependencies
     private let sessionService: SessionServicing
     let ideaService: IdeaServicing  // Public for CommentSheetView
+    private let summaryService: SummaryServicing
+    
+    // Managers
     private let roundManager: RoundManager
     private let timerManager: TimerManager
     private let ideaManager: IdeaManager
+    private let summaryManager: SummaryManager
     
     private let sessionId: Int64
     let isHost: Bool
@@ -76,6 +80,11 @@ final class SessionRoomViewModel: ObservableObject {
     var commentCounts: [Int64: CommentCounts] { ideaManager.commentCounts }
     var isUploadingIdeas: Bool { ideaManager.isUploadingIdeas }
     
+    // MARK: - Delegated State (from SummaryManager)
+    var summary: IdeaSummary? { summaryManager.summary }
+    var isLoadingSummary: Bool { summaryManager.isLoadingSummary }
+    var summaryError: String? { summaryManager.summaryError }
+    
     // MARK: - Session State
     private var session: SessionDTO?
     private var sequence: SequenceDTO?
@@ -85,37 +94,46 @@ final class SessionRoomViewModel: ObservableObject {
 
     // MARK: - Initialization
     
-    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing, ideaService: IdeaServicing) {
+    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing, ideaService: IdeaServicing, summaryService: SummaryServicing) {
         self.sessionId = id
         self.isHost = isHost
         self.sessionService = sessionService
         self.ideaService = ideaService
+        self.summaryService = summaryService
         
         // Initialize managers
         self.roundManager = RoundManager(sessionService: sessionService)
         self.timerManager = TimerManager(sessionService: sessionService)
         self.ideaManager = IdeaManager(ideaService: ideaService)
+        self.summaryManager = SummaryManager(summaryService: summaryService)
         
-        // Setup bindings to propagate IdeaManager changes
-        setupIdeaManagerBindings()
+        // Setup bindings to propagate manager changes
+        setupManagerBindings()
         
         Task {
             await loadSessionData()
         }
     }
     
+    // Convenience initializer for default services
     convenience init(id: Int64, isHost: Bool = false) {
         self.init(
             id: id,
             isHost: isHost,
             sessionService: SessionService(client: supabaseManager),
-            ideaService: IdeaService(client: supabaseManager)
+            ideaService: IdeaService(client: supabaseManager),
+            summaryService: SummaryService(client: supabaseManager)
         )
     }
     
-    private func setupIdeaManagerBindings() {
+    private func setupManagerBindings() {
         // Propagate IdeaManager changes to trigger view updates
         ideaManager.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }.store(in: &cancellables)
+        
+        // Propagate SummaryManager changes to trigger view updates
+        summaryManager.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
         }.store(in: &cancellables)
     }
@@ -386,6 +404,20 @@ final class SessionRoomViewModel: ObservableObject {
         }
     }
     
+    func fetchSummary() async {
+        guard let typeId = currentTypeId else {
+            print("⏭️ No typeId available for summary")
+            return
+        }
+        
+        guard let roundType = getCurrentRoundType(typeId: typeId) else {
+            print("⏭️ No summary available for this round type")
+            return
+        }
+        
+        await summaryManager.fetchSummary(sessionId: Int(sessionId), roundType: roundType)
+    }
+    
     // MARK: - Helper Methods
     
     func getGreenTypeId() -> Int64? {
@@ -398,6 +430,19 @@ final class SessionRoomViewModel: ObservableObject {
     
     var isCommentRound: Bool {
         return roundManager.isCommentRound(typeId: currentTypeId)
+    }
+    
+    private func getCurrentRoundType(typeId: Int64) -> RoundType? {
+        guard let sequence = sequence else { return nil }
+        
+        switch typeId {
+        case sequence.first_round: return .white
+        case sequence.second_round: return .green
+        case sequence.fourth_round: return .yellow
+        case sequence.fifth_round: return .black
+        case sequence.sixth_round: return .red
+        default: return nil  // Return nil for darkGreen and unknown types
+        }
     }
     
     func closeInstruction() {
