@@ -122,6 +122,7 @@ struct RoundSummaryView: View {
                             .font(.bodySM)
                             .foregroundColor(AppColor.Primary.gray)
                     }
+                    .frame(maxWidth: .infinity)
                     .padding()
                     .background(AppColor.blue10)
                     .cornerRadius(12)

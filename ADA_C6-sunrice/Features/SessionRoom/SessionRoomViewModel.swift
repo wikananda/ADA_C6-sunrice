@@ -415,7 +415,7 @@ final class SessionRoomViewModel: ObservableObject {
             return
         }
         
-        await summaryManager.fetchSummary(sessionId: Int(sessionId), roundType: roundType)
+        await summaryManager.fetchSummary(sessionId: Int(sessionId), roundType: roundType, isHost: isHost)
     }
     
     // MARK: - Helper Methods

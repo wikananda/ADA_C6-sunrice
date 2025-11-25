@@ -35,3 +35,19 @@ struct SummarizeSessionResponse<Summary: Decodable>: Decodable {
         case summaryId = "summary_id"
     }
 }
+
+struct SessionSummaryRow: Decodable {
+    let id: Int
+    let sessionId: Int
+    let roundType: Int
+    let themes: [IdeaSummary.Theme]
+    let notes: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case sessionId = "session_id"
+        case roundType = "round_type"
+        case themes
+        case notes
+    }
+}

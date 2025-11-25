@@ -22,7 +22,7 @@ final class SummaryManager: ObservableObject {
     
     // MARK: - Summary Operations
     
-    func fetchSummary(sessionId: Int, roundType: RoundType) async {
+    func fetchSummary(sessionId: Int, roundType: RoundType, isHost: Bool) async {
         guard shouldFetchSummary(for: roundType) else {
             print("⏭️ Skipping summary for round type: \(roundType)")
             return
@@ -33,7 +33,39 @@ final class SummaryManager: ObservableObject {
         defer { isLoadingSummary = false }
         
         do {
-            print("📊 Fetching \(roundType) summary for session \(sessionId)...")
+            let ideaType = getIdeaType(for: roundType)
+            
+            // Guests: Poll for existing summary from database
+            if !isHost {
+                print("📊 Guest: Polling for summary from database...")
+                
+                // Poll every 2 seconds until summary is found
+                // Poll until summary is found or task is cancelled
+                while !Task.isCancelled {
+                    do {
+                        if let existingSummary = try await summaryService.fetchExistingSummary(sessionId: sessionId, roundType: ideaType) {
+                            summary = existingSummary
+                            print("✅ Guest: Retrieved summary with \(existingSummary.themes.count) themes")
+                            return
+                        }
+                    } catch {
+                        print("⚠️ Guest: Error polling for summary: \(error)")
+                    }
+                    
+                    print("⏳ Guest: Summary not ready yet, retrying in 2 seconds...")
+                    
+                    do {
+                        try await Task.sleep(nanoseconds: 2_000_000_000)
+                    } catch {
+                        print("🛑 Guest: Polling cancelled")
+                        return
+                    }
+                }
+                return
+            }
+            
+            // Host: Generate new summary
+            print("📊 Host: Generating summary for session \(sessionId)...")
             
             let response: SummarizeSessionResponse<IdeaSummary>
             
@@ -51,7 +83,7 @@ final class SummaryManager: ObservableObject {
             
             if response.success {
                 summary = response.summary
-                print("✅ Summary fetched successfully with \(response.summary.themes.count) themes")
+                print("✅ Host: Summary generated successfully with \(response.summary.themes.count) themes")
             } else {
                 summaryError = "Summary generation failed"
                 print("❌ Summary generation failed")
@@ -76,6 +108,16 @@ final class SummaryManager: ObservableObject {
             return true
         default:
             return false
+        }
+    }
+    
+    private func getIdeaType(for roundType: RoundType) -> Int {
+        // Map RoundType to idea_type in database
+        switch roundType {
+        case .white: return 1
+        case .green: return 2
+        case .red: return 6
+        default: return 0
         }
     }
 }

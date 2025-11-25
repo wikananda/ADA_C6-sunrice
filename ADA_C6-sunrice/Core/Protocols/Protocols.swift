@@ -48,4 +48,5 @@ protocol SummaryServicing {
     func summarizeWhiteSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
     func summarizeGreenSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
     func summarizeRedSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
+    func fetchExistingSummary(sessionId: Int, roundType: Int) async throws -> IdeaSummary?
 }
