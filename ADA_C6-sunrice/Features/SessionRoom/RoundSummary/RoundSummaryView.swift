@@ -32,52 +32,6 @@ struct RoundSummaryView: View {
                 
                 // Ideas List
                 ScrollView {
-                    // AI Summary Section (for white, green, red rounds)
-                    if !vm.isCommentRound {
-                        VStack(alignment: .leading, spacing: 12) {
-                            if vm.isLoadingSummary {
-                                HStack(spacing: 12) {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle())
-                                    Text("Extracting AI summary...")
-                                        .font(.bodySM)
-                                        .foregroundColor(AppColor.Primary.gray)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(AppColor.blue10)
-                                .cornerRadius(12)
-                                .padding(.horizontal)
-                            } else if let summary = vm.summary {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("AI Summary")
-                                        .font(.titleSM)
-                                        .foregroundColor(AppColor.Primary.gray)
-                                        .padding(.horizontal)
-                                    
-                                    // Notes
-                                    if let notes = summary.notes, !notes.isEmpty {
-                                        Text(notes)
-                                            .font(.bodySM)
-                                            .foregroundColor(AppColor.Primary.gray)
-                                            .padding(.horizontal)
-                                    }
-                                    
-                                    // Insight Categories using the new card view
-                                    let categories = summary.themes.map { theme in
-                                        InsightCategory(
-                                            title: theme.name,
-                                            body: theme.summary,
-                                            sources: theme.items?.map { $0.input } ?? []
-                                        )
-                                    }
-                                    
-                                    InsightCategoryListCard(items: categories, type: vm.getMessageCardType(for: vm.currentTypeId))
-                                }
-                            }
-                        }
-                    }
-                    
                     LazyVStack(alignment: .leading, spacing: 8) {
                         // Show green ideas if in comment round, otherwise show current round ideas
                         
@@ -99,10 +53,56 @@ struct RoundSummaryView: View {
                                 ButtonSeeAllCards()
                             }
                             .padding(.horizontal, 16)
-                            .navigationBarBackButtonHidden(true)
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                if vm.isLoadingSummary {
+                                    HStack(spacing: 12) {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle())
+                                        Text("Extracting AI summary...")
+                                            .font(.bodySM)
+                                            .foregroundColor(AppColor.Primary.gray)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(AppColor.blue10)
+                                    .cornerRadius(12)
+                                    .padding(.horizontal)
+                                } else if let summary = vm.summary {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        Text("AI Summary")
+                                            .font(.titleSM)
+                                            .foregroundColor(AppColor.Primary.gray)
+                                            .padding(.horizontal)
+                                        
+                                        // Notes
+                                        if let notes = summary.notes, !notes.isEmpty {
+                                            Text(notes)
+                                                .font(.bodySM)
+                                                .foregroundColor(AppColor.Primary.gray)
+                                                .padding(.horizontal)
+                                        }
+                                        
+                                        // Insight Categories using the new card view
+                                        let categories = summary.themes.map { theme in
+                                            InsightCategory(
+                                                title: theme.name,
+                                                body: theme.summary,
+                                                sources: theme.items?.map { $0.input } ?? []
+                                            )
+                                        }
+                                        
+                                        InsightCategoryListCard(items: categories, type: vm.getMessageCardType(for: vm.currentTypeId))
+                                    }
+                                }
+                            }
                         }
                     }
                     .padding(.vertical, 8)
+//                    // AI Summary Section (for white, green, red rounds)
+//                    if !vm.isCommentRound {
+//                        
+//                    }
                 }
                 
                 Spacer()

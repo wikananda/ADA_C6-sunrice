@@ -59,6 +59,7 @@ struct AllCardsView: View {
             }
         }
         .background(Background())
+        .navigationBarBackButtonHidden(true)
     }
 }
 

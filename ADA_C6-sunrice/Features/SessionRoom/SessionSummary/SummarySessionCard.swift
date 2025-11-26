@@ -56,7 +56,6 @@ struct SummarySessionCard: View {
                 .inset(by: 0.5)
                 .stroke(Color.grayscale20, lineWidth: 1)
         )
-        // ───────────────────────────────────────────────────────────────────
         .task {
             guard !didLoad else { return }
             didLoad = true

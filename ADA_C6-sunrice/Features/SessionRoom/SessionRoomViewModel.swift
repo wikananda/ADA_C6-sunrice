@@ -320,6 +320,7 @@ final class SessionRoomViewModel: ObservableObject {
     
     private func advanceToNextRound() async {
         showRoundSummary = false
+        isTimeUp = false
         
         let nextRound = currentRound + 1
         
