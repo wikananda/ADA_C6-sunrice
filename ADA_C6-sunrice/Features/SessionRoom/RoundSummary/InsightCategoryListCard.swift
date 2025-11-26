@@ -52,6 +52,7 @@ struct InsightCategoryRow: View {
 
 struct InsightCategoryListCard: View {
     let items: [InsightCategory]
+    let type: MessageCardType
 
     @State private var selectedCategory: InsightCategory?
 
@@ -69,7 +70,7 @@ struct InsightCategoryListCard: View {
 
                 if index < items.count - 1 {
                     Divider()
-                        .padding(.leading, 16) // align with text
+                        .padding(.horizontal, 16) // align with text
                 }
             }
         }
@@ -83,7 +84,7 @@ struct InsightCategoryListCard: View {
         .padding(.horizontal, 16)
         .padding(.top, 16)
         .sheet(item: $selectedCategory) { category in
-            InsightCategoryDetailView(category: category)
+            InsightCategoryDetailView(category: category, type: type)
         }
     }
 }
@@ -92,26 +93,28 @@ struct InsightCategoryListCard: View {
 
 struct InsightCategoryListView_Previews: PreviewProvider {
     static var previews: some View {
-        InsightCategoryListCard(items: [
-            InsightCategory(
-                title: "Learner Needs & Experience Uncertainty",
-                body: "There is a strong sense of confusion and uncertainty about understanding the learner's core needs and what truly drives a better learning experience and future employability. This involves grappling with diverse learner interests and determining the most impactful areas to address.",
-                sources: [
-                    "Learner too diverse. Hard to accomodate them",
-                    "Confused on what's the most important for the learner",
-                    "Does better experience = better hirability? have more fun during the experience",
-                    "I don't know what's the main problem that a learner is having"
-                ]
-            ),
-            InsightCategory(
-                title: "Teamwork & Collaboration",
-                body: "A prevailing feeling of confusion stems from insufficient information and a lack of clarity on project direction or specific challenges.",
-                sources: [
-                    "We rarely have clear direction during teamwork.",
-                    "Sometimes I don't know what my role is in the group."
-                ]
-            )
-        ])
+        InsightCategoryListCard(
+            items: [
+                InsightCategory(
+                    title: "Learner Needs & Experience Uncertainty",
+                    body: "There is a strong sense of confusion and uncertainty about understanding the learner's core needs and what truly drives a better learning experience and future employability. This involves grappling with diverse learner interests and determining the most impactful areas to address.",
+                    sources: [
+                        "Learner too diverse. Hard to accomodate them",
+                        "Confused on what's the most important for the learner",
+                        "Does better experience = better hirability? have more fun during the experience",
+                        "I don't know what's the main problem that a learner is having"
+                    ]
+                ),
+                InsightCategory(
+                    title: "Teamwork & Collaboration",
+                    body: "A prevailing feeling of confusion stems from insufficient information and a lack of clarity on project direction or specific challenges.",
+                    sources: [
+                        "We rarely have clear direction during teamwork.",
+                        "Sometimes I don't know what my role is in the group."
+                    ]
+                )],
+            type: .red
+        )
         .previewLayout(.sizeThatFits)
     }
 }

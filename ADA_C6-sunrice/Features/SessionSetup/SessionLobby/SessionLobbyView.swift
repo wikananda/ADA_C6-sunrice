@@ -29,7 +29,7 @@ struct SessionLobbyView: View {
                         ParticipantBadge(name: user.name ?? "user", isHost: user.isHost)
                     }
                 }
-                .frame(maxHeight: 64)
+                .frame(maxHeight: 72)
             }
             
             // Info

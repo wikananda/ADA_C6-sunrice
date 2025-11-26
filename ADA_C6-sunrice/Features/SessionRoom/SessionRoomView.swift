@@ -9,8 +9,10 @@ import SwiftUI
 
 struct SessionRoomView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navVM: NavigationViewModel
 
     @StateObject private var vm: SessionRoomViewModel
+    @State private var showExitAlert = false
 
     init(id: Int64, isHost: Bool = false) {
         _vm = .init(wrappedValue: .init(id: id, isHost: isHost))
@@ -33,10 +35,10 @@ struct SessionRoomView: View {
                 Header(
                     config: .init(
                         title: vm.roomType.shared.title,
-                        showsBackButton: false,
+                        showsBackButton: true,
                         trailing: .timer(date: vm.deadline)
                     ),
-//                    onBack: { dismiss() }
+                    onBack: { showExitAlert = true }
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 4)
@@ -148,6 +150,31 @@ struct SessionRoomView: View {
         }
         .sheet(isPresented: $vm.showCommentSheet) {
             CommentSheetView(vm: vm)
+        }
+        .onChange(of: vm.shouldExitToHome) { _, shouldExit in
+            if shouldExit {
+                Task {
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                    await MainActor.run {
+                        navVM.popToRoot()
+                    }
+                }
+            }
+        }
+        .alert("Leave Session?", isPresented: $showExitAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Leave", role: .destructive) {
+                vm.cleanup()
+                Task {
+                    // Small delay to allow alert to dismiss first
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                    await MainActor.run {
+                        navVM.popToRoot()
+                    }
+                }
+            }
+        } message: {
+            Text("Are you sure you want to leave this session? You'll return to the home screen.")
         }
     }
 }

@@ -11,6 +11,7 @@ import SwiftUI
 
 struct InsightCategoryDetailView: View {
     let category: InsightCategory
+    let type: MessageCardType
 
     var body: some View {
         NavigationStack {
@@ -42,7 +43,7 @@ struct InsightCategoryDetailView: View {
                         ForEach(Array(category.sources.enumerated()), id: \.offset) { index, source in
                             IdeaBubbleView(
                                 text: source,
-                                type: .red,        // red strip, like in your PNG
+                                type: type,        // red strip, like in your PNG
                                 ideaId: index
                             )
                         }
@@ -81,5 +82,5 @@ struct InsightCategoryDetailView: View {
             "Sometimes I don't know what my role is in the group."
         ]
     )
-    InsightCategoryDetailView(category: category)
+    InsightCategoryDetailView(category: category, type: .white)
 }

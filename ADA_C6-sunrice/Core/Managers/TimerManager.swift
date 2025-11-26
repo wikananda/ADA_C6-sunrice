@@ -126,11 +126,10 @@ final class TimerManager {
     
     // Nonisolated version for deinit
     nonisolated func cancelAllTimersFromDeinit() {
-        Task { @MainActor in
-            roundTimer?.cancel()
-            roundTimer = nil
-            cancelPolling()
-            stopPollingCommentCounts()
+        Task { @MainActor [weak self] in
+            self?.roundTimer?.cancel()
+            self?.pollingTask?.cancel()
+            self?.commentPollingTask?.cancel()
         }
     }
     

@@ -11,6 +11,7 @@ struct RoundSummaryView: View {
     @ObservedObject var vm: SessionRoomViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var hasFetchedData = false
+    @State private var showExitAlert = false
     
     var body: some View {
         NavigationStack {
@@ -19,10 +20,10 @@ struct RoundSummaryView: View {
                 Header(
                     config: .init(
                         title: vm.roomType.shared.title,
-                        showsBackButton: false,
+                        showsBackButton: true,
                         trailing: .none
                     ),
-                    //                onBack: { dismiss() }
+                    onBack: { showExitAlert = true }
                 )
                 .padding(.horizontal)
                 
@@ -71,7 +72,7 @@ struct RoundSummaryView: View {
                                         )
                                     }
                                     
-                                    InsightCategoryListCard(items: categories)
+                                    InsightCategoryListCard(items: categories, type: vm.getMessageCardType(for: vm.currentTypeId))
                                 }
                             }
                         }
@@ -152,6 +153,17 @@ struct RoundSummaryView: View {
                 }
             }
             .padding(.bottom)
+            .alert("Leave Session?", isPresented: $showExitAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Leave", role: .destructive) {
+                    // Call cleanup and signal to exit to home
+                    vm.cleanup()
+                    vm.shouldExitToHome = true
+                    dismiss()
+                }
+            } message: {
+                Text("Are you sure you want to leave this session? You'll return to the home screen.")
+            }
         }
     }
 }

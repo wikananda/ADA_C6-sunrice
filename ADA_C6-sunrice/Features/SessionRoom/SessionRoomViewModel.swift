@@ -68,6 +68,7 @@ final class SessionRoomViewModel: ObservableObject {
     @Published var isTimeUp: Bool = false
     @Published var isLoading: Bool = true
     @Published var showRoundSummary: Bool = false
+    @Published var shouldExitToHome: Bool = false
     
     // Comment sheet
     @Published var selectedIdeaForComment: IdeaDTO? = nil
@@ -191,6 +192,21 @@ final class SessionRoomViewModel: ObservableObject {
         } catch {
             print("Error loading session data: \(error)")
         }
+    }
+    
+    // MARK: - Cleanup
+    
+    func cleanup() {
+        print("🧹 Cleaning up session resources...")
+        
+        // Cancel timer if running
+        timerManager.cancelAllTimers()
+        
+        // Clear all data
+        ideaManager.clearLocalIdeas()
+        summaryManager.clearSummary()
+        
+        print("✅ Session cleanup complete")
     }
     
     private func fetchCurrentUserId() async {

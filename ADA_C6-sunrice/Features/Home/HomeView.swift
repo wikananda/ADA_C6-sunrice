@@ -57,6 +57,7 @@ struct HomeView: View {
                 case let .session(id, isHost):
                     if let sessionId = Int64(id) {
                         SessionRoomView(id: sessionId, isHost: isHost)
+                            .environmentObject(navVM)
                             .toolbar(.hidden, for: .navigationBar)
                     } else {
                         Text("Invalid session ID")
