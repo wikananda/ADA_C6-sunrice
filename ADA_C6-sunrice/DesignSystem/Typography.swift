@@ -3,16 +3,16 @@ import SwiftUI
 extension Font {
     // MARK: - SF Pro – Body & Labels
 
-    /// Small body / description / helper text (SF Pro, 12, .regular)
+    /// Small body / description / helper text (SF Pro, 14, .regular)
     static let bodySM = Font.system(size: 14, weight: .regular, design: .default)
 
-    /// Small body with emphasis (alert, etc) (SF Pro, 12, .semibold)
+    /// Small body with emphasis (alert, etc) (SF Pro, 14, .semibold)
     static let bodySMEmphasis = Font.system(size: 14, weight: .semibold, design: .default)
     
-    /// Tiny label (notifications, status, etc) (SF Pro, 10, .regular)
+    /// Tiny label (notifications, status, etc) (SF Pro, 12, .regular)
     static let labelTiny = Font.system(size: 12, weight: .regular, design: .default)
 
-    /// Small labels (small buttons, badges, strong alerts) (SF Pro, 12, .bold)
+    /// Small labels (small buttons, badges, strong alerts) (SF Pro, 14, .bold)
     static let labelSM = Font.system(size: 14, weight: .bold, design: .default)
 
     /// Medium labels (buttons, numbers next to symbols, small subheadings) (SF Pro, 16, .bold)

@@ -141,8 +141,14 @@ struct SessionRoomView: View {
 //            if vm.showIntroduction {
 //                SessionIntroductionView(introduction: vm.roomType.shared.introduction)
 //            }
-            if vm.isTimeUp {
+            if vm.isSessionFinished {
+                SessionFinishedView()
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.5), value: vm.isSessionFinished)
+            } else if vm.isTimeUp {
                 TimesUpView()
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.5), value: vm.isTimeUp)
             }
         }
         .fullScreenCover(isPresented: $vm.showRoundSummary) {

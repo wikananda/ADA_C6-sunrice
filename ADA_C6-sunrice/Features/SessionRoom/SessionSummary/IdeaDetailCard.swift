@@ -65,7 +65,7 @@ struct IdeaDetailCard: View {
         }
         .padding(16)
         .frame(width: 360, alignment: .topLeading)
-        .background(Color(.systemGray6))
+        .background(AppColor.grayscale10)
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -96,8 +96,8 @@ struct IdeaDetailCard: View {
                                 .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
                                 .foregroundColor(
                                     isSelected
-                                    ? Color(red: 0.17, green: 0.34, blue: 0.96)   // blue active
-                                    : Color(.systemGray3)                          // grey inactive
+                                    ? AppColor.Primary.blue
+                                    : AppColor.grayscale40
                                 )
                                 .frame(width: segmentWidth, alignment: .leading)
                         }
@@ -108,12 +108,12 @@ struct IdeaDetailCard: View {
                 // Baseline + underline indicator
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color(.systemGray4))
+                        .fill(AppColor.grayscale40)
                         .frame(height: 1)
                     
                     // Blue underline under selected tab
                     Rectangle()
-                        .fill(Color(red: 0.17, green: 0.34, blue: 0.96))
+                        .fill(AppColor.Primary.blue)
                         .frame(width: segmentWidth * 0.7, height: 2)
                         .offset(x: underlineOffset(segmentWidth: segmentWidth))
                 }
@@ -130,7 +130,7 @@ struct IdeaDetailCard: View {
         case .facts:    index = 2
         }
         // center the underline roughly under the text
-        return index * segmentWidth + segmentWidth * 0.15
+        return index * segmentWidth + segmentWidth * 0
     }
     
     // MARK: - Segment Content

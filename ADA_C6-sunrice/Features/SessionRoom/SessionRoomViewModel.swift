@@ -69,6 +69,7 @@ final class SessionRoomViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var showRoundSummary: Bool = false
     @Published var shouldExitToHome: Bool = false
+    @Published var isSessionFinished: Bool = false
     
     // Comment sheet
     @Published var selectedIdeaForComment: IdeaDTO? = nil
@@ -335,7 +336,7 @@ final class SessionRoomViewModel: ObservableObject {
             }
         } else {
             print("Session complete!")
-            // TODO: Navigate to session summary or end screen
+            isSessionFinished = true
         }
     }
     
