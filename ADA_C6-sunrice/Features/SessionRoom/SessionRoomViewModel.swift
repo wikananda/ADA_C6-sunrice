@@ -48,14 +48,16 @@ final class SessionRoomViewModel: ObservableObject {
     private let sessionService: SessionServicing
     let ideaService: IdeaServicing  // Public for CommentSheetView
     private let summaryService: SummaryServicing
+    private let insightService: IdeaInsightServicing
     
-    // Managers
-    private let roundManager: RoundManager
+    // Managers (internal for SummarySessionCard access)
+    let roundManager: RoundManager
     private let timerManager: TimerManager
-    private let ideaManager: IdeaManager
+    let ideaManager: IdeaManager
     private let summaryManager: SummaryManager
+    private let insightManager: IdeaInsightManager
     
-    private let sessionId: Int64
+    let sessionId: Int64
     let isHost: Bool
     
     // MARK: - UI State
@@ -70,6 +72,8 @@ final class SessionRoomViewModel: ObservableObject {
     @Published var showRoundSummary: Bool = false
     @Published var shouldExitToHome: Bool = false
     @Published var isSessionFinished: Bool = false
+    @Published var showFinalSummary: Bool = false
+    @Published var hasFetchedInsights: Bool = false
     
     // Comment sheet
     @Published var selectedIdeaForComment: IdeaDTO? = nil
@@ -87,6 +91,12 @@ final class SessionRoomViewModel: ObservableObject {
     var isLoadingSummary: Bool { summaryManager.isLoadingSummary }
     var summaryError: String? { summaryManager.summaryError }
     
+    // MARK: - Delegated State (from IdeaInsightManager)
+    var ideaInsights: [IdeaInsightDTO] { insightManager.insights }
+    var isAnalyzingIdeas: Bool { insightManager.isAnalyzing }
+    var analysisProgress: String { insightManager.analysisProgress }
+    var analysisError: String? { insightManager.analysisError }
+    
     // MARK: - Session State
     private var session: SessionDTO?
     private var sequence: SequenceDTO?
@@ -96,18 +106,20 @@ final class SessionRoomViewModel: ObservableObject {
 
     // MARK: - Initialization
     
-    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing, ideaService: IdeaServicing, summaryService: SummaryServicing) {
+    init(id: Int64, isHost: Bool = false, sessionService: SessionServicing, ideaService: IdeaServicing, summaryService: SummaryServicing, insightService: IdeaInsightServicing) {
         self.sessionId = id
         self.isHost = isHost
         self.sessionService = sessionService
         self.ideaService = ideaService
         self.summaryService = summaryService
+        self.insightService = insightService
         
         // Initialize managers
         self.roundManager = RoundManager(sessionService: sessionService)
         self.timerManager = TimerManager(sessionService: sessionService)
         self.ideaManager = IdeaManager(ideaService: ideaService)
         self.summaryManager = SummaryManager(summaryService: summaryService)
+        self.insightManager = IdeaInsightManager(insightService: insightService)
         
         // Setup bindings to propagate manager changes
         setupManagerBindings()
@@ -124,7 +136,8 @@ final class SessionRoomViewModel: ObservableObject {
             isHost: isHost,
             sessionService: SessionService(client: supabaseManager),
             ideaService: IdeaService(client: supabaseManager),
-            summaryService: SummaryService(client: supabaseManager)
+            summaryService: SummaryService(client: supabaseManager),
+            insightService: IdeaInsightService(client: supabaseManager)
         )
     }
     
@@ -136,6 +149,11 @@ final class SessionRoomViewModel: ObservableObject {
         
         // Propagate SummaryManager changes to trigger view updates
         summaryManager.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }.store(in: &cancellables)
+        
+        // Propagate IdeaInsightManager changes to trigger view updates
+        insightManager.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
         }.store(in: &cancellables)
     }
@@ -434,6 +452,46 @@ final class SessionRoomViewModel: ObservableObject {
         }
         
         await summaryManager.fetchSummary(sessionId: Int(sessionId), roundType: roundType, isHost: isHost)
+    }
+    
+    // MARK: - Idea Analysis
+    
+    func analyzeIdeas() async {
+        hasFetchedInsights = true
+        
+        // First, fetch all green ideas from database
+        print("📥 Fetching green ideas for analysis...")
+        do {
+            try await ideaManager.fetchIdeas(
+                sessionId: sessionId,
+                typeId: getGreenTypeId()
+            )
+        } catch {
+            print("❌ Error fetching green ideas: \(error)")
+            return
+        }
+        
+        // Get all green idea IDs
+        let greenIds = serverIdeas
+            .filter { $0.type_id == getGreenTypeId() }
+            .map { Int($0.id) }
+        
+        guard !greenIds.isEmpty else {
+            print("⏭️ No green ideas to analyze")
+            return
+        }
+        
+        print("✅ Found \(greenIds.count) green ideas to analyze")
+        
+        await insightManager.analyzeAllIdeas(
+            sessionId: Int(sessionId),
+            greenIdeaIds: greenIds,
+            isHost: isHost
+        )
+    }
+    
+    func navigateToFinalSummary() {
+        showFinalSummary = true
     }
     
     // MARK: - Helper Methods

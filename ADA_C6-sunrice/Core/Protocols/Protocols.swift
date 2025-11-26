@@ -50,3 +50,8 @@ protocol SummaryServicing {
     func summarizeRedSession(sessionId: Int) async throws -> SummarizeSessionResponse<IdeaSummary>
     func fetchExistingSummary(sessionId: Int, roundType: Int) async throws -> IdeaSummary?
 }
+
+protocol IdeaInsightServicing {
+    func analyzeIdea(sessionId: Int, greenIdeaId: Int) async throws -> AnalyzeIdeaResponse
+    func fetchIdeaInsights(sessionId: Int) async throws -> [IdeaInsightDTO]
+}

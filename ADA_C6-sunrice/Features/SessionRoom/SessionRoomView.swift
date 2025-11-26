@@ -142,7 +142,7 @@ struct SessionRoomView: View {
 //                SessionIntroductionView(introduction: vm.roomType.shared.introduction)
 //            }
             if vm.isSessionFinished {
-                SessionFinishedView()
+                SessionFinishedView(vm: vm)
                     .transition(.opacity)
                     .animation(.easeInOut(duration: 0.5), value: vm.isSessionFinished)
             } else if vm.isTimeUp {

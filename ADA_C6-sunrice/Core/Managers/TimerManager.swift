@@ -104,7 +104,7 @@ final class TimerManager {
         commentPollingTask = Task {
             while !Task.isCancelled {
                 await action()
-                print("polling comment counts...")
+//                print("polling comment counts...")
                 try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
             }
         }

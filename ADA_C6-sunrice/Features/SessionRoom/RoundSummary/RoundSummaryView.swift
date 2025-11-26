@@ -48,12 +48,6 @@ struct RoundSummaryView: View {
                                 .padding(.horizontal, 16)
                             }
                         } else {
-                            // Button to navigate to all cards view
-                            NavigationLink(destination: AllCardsView(vm: vm)) {
-                                ButtonSeeAllCards()
-                            }
-                            .padding(.horizontal, 16)
-                            
                             VStack(alignment: .leading, spacing: 12) {
                                 if vm.isLoadingSummary {
                                     HStack(spacing: 12) {
@@ -96,6 +90,11 @@ struct RoundSummaryView: View {
                                     }
                                 }
                             }
+                            // Button to navigate to all cards view
+                            NavigationLink(destination: AllCardsView(vm: vm)) {
+                                ButtonSeeAllCards()
+                            }
+                            .padding(.horizontal, 16)
                         }
                     }
                     .padding(.vertical, 8)

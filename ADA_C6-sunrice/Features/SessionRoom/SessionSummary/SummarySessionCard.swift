@@ -10,11 +10,9 @@ import SwiftUI
 // MARK: - LIVE VIEW
 
 /// Summary card shown at the end of the session.
-/// Uses real data from IdeaManager + RoundManager.
+/// Uses real data from IdeaManager + RoundManager + IdeaInsightManager.
 struct SummarySessionCard: View {
-    @ObservedObject var ideaManager: IdeaManager
-    let roundManager: RoundManager
-    let sessionId: Int64
+    @ObservedObject var vm: SessionRoomViewModel
     
     /// Optional summary paragraph shown at the top of the card.
     var summaryText: String = ""
@@ -37,12 +35,14 @@ struct SummarySessionCard: View {
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(.primary)
             
-            // List of green-round ideas
+            // List of idea insights
             VStack(spacing: 16) {
-                ForEach(greenIdeas, id: \.id) { idea in
-                    IdeaSummaryCard(
-                        ideaText: idea.text ?? "",
-                        commentCounts: ideaManager.commentCounts[idea.id]
+                ForEach(vm.ideaInsights) { insight in
+                    IdeaInsightCard(
+                        ideaText: getIdeaText(for: insight.ideaId),
+                        rating: insight.rating,
+                        why: insight.why,
+                        commentCounts: vm.commentCounts[insight.ideaId]
                     )
                 }
             }
@@ -63,26 +63,22 @@ struct SummarySessionCard: View {
         }
     }
     
-    // MARK: - Data helpers (same logic as before)
+    // MARK: - Data helpers
     
-    /// Only ideas from the green (idea) round are shown.
-    private var greenIdeas: [IdeaDTO] {
-        if let greenId = roundManager.getGreenTypeId() {
-            return ideaManager.serverIdeas.filter { $0.type_id == greenId }
-        } else {
-            return ideaManager.serverIdeas
-        }
+    /// Get idea text by ID
+    private func getIdeaText(for ideaId: Int64) -> String {
+        vm.serverIdeas.first { $0.id == ideaId }?.text ?? "Unknown idea"
     }
     
     /// Fetches ideas + comment counts (benefit/risk/build-on) from backend.
     private func loadSummaryData() async {
         do {
-            try await ideaManager.fetchIdeas(
-                sessionId: sessionId,
-                typeId: roundManager.getGreenTypeId()
+            try await vm.ideaManager.fetchIdeas(
+                sessionId: vm.sessionId,
+                typeId: vm.getGreenTypeId()
             )
-            try await ideaManager.fetchCommentCounts(roundManager: roundManager)
-            try await ideaManager.fetchComments(roundManager: roundManager)
+            try await vm.ideaManager.fetchCommentCounts(roundManager: vm.roundManager)
+            try await vm.ideaManager.fetchComments(roundManager: vm.roundManager)
         } catch {
             print("⚠️ Failed to load summary data: \(error)")
         }

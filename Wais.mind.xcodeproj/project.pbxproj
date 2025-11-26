@@ -218,7 +218,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0A8E0F482EAF48CF00103638 /* Build configuration list for PBXProject "ADA_C6-sunrice" */;
+			buildConfigurationList = 0A8E0F482EAF48CF00103638 /* Build configuration list for PBXProject "Wais.mind" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -587,7 +587,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0A8E0F482EAF48CF00103638 /* Build configuration list for PBXProject "ADA_C6-sunrice" */ = {
+		0A8E0F482EAF48CF00103638 /* Build configuration list for PBXProject "Wais.mind" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0A8E0F6C2EAF48D000103638 /* Debug */,
