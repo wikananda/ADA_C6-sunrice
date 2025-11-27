@@ -10,7 +10,7 @@ import Combine
 
 @MainActor
 final class IdeaInsightManager: ObservableObject {
-    private let insightService: IdeaInsightServicing
+    let insightService: IdeaInsightServicing  // Internal for refresh access
     
     @Published var insights: [IdeaInsightDTO] = []
     @Published var isAnalyzing: Bool = false

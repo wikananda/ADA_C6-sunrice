@@ -32,8 +32,8 @@ struct IdeaInsightDTO: Codable, Identifiable {
     let why: String
     let evidence: IdeaInsightEvidence
     let mitigations: [String]?  // Array of mitigation strings
-    let worstPossibleIdea: String?
-    let flipSideIdea: String?
+    let worstPossibleIdea: [String]?
+    let flipSideIdea: [String]?
     let notes: [String]?  // Array of note strings
     
     enum CodingKeys: String, CodingKey {
@@ -42,6 +42,34 @@ struct IdeaInsightDTO: Codable, Identifiable {
         case sessionId = "session_id"
         case worstPossibleIdea = "worst_possible_idea"
         case flipSideIdea = "flip_side_idea"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        rating = try container.decode(String.self, forKey: .rating)
+        why = try container.decode(String.self, forKey: .why)
+        evidence = try container.decode(IdeaInsightEvidence.self, forKey: .evidence)
+        mitigations = try container.decodeIfPresent([String].self, forKey: .mitigations)
+        worstPossibleIdea = try container.decodeIfPresent([String].self, forKey: .worstPossibleIdea)
+        flipSideIdea = try container.decodeIfPresent([String].self, forKey: .flipSideIdea)
+        notes = try container.decodeIfPresent([String].self, forKey: .notes)
+        
+        // Handle potential missing keys from different response formats
+        if let dbIdeaId = try? container.decode(Int64.self, forKey: .ideaId) {
+            // Database row format (has idea_id)
+            ideaId = dbIdeaId
+            id = try container.decode(Int64.self, forKey: .id)
+            sessionId = try container.decode(Int64.self, forKey: .sessionId)
+        } else {
+            // AI Response format (id is likely the ideaId)
+            let jsonId = try container.decode(Int64.self, forKey: .id)
+            ideaId = jsonId
+            // Use ideaId as temporary id if real DB id is missing
+            id = jsonId 
+            // Default session ID if missing (will be filled by context if needed)
+            sessionId = (try? container.decode(Int64.self, forKey: .sessionId)) ?? 0
+        }
     }
 }
 

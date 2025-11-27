@@ -157,6 +157,10 @@ struct SessionRoomView: View {
         .sheet(isPresented: $vm.showCommentSheet) {
             CommentSheetView(vm: vm)
         }
+        .fullScreenCover(isPresented: $vm.showFinalSummary) {
+            FinalSummaryView(vm: vm)
+                .environmentObject(navVM)
+        }
         .onChange(of: vm.shouldExitToHome) { _, shouldExit in
             if shouldExit {
                 Task {

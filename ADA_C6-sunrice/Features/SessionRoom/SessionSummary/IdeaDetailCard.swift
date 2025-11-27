@@ -29,6 +29,10 @@ enum IdeaDetailSegment: String, CaseIterable, Identifiable {
 
 struct IdeaDetailCard: View {
     let ideaText: String
+    let ratingString: String
+    let why: String
+    let evidence: IdeaInsightEvidence
+    let commentCounts: CommentCounts?
     
     @State private var selectedSegment: IdeaDetailSegment = .benefits
     
@@ -37,22 +41,23 @@ struct IdeaDetailCard: View {
             
             // Idea text
             Text(ideaText)
-                .font(.system(size: 13))
+                .font(.bodySM)
                 .foregroundColor(Color(.label))
                 .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 12) {
+                Text("Why: ")
+                    .font(.labelMD)
+                Text(why)
+                    .font(.bodySM)
+            }
             
-            // Rating row (static placeholder)
+            // Rating row
             HStack(spacing: 6) {
                 Text("Rating:")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(Color(.secondaryLabel))
                 
-                Text("Neutral")
-                    .font(.system(size: 11, weight: .medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(4)
+                ratingPill(for: convertedRating)
                 
                 Spacer()
             }
@@ -139,34 +144,89 @@ struct IdeaDetailCard: View {
     private var segmentContent: some View {
         switch selectedSegment {
         case .benefits:
-            // Uses your existing IdeaBubbleView
-            IdeaBubbleView(
-                text: "Fun and engaging for the learners (short attention span these days lol)",
-                type: .yellow,
-                ideaId: 1
-            )
+            if let pros = evidence.prosIds, !pros.isEmpty {
+                VStack(spacing: 8) {
+                    ForEach(pros, id: \.id) { item in
+                        IdeaBubbleView(
+                            text: item.text,
+                            type: .yellow,
+                            ideaId: Int(item.id)
+                        )
+                    }
+                }
+            } else {
+                Text("No benefits added yet.")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(.secondaryLabel))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         case .risks:
-            Text("No risks added yet.")
-                .font(.system(size: 12))
-                .foregroundColor(Color(.secondaryLabel))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if let risks = evidence.risksIds, !risks.isEmpty {
+                VStack(spacing: 8) {
+                    ForEach(risks, id: \.id) { item in
+                        IdeaBubbleView(
+                            text: item.text,
+                            type: .black,
+                            ideaId: Int(item.id)
+                        )
+                    }
+                }
+            } else {
+                Text("No risks added yet.")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(.secondaryLabel))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         case .facts:
-            Text("No facts & info added yet.")
-                .font(.system(size: 12))
-                .foregroundColor(Color(.secondaryLabel))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if let facts = evidence.whiteFactsIds, !facts.isEmpty {
+                VStack(spacing: 8) {
+                    ForEach(facts, id: \.id) { item in
+                        IdeaBubbleView(
+                            text: item.text,
+                            type: .white,
+                            ideaId: Int(item.id)
+                        )
+                    }
+                }
+            } else {
+                Text("No facts & info added yet.")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(.secondaryLabel))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
+    }
+    
+    // MARK: - Rating Helpers
+    
+    private var convertedRating: IdeaRating {
+        switch ratingString.lowercased() {
+        case "good": return .good
+        case "risky": return .risky
+        default: return .neutral
+        }
+    }
+    
+    @ViewBuilder
+    private func ratingPill(for rating: IdeaRating) -> some View {
+        Text(rating.label)
+            .font(.system(size: 11, weight: .medium))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(rating.pillBackground)
+            .foregroundColor(rating.pillTextColor)
+            .cornerRadius(4)
     }
 }
 
 // MARK: - Preview
 
-struct IdeaDetailCard_Previews: PreviewProvider {
-    static var previews: some View {
-        IdeaDetailCard(
-            ideaText: "Short videos within categorised playlist on ADA essential informations"
-        )
-        .padding()
-        .previewLayout(.sizeThatFits)
-    }
-}
+//struct IdeaDetailCard_Previews: PreviewProvider {
+//    static var previews: some View {
+//        IdeaDetailCard(
+//            ideaText: "Short videos within categorised playlist on ADA essential informations"
+//        )
+//        .padding()
+//        .previewLayout(.sizeThatFits)
+//    }
+//}

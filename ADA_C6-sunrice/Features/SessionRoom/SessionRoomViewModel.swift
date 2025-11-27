@@ -494,6 +494,21 @@ final class SessionRoomViewModel: ObservableObject {
         showFinalSummary = true
     }
     
+    func refreshInsightsFromDatabase() async {
+        print("📥 Refreshing insights from database...")
+        do {
+            let freshInsights = try await insightManager.insightService.fetchIdeaInsights(
+                sessionId: Int(sessionId)
+            )
+            await MainActor.run {
+                insightManager.insights = freshInsights
+                print("✅ Refreshed \(freshInsights.count) insights")
+            }
+        } catch {
+            print("❌ Error refreshing insights: \(error)")
+        }
+    }
+    
     // MARK: - Helper Methods
     
     func getGreenTypeId() -> Int64? {

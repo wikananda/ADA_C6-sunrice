@@ -38,10 +38,11 @@ struct SummarySessionCard: View {
             // List of idea insights
             VStack(spacing: 16) {
                 ForEach(vm.ideaInsights) { insight in
-                    IdeaInsightCard(
+                    IdeaSummaryCard(
                         ideaText: getIdeaText(for: insight.ideaId),
-                        rating: insight.rating,
+                        ratingString: insight.rating,
                         why: insight.why,
+                        evidence: insight.evidence,
                         commentCounts: vm.commentCounts[insight.ideaId]
                     )
                 }
@@ -89,7 +90,7 @@ struct SummarySessionCard: View {
 // MARK: - PREVIEW SUPPORT (UI-only, no backend)
 
 // Simple local model just for preview
-private struct FakeIdea: Identifiable {
+struct FakeIdea: Identifiable {
     let id = UUID()
     let text: String
     let counts: CommentCounts
@@ -97,7 +98,7 @@ private struct FakeIdea: Identifiable {
 
 /// A static version of the card used only for previewing the UI.
 /// It recreates the same layout as `SummarySessionCard` but with local data.
-private struct SummarySessionCardPreviewContent: View {
+struct SummarySessionCardPreviewContent: View {
     private let summaryText: String =
     """
     Learners are mostly new to the academy, unfamiliar with CBL and app development. Many don't know what to expect, what they want to learn, or their desired role.
@@ -133,10 +134,11 @@ private struct SummarySessionCardPreviewContent: View {
             
             VStack(spacing: 16) {
                 ForEach(ideas) { idea in
-                    IdeaSummaryCard(
-                        ideaText: idea.text,
-                        commentCounts: idea.counts
-                    )
+//                    IdeaSummaryCard(
+//                        ideaText: idea.text,
+//                        commentCounts: idea.counts
+//
+//                    )
                 }
             }
         }
