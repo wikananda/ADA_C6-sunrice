@@ -10,7 +10,7 @@ import Combine
 
 @MainActor
 final class SummaryManager: ObservableObject {
-    private let summaryService: SummaryServicing
+    let summaryService: SummaryServicing  // Internal for access from views
     
     @Published var summary: IdeaSummary?
     @Published var isLoadingSummary: Bool = false

@@ -59,6 +59,10 @@ struct SessionFinishedView: View {
                 }
             }
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .onTapToDismissKeyboard()
     }
 }
 

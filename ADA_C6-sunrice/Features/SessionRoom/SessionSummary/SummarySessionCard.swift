@@ -14,25 +14,38 @@ import SwiftUI
 struct SummarySessionCard: View {
     @ObservedObject var vm: SessionRoomViewModel
     
-    /// Optional summary paragraph shown at the top of the card.
-    var summaryText: String = ""
-    
+    @State private var summaryText: String = ""
     @State private var didLoad = false
+    @State private var isLoadingSummary = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             
             // Summary paragraph
-            if !summaryText.isEmpty {
-                Text(summaryText)
-                    .font(.system(size: 12))
-                    .foregroundColor(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
+            if isLoadingSummary {
+                HStack {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Generating final summary...")
+                        .font(.bodySM)
+                        .foregroundColor(.secondary)
+                }
+            } else if !summaryText.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Session Summary")
+                        .font(.labelMD)
+                        .foregroundColor(.primary)
+                    
+                    Text(summaryText)
+                        .font(.bodySM)
+                        .foregroundColor(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             
             // "Ideas:" title
             Text("Ideas:")
-                .font(.system(size: 16, weight: .bold))
+                .font(.labelMD)
                 .foregroundColor(.primary)
             
             // List of idea insights
@@ -61,7 +74,12 @@ struct SummarySessionCard: View {
             guard !didLoad else { return }
             didLoad = true
             await loadSummaryData()
+            await loadFinalSummary()
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .onTapToDismissKeyboard()
     }
     
     // MARK: - Data helpers
@@ -82,6 +100,32 @@ struct SummarySessionCard: View {
             try await vm.ideaManager.fetchComments(roundManager: vm.roundManager)
         } catch {
             print("⚠️ Failed to load summary data: \(error)")
+        }
+    }
+    
+    /// Generate and fetch final summary
+    private func loadFinalSummary() async {
+        isLoadingSummary = true
+        defer { isLoadingSummary = false }
+        
+        do {
+            // First try to fetch existing summary
+            if let existing = try await vm.summaryManager.summaryService.fetchFinalSummary(sessionId: Int(vm.sessionId)) {
+                summaryText = existing.summaryText
+                print("✅ Loaded existing final summary")
+                return
+            }
+            
+            // If not found, generate new one (only host should do this ideally)
+            print("📝 Generating new final summary...")
+            let response = try await vm.summaryManager.summaryService.generateFinalSummary(sessionId: Int(vm.sessionId))
+            
+            if response.success {
+                summaryText = response.summary.summaryText
+                print("✅ Generated final summary")
+            }
+        } catch {
+            print("❌ Error loading final summary: \(error)")
         }
     }
 }

@@ -67,6 +67,10 @@ struct FinalSummaryView: View {
         } message: {
             Text("You will return to the home screen.")
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .onTapToDismissKeyboard()
     }
 }
 

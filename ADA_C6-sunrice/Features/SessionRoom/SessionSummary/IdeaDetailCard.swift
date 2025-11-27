@@ -40,15 +40,13 @@ struct IdeaDetailCard: View {
         VStack(alignment: .leading, spacing: 16) {
             
             // Idea text
-            Text(ideaText)
-                .font(.bodySM)
-                .foregroundColor(Color(.label))
-                .fixedSize(horizontal: false, vertical: true)
-            HStack(spacing: 12) {
-                Text("Why: ")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Idea:")
                     .font(.labelMD)
-                Text(why)
+                Text(ideaText)
                     .font(.bodySM)
+                    .foregroundColor(Color(.label))
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
             // Rating row
@@ -60,6 +58,13 @@ struct IdeaDetailCard: View {
                 ratingPill(for: convertedRating)
                 
                 Spacer()
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Why: ")
+                    .font(.labelMD)
+                Text(why)
+                    .font(.bodySM)
             }
             
             // Segments (fixed)

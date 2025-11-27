@@ -54,7 +54,7 @@ final class SessionRoomViewModel: ObservableObject {
     let roundManager: RoundManager
     private let timerManager: TimerManager
     let ideaManager: IdeaManager
-    private let summaryManager: SummaryManager
+    let summaryManager: SummaryManager
     private let insightManager: IdeaInsightManager
     
     let sessionId: Int64

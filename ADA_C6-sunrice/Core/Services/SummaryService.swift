@@ -83,4 +83,35 @@ struct SummaryService: SummaryServicing {
         
         return nil
     }
+    
+    // Generate final summary using RPC function
+    func generateFinalSummary(sessionId: Int) async throws -> GenerateFinalSummaryResponse {
+        struct GenerateFinalSummaryRequest: Encodable {
+            let session_id: Int
+        }
+        
+        let requestBody = GenerateFinalSummaryRequest(session_id: sessionId)
+        
+        let response: GenerateFinalSummaryResponse = try await client.functions.invoke(
+            "generate-final-summary",
+            options: FunctionInvokeOptions(
+                body: requestBody
+            )
+        )
+        
+        return response
+    }
+    
+    // Fetch existing final summary from database
+    func fetchFinalSummary(sessionId: Int) async throws -> FinalSummaryDTO? {
+        let response: [FinalSummaryDTO] = try await client
+            .from("session_final_summaries")
+            .select()
+            .eq("session_id", value: sessionId)
+            .limit(1)
+            .execute()
+            .value
+        
+        return response.first
+    }
 }

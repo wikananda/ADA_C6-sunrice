@@ -114,7 +114,7 @@ struct IdeaSummaryCard: View {
                 .navigationTitle("Idea Details")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .navigationBarLeading) {
                         Button("Close") {
                             showDetail = false
                         }
