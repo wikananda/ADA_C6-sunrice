@@ -35,6 +35,7 @@ protocol SessionServicing {
     func fetchSequence(modeId: Int64) async throws -> SequenceDTO
     func updateCurrentRound(sessionId: Int64, round: Int64) async throws
     func fetchType(id: Int64) async throws -> TypeDTO
+    func updateRoundDeadline(sessionId: Int64, deadline: Date) async throws
 }
 
 protocol IdeaServicing {
