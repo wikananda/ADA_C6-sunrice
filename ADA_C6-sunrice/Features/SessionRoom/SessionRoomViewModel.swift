@@ -269,6 +269,19 @@ final class SessionRoomViewModel: ObservableObject {
             isTimeUp = false
             showInstruction = true
             
+            // Host: Save deadline to database for guest synchronization
+            if isHost {
+                do {
+                    try await sessionService.updateRoundDeadline(
+                        sessionId: sessionId,
+                        deadline: deadline
+                    )
+                    print("⏱️ Host: Deadline saved to database: \(deadline)")
+                } catch {
+                    print("❌ Error updating deadline: \(error)")
+                }
+            }
+            
             // Fetch ideas from previous rounds (cumulative)
             if currentRound > 1 {
                 print("📋 Fetching ALL ideas from previous rounds...")
@@ -297,6 +310,27 @@ final class SessionRoomViewModel: ObservableObject {
         timerManager.startPollingRound(sessionId: sessionId, currentRound: currentRound) { [weak self] newRound in
             await self?.handleRoundChange(newRound: newRound)
         }
+        
+        // Start polling for deadline updates (timer synchronization)
+        timerManager.registerPollingAction(id: "deadline_sync") { [weak self] in
+            guard let self = self else { return }
+            
+            do {
+                let updatedSession = try await self.sessionService.fetchSession(id: self.sessionId)
+                
+                if let newDeadline = updatedSession.current_round_deadline {
+                    await MainActor.run {
+                        // Only update if deadline changed significantly (> 1 second difference)
+                        if abs(newDeadline.timeIntervalSince(self.deadline)) > 1 {
+                            self.deadline = newDeadline
+                            print("⏱️ Guest: Deadline synced to \(newDeadline)")
+                        }
+                    }
+                }
+            } catch {
+                print("❌ Error fetching deadline: \(error)")
+            }
+        }
     }
     
     private func handleTimeUp() async {
@@ -320,11 +354,14 @@ final class SessionRoomViewModel: ObservableObject {
     }
     
     private func handleRoundChange(newRound: Int64) async {
+        // Unregister deadline polling for old round
+        timerManager.unregisterPollingAction(id: "deadline_sync")
+        
         currentRound = newRound
         showRoundSummary = false
         await loadRoundType(round: currentRound)
         
-        // Restart guest timers with new deadline and round
+        // Restart guest timers with new deadline and round (will re-register deadline polling)
         if !isHost {
             startGuestPolling()
         }
@@ -547,6 +584,19 @@ final class SessionRoomViewModel: ObservableObject {
     func onTapExtensionButton() {
         if isHost {
             deadline.addTimeInterval(30)
+            
+            // Persist to database so guests can synchronize
+            Task {
+                do {
+                    try await sessionService.updateRoundDeadline(
+                        sessionId: sessionId,
+                        deadline: deadline
+                    )
+                    print("⏱️ Host: Extended deadline by 30s, saved to database")
+                } catch {
+                    print("❌ Error extending deadline: \(error)")
+                }
+            }
         } else {
             // TODO: send request time extension to the host
         }
