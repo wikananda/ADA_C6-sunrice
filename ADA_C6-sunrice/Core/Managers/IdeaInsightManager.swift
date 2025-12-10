@@ -31,13 +31,13 @@ final class IdeaInsightManager: ObservableObject {
     func analyzeAllIdeas(sessionId: Int, greenIdeaIds: [Int], isHost: Bool) async {
         isAnalyzing = true
         analysisError = nil  // Clear previous error for retry
-        defer { isAnalyzing = false }
         
         if isHost {
             // Host: Call analyze-idea for each green idea
             await analyzeIdeasAsHost(sessionId: sessionId, greenIdeaIds: greenIdeaIds)
+            isAnalyzing = false  // Host sets to false when done
         } else {
-            // Guest: Poll for existing insights
+            // Guest: Poll for existing insights (keeps isAnalyzing=true until polling completes)
             await fetchInsightsAsGuest(sessionId: sessionId, expectedCount: greenIdeaIds.count)
         }
     }
@@ -96,6 +96,7 @@ final class IdeaInsightManager: ObservableObject {
                     if fetchedInsights.count >= expectedCount {
                         self.insights = fetchedInsights
                         self.analysisProgress = "Analysis complete!"
+                        self.isAnalyzing = false  // Guest sets to false when done
                         print("✅ Guest: Retrieved \(self.insights.count) insights")
                         // Unregister after success
                         timerManager.unregisterPollingAction(id: "insights_fetch")

@@ -31,10 +31,10 @@ struct IdeaInsightDTO: Codable, Identifiable {
     let rating: String  // "good", "neutral", "risky"
     let why: String
     let evidence: IdeaInsightEvidence
-    let mitigations: [String]?  // Array of mitigation strings
-    let worstPossibleIdea: [String]?
-    let flipSideIdea: [String]?
-    let notes: [String]?  // Array of note strings
+    let mitigations: String?  // Array of mitigation strings
+    let worstPossibleIdea: String?  // Changed from array to string to match DB schema
+    let flipSideIdea: String?  // Changed from array to string to match DB schema
+    let notes: String?  // Array of note strings
     
     enum CodingKeys: String, CodingKey {
         case id, rating, why, evidence, mitigations, notes
@@ -50,10 +50,10 @@ struct IdeaInsightDTO: Codable, Identifiable {
         rating = try container.decode(String.self, forKey: .rating)
         why = try container.decode(String.self, forKey: .why)
         evidence = try container.decode(IdeaInsightEvidence.self, forKey: .evidence)
-        mitigations = try container.decodeIfPresent([String].self, forKey: .mitigations)
-        worstPossibleIdea = try container.decodeIfPresent([String].self, forKey: .worstPossibleIdea)
-        flipSideIdea = try container.decodeIfPresent([String].self, forKey: .flipSideIdea)
-        notes = try container.decodeIfPresent([String].self, forKey: .notes)
+        mitigations = try container.decodeIfPresent(String.self, forKey: .mitigations)
+        worstPossibleIdea = try container.decodeIfPresent(String.self, forKey: .worstPossibleIdea)
+        flipSideIdea = try container.decodeIfPresent(String.self, forKey: .flipSideIdea)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes)
         
         // Handle potential missing keys from different response formats
         if let dbIdeaId = try? container.decode(Int64.self, forKey: .ideaId) {
