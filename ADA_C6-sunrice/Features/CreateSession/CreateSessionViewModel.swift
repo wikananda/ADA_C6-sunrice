@@ -88,7 +88,7 @@ final class CreateSessionViewModel: ObservableObject {
     ]
     
     // MARK: Review Session
-    @Published var durationPerRound: Int64 = 5
+    @Published var durationPerRound: Int64 = 300
     
     // MARK: Button Behavior
     var buttonText: String {

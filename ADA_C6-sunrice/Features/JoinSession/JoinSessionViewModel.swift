@@ -190,7 +190,7 @@ final class JoinSessionViewModel: ObservableObject {
     func makePlaceholderSession() -> SessionDTO {
         SessionDTO(
             id: 0,
-            duration_per_round: 5,
+            duration_per_round: 300,
             topic: "Session",
             description: "",
             token: code,
