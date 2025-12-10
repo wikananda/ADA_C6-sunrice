@@ -53,7 +53,7 @@ struct RoundSummaryView: View {
                                     HStack(spacing: 12) {
                                         ProgressView()
                                             .progressViewStyle(CircularProgressViewStyle())
-                                        Text("Extracting AI summary...")
+                                        Text("Waiting for AI summary...")
                                             .font(.bodySM)
                                             .foregroundColor(AppColor.Primary.gray)
                                     }
@@ -62,6 +62,59 @@ struct RoundSummaryView: View {
                                     .background(AppColor.blue10)
                                     .cornerRadius(12)
                                     .padding(.horizontal)
+                                } else if let error = vm.summaryError {
+                                    // Error state
+                                    if vm.isHost {
+                                        // Host: Show error with retry button
+                                        VStack(spacing: 12) {
+                                            HStack(spacing: 8) {
+                                                Image(systemName: "exclamationmark.triangle.fill")
+                                                    .foregroundColor(.red)
+                                                Text("Failed to generate summary")
+                                                    .font(.titleSSM)
+                                                    .foregroundColor(AppColor.Primary.gray)
+                                            }
+                                            
+//                                            Text(error)
+//                                                .font(.bodySM)
+//                                                .foregroundColor(AppColor.grayscale40)
+//                                                .multilineTextAlignment(.center)
+                                            
+                                            Button {
+                                                Task {
+                                                    await vm.fetchSummary()
+                                                }
+                                            } label: {
+                                                Label("Retry", systemImage: "arrow.clockwise")
+                                                    .font(.bodySM)
+                                                    .fontWeight(.semibold)
+                                                    .padding(.horizontal, 16)
+                                                    .padding(.vertical, 8)
+                                                    .background(AppColor.Primary.blue)
+                                                    .foregroundColor(.white)
+                                                    .cornerRadius(8)
+                                            }
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.red.opacity(0.1))
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                    } else {
+                                        // Guest: Keep showing loading (polling continues in background)
+                                        HStack(spacing: 12) {
+                                            ProgressView()
+                                                .progressViewStyle(CircularProgressViewStyle())
+                                            Text("Waiting for AI summary...")
+                                                .font(.bodySM)
+                                                .foregroundColor(AppColor.Primary.gray)
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(AppColor.blue10)
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                    }
                                 } else if let summary = vm.summary {
                                     VStack(alignment: .leading, spacing: 12) {
                                         Text("AI Summary")

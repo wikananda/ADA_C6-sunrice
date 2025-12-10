@@ -33,6 +33,54 @@ struct SessionFinishedView: View {
                         .font(.bodySM)
                         .foregroundColor(.secondary)
                 }
+            } else if let error = vm.analysisError {
+                // Error state
+                if vm.isHost {
+                    // Host: Show error with retry button
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.red)
+                        
+                        Text("⚠️ Analysis Failed")
+                            .font(.titleSSM)
+                            .foregroundColor(.red)
+                        
+//                        Text(error)
+//                            .font(.bodySM)
+//                            .foregroundColor(AppColor.grayscale40)
+//                            .multilineTextAlignment(.center)
+//                            .padding(.horizontal)
+                        
+                        Button {
+                            Task {
+                                await vm.analyzeIdeas()
+                            }
+                        } label: {
+                            Label("Retry Analysis", systemImage: "arrow.clockwise")
+                                .font(.bodySM)
+                                .fontWeight(.semibold)
+                                .padding()
+                                .background(AppColor.Primary.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                    }
+                    .padding()
+                } else {
+                    // Guest: Keep showing loading (polling continues)
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        
+                        Text("Waiting for analysis...")
+                            .font(.titleSSM)
+                        
+                        Text("Please wait...")
+                            .font(.bodySM)
+                            .foregroundColor(.secondary)
+                    }
+                }
             } else {
                 Text("Analysis Complete!")
                     .font(.titleSSM)

@@ -30,7 +30,7 @@ final class IdeaInsightManager: ObservableObject {
     
     func analyzeAllIdeas(sessionId: Int, greenIdeaIds: [Int], isHost: Bool) async {
         isAnalyzing = true
-        analysisError = nil
+        analysisError = nil  // Clear previous error for retry
         defer { isAnalyzing = false }
         
         if isHost {

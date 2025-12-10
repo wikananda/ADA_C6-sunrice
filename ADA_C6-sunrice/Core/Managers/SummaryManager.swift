@@ -34,7 +34,7 @@ final class SummaryManager: ObservableObject {
         }
         
         isLoadingSummary = true
-        summaryError = nil
+        summaryError = nil  // Clear previous error for retry
         defer { isLoadingSummary = false }
         
         do {
