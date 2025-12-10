@@ -200,6 +200,7 @@ final class JoinSessionViewModel: ObservableObject {
             created_at: nil,
             mode_id: nil,
             current_round: 1,
+            current_round_deadline: nil
         )
     }
     

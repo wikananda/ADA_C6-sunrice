@@ -95,7 +95,7 @@ struct CreateSessionView: View {
         }
         .alert("Start Session?", isPresented: $showStartSessionAlert) {
             Button("Wait a minute", role: .destructive) { }
-            Button("Start Session") {
+            Button("Start Session", role: .cancel) {
                 vm.handleNext()
             }
         } message: {

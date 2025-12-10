@@ -42,7 +42,8 @@ struct SessionService: SessionServicing {
             ended_at: nil,
             created_at: Date(),
             mode_id: rpcSession.mode_id,
-            current_round: rpcSession.current_round
+            current_round: rpcSession.current_round,
+            current_round_deadline: nil
         )
     }
     
