@@ -78,7 +78,7 @@ final class TimerManager {
     
     // MARK: - Host Timer
     
-    func startHostTimer(deadline: Date, onTimeUp: @escaping () async -> Void) {
+    func startHostTimer(getDeadline: @escaping () -> Date, onTimeUp: @escaping () async -> Void) {
         cancelAllTimers()
         
         roundTimer = Timer.publish(every: 1, on: .main, in: .common)
@@ -86,7 +86,8 @@ final class TimerManager {
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                if Date() >= deadline {
+                let currentDeadline = getDeadline()
+                if Date() >= currentDeadline {
                     self.roundTimer?.cancel()
                     
                     Task {
@@ -98,7 +99,7 @@ final class TimerManager {
     
     // MARK: - Guest Timer
     
-    func startGuestDeadlineTimer(deadline: Date, onTimeUp: @escaping () async -> Void) {
+    func startGuestDeadlineTimer(getDeadline: @escaping () -> Date, onTimeUp: @escaping () async -> Void) {
         cancelAllTimers()
         
         roundTimer = Timer.publish(every: 1, on: .main, in: .common)
@@ -106,7 +107,8 @@ final class TimerManager {
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                if Date() >= deadline {
+                let currentDeadline = getDeadline()
+                if Date() >= currentDeadline {
                     self.roundTimer?.cancel()
                     
                     Task {

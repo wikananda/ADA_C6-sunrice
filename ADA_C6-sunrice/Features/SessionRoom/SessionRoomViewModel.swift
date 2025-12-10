@@ -295,14 +295,18 @@ final class SessionRoomViewModel: ObservableObject {
     // MARK: - Timer Management
     
     private func startHostTimer() {
-        timerManager.startHostTimer(deadline: deadline) { [weak self] in
+        timerManager.startHostTimer(getDeadline: { [weak self] in
+            return self?.deadline ?? Date()
+        }) { [weak self] in
             await self?.handleTimeUp()
         }
     }
     
     private func startGuestPolling() {
         // Start deadline timer
-        timerManager.startGuestDeadlineTimer(deadline: deadline) { [weak self] in
+        timerManager.startGuestDeadlineTimer(getDeadline: { [weak self] in
+            return self?.deadline ?? Date()
+        }) { [weak self] in
             await self?.handleTimeUp()
         }
         
