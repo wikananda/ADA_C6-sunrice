@@ -29,6 +29,7 @@ final class SummaryManager: ObservableObject {
         summary = nil
         summaryError = nil
         isLoadingSummary = false
+        stopFetchingSummary()
     }
     
     // MARK: - Summary Operations
@@ -107,11 +108,11 @@ final class SummaryManager: ObservableObject {
         }
     }
     
-    func clearSummary() {
-        summary = nil
-        summaryError = nil
-        stopFetchingSummary()
-    }
+//    func clearSummary() {
+//        summary = nil
+//        summaryError = nil
+//        stopFetchingSummary()
+//    }
     
     func stopFetchingSummary() {
         timerManager?.unregisterPollingAction(id: "summary_fetch")

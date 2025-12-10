@@ -370,7 +370,13 @@ final class SessionRoomViewModel: ObservableObject {
         // Check if session is finished (no more rounds after this one)
         if !roundManager.hasNextRound(after: currentRound - 1) {
             print("📊 Guest: Session finished, no more rounds")
-            isSessionFinished = true
+            
+            // Small delay to ensure RoundSummaryView dismisses before showing SessionFinishedView
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+            
+            await MainActor.run {
+                isSessionFinished = true
+            }
             return
         }
         
@@ -399,19 +405,20 @@ final class SessionRoomViewModel: ObservableObject {
         
         let nextRound = currentRound + 1
         
+        // Always update the database current_round so guests can detect the change
+        do {
+            try await sessionService.updateCurrentRound(sessionId: sessionId, round: nextRound)
+            print("📊 Host: Updated current_round to \(nextRound) in database")
+        } catch {
+            print("❌ Error updating round: \(error)")
+        }
+        
         if roundManager.hasNextRound(after: currentRound) {
             currentRound = nextRound
-            
-            // Update current_round in database
-            do {
-                try await sessionService.updateCurrentRound(sessionId: sessionId, round: currentRound)
-                await loadRoundType(round: currentRound)
-                startHostTimer()
-            } catch {
-                print("Error updating round: \(error)")
-            }
+            await loadRoundType(round: currentRound)
+            startHostTimer()
         } else {
-            print("Session complete!")
+            print("📊 Host: Session complete!")
             isSessionFinished = true
         }
     }
