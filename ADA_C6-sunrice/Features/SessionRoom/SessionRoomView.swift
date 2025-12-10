@@ -161,6 +161,16 @@ struct SessionRoomView: View {
             FinalSummaryView(vm: vm)
                 .environmentObject(navVM)
         }
+        .onChange(of: vm.isTimeUp) { _, timeUp in
+            if timeUp {
+                // Dismiss keyboard
+                UIApplication.shared.endEditing()
+                // Close any open sheets
+                vm.showCommentSheet = false
+                // Unfocus text field
+                isTextFieldFocused = false
+            }
+        }
         .onChange(of: vm.shouldExitToHome) { _, shouldExit in
             if shouldExit {
                 Task {
