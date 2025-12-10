@@ -121,6 +121,10 @@ final class SessionRoomViewModel: ObservableObject {
         self.summaryManager = SummaryManager(summaryService: summaryService)
         self.insightManager = IdeaInsightManager(insightService: insightService)
         
+        // Inject TimerManager into managers that need polling
+        summaryManager.setTimerManager(timerManager)
+        insightManager.setTimerManager(timerManager)
+        
         // Setup bindings to propagate manager changes
         setupManagerBindings()
         

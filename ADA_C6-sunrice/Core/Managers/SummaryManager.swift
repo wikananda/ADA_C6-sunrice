@@ -11,6 +11,7 @@ import Combine
 @MainActor
 final class SummaryManager: ObservableObject {
     let summaryService: SummaryServicing  // Internal for access from views
+    weak var timerManager: TimerManager?  // Delegate for polling
     
     @Published var summary: IdeaSummary?
     @Published var isLoadingSummary: Bool = false
@@ -18,6 +19,10 @@ final class SummaryManager: ObservableObject {
     
     init(summaryService: SummaryServicing) {
         self.summaryService = summaryService
+    }
+    
+    func setTimerManager(_ manager: TimerManager) {
+        self.timerManager = manager
     }
     
     // MARK: - Summary Operations
@@ -39,26 +44,28 @@ final class SummaryManager: ObservableObject {
             if !isHost {
                 print("📊 Guest: Polling for summary from database...")
                 
-                // Poll every 2 seconds until summary is found
-                // Poll until summary is found or task is cancelled
-                while !Task.isCancelled {
+                guard let timerManager = timerManager else {
+                    print("❌ TimerManager not set, cannot poll for summary")
+                    return
+                }
+                
+                // Register polling action
+                timerManager.registerPollingAction(id: "summary_fetch") { [weak self] in
+                    guard let self = self else { return }
+                    
                     do {
-                        if let existingSummary = try await summaryService.fetchExistingSummary(sessionId: sessionId, roundType: ideaType) {
-                            summary = existingSummary
+                        if let existingSummary = try await self.summaryService.fetchExistingSummary(sessionId: sessionId, roundType: ideaType) {
+                            await MainActor.run {
+                                self.summary = existingSummary
+                            }
                             print("✅ Guest: Retrieved summary with \(existingSummary.themes.count) themes")
-                            return
+                            // Unregister after success
+                            timerManager.unregisterPollingAction(id: "summary_fetch")
+                        } else {
+                            print("⏳ Guest: Summary not ready yet...")
                         }
                     } catch {
                         print("⚠️ Guest: Error polling for summary: \(error)")
-                    }
-                    
-                    print("⏳ Guest: Summary not ready yet, retrying in 2 seconds...")
-                    
-                    do {
-                        try await Task.sleep(nanoseconds: 2_000_000_000)
-                    } catch {
-                        print("🛑 Guest: Polling cancelled")
-                        return
                     }
                 }
                 return
@@ -97,6 +104,11 @@ final class SummaryManager: ObservableObject {
     func clearSummary() {
         summary = nil
         summaryError = nil
+        stopFetchingSummary()
+    }
+    
+    func stopFetchingSummary() {
+        timerManager?.unregisterPollingAction(id: "summary_fetch")
     }
     
     // MARK: - Helper Methods

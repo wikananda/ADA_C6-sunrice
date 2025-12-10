@@ -11,6 +11,7 @@ import Combine
 @MainActor
 final class IdeaInsightManager: ObservableObject {
     let insightService: IdeaInsightServicing  // Internal for refresh access
+    weak var timerManager: TimerManager?  // Delegate for polling
     
     @Published var insights: [IdeaInsightDTO] = []
     @Published var isAnalyzing: Bool = false
@@ -19,6 +20,10 @@ final class IdeaInsightManager: ObservableObject {
     
     init(insightService: IdeaInsightServicing) {
         self.insightService = insightService
+    }
+    
+    func setTimerManager(_ manager: TimerManager) {
+        self.timerManager = manager
     }
     
     // MARK: - Analysis Operations
@@ -75,30 +80,32 @@ final class IdeaInsightManager: ObservableObject {
     private func fetchInsightsAsGuest(sessionId: Int, expectedCount: Int) async {
         analysisProgress = "Waiting for host to complete analysis..."
         
-        // Poll every 2 seconds until all insights are ready
-        while !Task.isCancelled {
-            do {
-                let fetchedInsights = try await insightService.fetchIdeaInsights(sessionId: sessionId)
-                
-                if fetchedInsights.count >= expectedCount {
-                    insights = fetchedInsights
-                    analysisProgress = "Analysis complete!"
-                    print("✅ Guest: Retrieved \(insights.count) insights")
-                    return
-                }
-                
-                analysisProgress = "Waiting for analysis (\(fetchedInsights.count)/\(expectedCount))..."
-                print("⏳ Guest: \(fetchedInsights.count)/\(expectedCount) insights ready, retrying in 2 seconds...")
-                
-            } catch {
-                print("⚠️ Guest: Error fetching insights: \(error)")
-            }
+        guard let timerManager = timerManager else {
+            print("❌ TimerManager not set, cannot poll for insights")
+            return
+        }
+        
+        // Register polling action
+        timerManager.registerPollingAction(id: "insights_fetch") { [weak self] in
+            guard let self = self else { return }
             
             do {
-                try await Task.sleep(nanoseconds: 2_000_000_000)
+                let fetchedInsights = try await self.insightService.fetchIdeaInsights(sessionId: sessionId)
+                
+                await MainActor.run {
+                    if fetchedInsights.count >= expectedCount {
+                        self.insights = fetchedInsights
+                        self.analysisProgress = "Analysis complete!"
+                        print("✅ Guest: Retrieved \(self.insights.count) insights")
+                        // Unregister after success
+                        timerManager.unregisterPollingAction(id: "insights_fetch")
+                    } else {
+                        self.analysisProgress = "Waiting for analysis (\(fetchedInsights.count)/\(expectedCount))..."
+                        print("⏳ Guest: \(fetchedInsights.count)/\(expectedCount) insights ready...")
+                    }
+                }
             } catch {
-                print("🛑 Guest: Polling cancelled")
-                return
+                print("⚠️ Guest: Error fetching insights: \(error)")
             }
         }
     }
@@ -109,5 +116,10 @@ final class IdeaInsightManager: ObservableObject {
         insights = []
         analysisProgress = ""
         analysisError = nil
+        stopFetchingInsights()
+    }
+    
+    func stopFetchingInsights() {
+        timerManager?.unregisterPollingAction(id: "insights_fetch")
     }
 }

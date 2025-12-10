@@ -8,14 +8,72 @@
 import Combine
 import Foundation
 
+struct PollingAction {
+    let id: String
+    let action: () async -> Void
+}
+
 @MainActor
 final class TimerManager {
     private let sessionService: SessionServicing
     private var roundTimer: AnyCancellable?
-    private var pollingTask: Task<Void, Never>?
+    
+    // Unified polling system
+    private var unifiedPollingTask: Task<Void, Never>?
+    private var pollingActions: [String: () async -> Void] = [:]
     
     init(sessionService: SessionServicing) {
         self.sessionService = sessionService
+    }
+    
+    // MARK: - Unified Polling System
+    
+    func startUnifiedPolling() {
+        guard unifiedPollingTask == nil else { return }
+        
+        unifiedPollingTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self = self else { return }
+                
+                // Execute all registered polling actions
+                for (id, action) in await self.pollingActions {
+                    if !Task.isCancelled {
+                        await action()
+                    }
+                }
+                
+                // Sleep for 1 second
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+    }
+    
+    func registerPollingAction(id: String, action: @escaping () async -> Void) {
+        pollingActions[id] = action
+        
+        // Start unified polling if not already running
+        if unifiedPollingTask == nil {
+            startUnifiedPolling()
+        }
+    }
+    
+    func unregisterPollingAction(id: String) {
+        pollingActions.removeValue(forKey: id)
+        
+        // Stop unified polling if no actions remain
+        if pollingActions.isEmpty {
+            stopUnifiedPolling()
+        }
+    }
+    
+    func unregisterAllPollingActions() {
+        pollingActions.removeAll()
+        stopUnifiedPolling()
+    }
+    
+    private func stopUnifiedPolling() {
+        unifiedPollingTask?.cancel()
+        unifiedPollingTask = nil
     }
     
     // MARK: - Host Timer
@@ -61,27 +119,21 @@ final class TimerManager {
     // MARK: - Round Polling (Guest)
     
     func startPollingRound(sessionId: Int64, currentRound: Int64, onRoundChange: @escaping (Int64) async -> Void) {
-        cancelPolling()
+        var lastKnownRound = currentRound
         
-        pollingTask = Task { [weak self] in
+        registerPollingAction(id: "round_polling") { [weak self] in
             guard let self = self else { return }
             
-            var lastKnownRound = currentRound
-            
-            while !Task.isCancelled {
-                do {
-                    let updatedSession = try await self.sessionService.fetchSession(id: sessionId)
-                    let newRound = updatedSession.current_round ?? 1
-                    
-                    if newRound != lastKnownRound {
-                        lastKnownRound = newRound
-                        await onRoundChange(newRound)
-                    }
-                } catch {
-                    print("Error polling round: \(error)")
-                }
+            do {
+                let updatedSession = try await self.sessionService.fetchSession(id: sessionId)
+                let newRound = updatedSession.current_round ?? 1
                 
-                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                if newRound != lastKnownRound {
+                    lastKnownRound = newRound
+                    await onRoundChange(newRound)
+                }
+            } catch {
+                print("Error polling round: \(error)")
             }
         }
     }
@@ -94,25 +146,14 @@ final class TimerManager {
     
     // MARK: - Cleanup
     
-    private var commentPollingTask: Task<Void, Never>?
-
     // MARK: - Comment Polling
     
-    func startPollingCommentCounts(interval: TimeInterval = 2.0, action: @escaping () async -> Void) {
-        commentPollingTask?.cancel()
-        
-        commentPollingTask = Task {
-            while !Task.isCancelled {
-                await action()
-//                print("polling comment counts...")
-                try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
-            }
-        }
+    func startPollingCommentCounts(action: @escaping () async -> Void) {
+        registerPollingAction(id: "comment_counts", action: action)
     }
     
     func stopPollingCommentCounts() {
-        commentPollingTask?.cancel()
-        commentPollingTask = nil
+        unregisterPollingAction(id: "comment_counts")
     }
 
     // MARK: - Cleanup
@@ -120,22 +161,15 @@ final class TimerManager {
     func cancelAllTimers() {
         roundTimer?.cancel()
         roundTimer = nil
-        cancelPolling()
-        stopPollingCommentCounts()
+        unregisterAllPollingActions()
     }
     
     // Nonisolated version for deinit
     nonisolated func cancelAllTimersFromDeinit() {
         Task { @MainActor [weak self] in
             self?.roundTimer?.cancel()
-            self?.pollingTask?.cancel()
-            self?.commentPollingTask?.cancel()
+            self?.unifiedPollingTask?.cancel()
         }
-    }
-    
-    private func cancelPolling() {
-        pollingTask?.cancel()
-        pollingTask = nil
     }
     
     deinit {
