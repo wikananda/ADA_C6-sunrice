@@ -25,6 +25,12 @@ final class SummaryManager: ObservableObject {
         self.timerManager = manager
     }
     
+    func clearSummary() {
+        summary = nil
+        summaryError = nil
+        isLoadingSummary = false
+    }
+    
     // MARK: - Summary Operations
     
     func fetchSummary(sessionId: Int, roundType: RoundType, isHost: Bool) async {

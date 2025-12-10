@@ -49,7 +49,7 @@ struct RoundSummaryView: View {
                             }
                         } else {
                             VStack(alignment: .leading, spacing: 12) {
-                                if vm.isLoadingSummary {
+                                if vm.isLoadingSummary || (vm.summary == nil && vm.summaryError == nil) {
                                     HStack(spacing: 12) {
                                         ProgressView()
                                             .progressViewStyle(CircularProgressViewStyle())

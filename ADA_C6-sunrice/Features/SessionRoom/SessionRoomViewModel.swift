@@ -360,6 +360,9 @@ final class SessionRoomViewModel: ObservableObject {
         currentRound = newRound
         showRoundSummary = false
         
+        // Clear previous round's summary
+        summaryManager.clearSummary()
+        
         // Check if session is finished (no more rounds after this one)
         if !roundManager.hasNextRound(after: currentRound - 1) {
             print("📊 Guest: Session finished, no more rounds")
