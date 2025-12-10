@@ -38,19 +38,15 @@ struct SessionFinishedView: View {
                 if vm.isHost {
                     // Host: Show error with retry button
                     VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 50))
-                            .foregroundColor(.red)
-                        
-                        Text("⚠️ Analysis Failed")
-                            .font(.titleSSM)
-                            .foregroundColor(.red)
-                        
-//                        Text(error)
-//                            .font(.bodySM)
-//                            .foregroundColor(AppColor.grayscale40)
-//                            .multilineTextAlignment(.center)
-//                            .padding(.horizontal)
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.titleSSM)
+                                .foregroundColor(.red)
+                            
+                            Text("Analysis Failed")
+                                .font(.titleSSM)
+                                .foregroundColor(.red)
+                        }
                         
                         Button {
                             Task {

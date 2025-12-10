@@ -17,6 +17,7 @@ struct SummarySessionCard: View {
     @State private var summaryText: String = ""
     @State private var didLoad = false
     @State private var isLoadingSummary = false
+    @State private var summaryError: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -27,6 +28,36 @@ struct SummarySessionCard: View {
                     ProgressView()
                         .scaleEffect(0.8)
                     Text("Generating final summary...")
+                        .font(.bodySM)
+                        .foregroundColor(.secondary)
+                }
+            } else if let error = summaryError {
+                if vm.isHost {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text("Failed to generate summary")
+                                .font(.bodySM)
+                                .foregroundColor(.red)
+                        }
+                        
+                        Button {
+                            Task {
+                                await loadFinalSummary()
+                            }
+                        } label: {
+                            Label("Retry", systemImage: "arrow.clockwise")
+                                .font(.bodySM)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(AppColor.Primary.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                } else {
+                    Text("Waiting for summary...")
                         .font(.bodySM)
                         .foregroundColor(.secondary)
                 }
@@ -106,6 +137,7 @@ struct SummarySessionCard: View {
     /// Generate and fetch final summary
     private func loadFinalSummary() async {
         isLoadingSummary = true
+        summaryError = nil
         defer { isLoadingSummary = false }
         
         do {
@@ -123,9 +155,12 @@ struct SummarySessionCard: View {
             if response.success {
                 summaryText = response.summary.summaryText
                 print("✅ Generated final summary")
+            } else {
+                summaryError = "Failed to generate summary"
             }
         } catch {
             print("❌ Error loading final summary: \(error)")
+            summaryError = "Failed to generate summary"
         }
     }
 }

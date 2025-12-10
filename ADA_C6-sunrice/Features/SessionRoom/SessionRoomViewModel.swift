@@ -359,6 +359,15 @@ final class SessionRoomViewModel: ObservableObject {
         
         currentRound = newRound
         showRoundSummary = false
+        
+        // Check if session is finished (no more rounds after this one)
+        if !roundManager.hasNextRound(after: currentRound - 1) {
+            print("📊 Guest: Session finished, no more rounds")
+            isSessionFinished = true
+            return
+        }
+        
+        // Load next round
         await loadRoundType(round: currentRound)
         
         // Restart guest timers with new deadline and round (will re-register deadline polling)
